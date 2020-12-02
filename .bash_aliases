@@ -25,6 +25,10 @@ alias .....='cd ../../../../'
 alias .4='cd ../../../../'
 alias .5='cd ../../../../..'
 
-# other aliases
+# making directories
 alias mkdir='mkdir -pv'
 
+function mkcd ()
+{
+  mkdir -p -- "$1" && cd -P -- "$1"
+}
