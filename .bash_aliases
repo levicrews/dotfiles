@@ -32,3 +32,8 @@ function mkcd ()
 {
   mkdir -p -- "$1" && cd -P -- "$1"
 }
+
+# safety: ask before overwriting
+alias mv='mv -i'
+alias rm='rm -i'
+alias cp='cp -i'
