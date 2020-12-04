@@ -1,5 +1,5 @@
 # Description
-This repository contains my all of my personal configuration files. 
+This repository contains all of my personal configuration files. 
 
 # Installation
 First install [YADM (Yet Another Dotfile Manager)](https://yadm.io/): on Ubuntu 20.04+,
