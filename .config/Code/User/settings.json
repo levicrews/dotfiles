@@ -1,20 +1,40 @@
 {
+    // Basic
     "workbench.colorTheme": "Atom One Dark",
     "workbench.iconTheme": "vscode-icons",
-    "workbench.settings.editor": "json",
     "workbench.startupEditor": "none",
-    "workbench.settings.openDefaultSettings": true,
+    "workbench.editor.tabCloseButton": "off",
+    "workbench.settings.editor": "json",
+    "workbench.settings.useSplitJSON": true,
+    "workbench.settings.openDefaultSettings": false,
 
+    // Window
     "window.zoomLevel": 0,
+    "window.restoreWindows": "none",
 
-    "editor.multiCursorModifier": "ctrlCmd",
-    "editor.formatOnPaste": true,
-    "editor.tabCompletion": "onlySnippets",
+    // Editor
     "editor.rulers": [80],
     "editor.fontFamily": "'Cascadia Code PL', 'monospace', monospace",
-    
+    "editor.fontLigatures": true,
+    "editor.tabCompletion": "on",
+    "editor.snippetSuggestions": "top",
+    "editor.multiCursorModifier": "ctrlCmd",
+    "editor.formatOnPaste": true,
+
+    // Diff Editor
+    "diffEditor.ignoreTrimWhitespace": false,
+
+    // Terminal
     "terminal.integrated.fontFamily": "'Cascadia Code PL'",
-    
+    "terminal.integrated.commandsToSkipShell": [
+        "language-julia.interrupt"
+    ],
+
+    // Files
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": true,
+
+    // LaTeX
     "latex-workshop.latex.autoBuild.run": "never",
     "latex-workshop.latex.autoClean.run": "onBuilt",
     "latex-workshop.view.pdf.viewer": "tab",
@@ -93,11 +113,9 @@
     ],
     "latex-workshop.latex.recipe.default": "lastUsed",
 
+    // Python
     "python.languageServer": "Pylance",
     "python.defaultInterpreterPath": "/home/levic/anaconda3/bin/python",
-    
-    "terminal.integrated.commandsToSkipShell": [
-        "language-julia.interrupt"
-    ],
-    "diffEditor.ignoreTrimWhitespace": false
+    "editor.suggestSelection": "first",
+    "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
 }
