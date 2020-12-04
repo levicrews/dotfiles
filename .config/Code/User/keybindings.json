@@ -12,5 +12,9 @@
     {
         "key": "ctrl+` ctrl+h",
         "command": "terminalHere.create",
+    },
+    {
+        "key": "ctrl+.",
+        "command": "workbench.action.openSettings2"
     }
 ]
