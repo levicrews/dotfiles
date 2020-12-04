@@ -37,3 +37,12 @@ function mkcd ()
 alias mv='mv -i'
 alias rm='rm -i'
 alias cp='cp -i'
+
+# yadm
+alias yl='yadm list -a'
+alias ys='yadm status'
+alias ydiff='yadm diff'
+alias ya='yadm add'
+alias yc='yadm commit'
+alias yph='yadm push'
+alias ypl='yadm pull'
