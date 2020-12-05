@@ -1,6 +1,7 @@
 automake
 curl
 emacs27
+fd-find
 font-manager
 gdebi
 gdebi-core
