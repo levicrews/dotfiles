@@ -16,5 +16,10 @@
     {
         "key": "ctrl+.",
         "command": "workbench.action.openSettings2"
+    },
+    {
+        "key": "ctrl+alt+=",
+        "command": "wwm.aligncode",
+        "when": "editorTextFocus && !editorReadonly"
     }
 ]
