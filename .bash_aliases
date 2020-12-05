@@ -46,3 +46,6 @@ alias ya='yadm add'
 alias yc='yadm commit'
 alias yph='yadm push'
 alias ypl='yadm pull'
+
+# fdfind
+alias fd='fdfind'
