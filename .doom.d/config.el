@@ -10,8 +10,15 @@
 
 (setq doom-theme 'doom-one)
 
-(setq org-directory "~/Dropbox/org/")
-
-(setq reftex-default-bibliography "~/Dropbox/crews-econbib/crews_econbib.bib")
-
-(setq +latex-viewers '(zathura))
+(after! org
+  (setq org-directory "~/Dropbox/org/"
+        org-roam-directory "~/Dropbox/org/roam"
+        org-hide-leading-stars t
+        auto-save-default nil
+        make-backup-files nil
+        org-log-done t
+        org-log-into-drawer t
+        org-clock-into-drawer t
+        org-todo-keywords
+        '((sequence "TODO(t)" "WAIT(w@/!)" "|" "DONE(d!)" "KILL(k!)")
+            (sequence "INSPECT(i)" "UNDERSTAND(u!)" "EVAL(e!)" "|" "READ(r!)" "KILL(k!)"))))

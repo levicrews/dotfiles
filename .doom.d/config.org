@@ -65,21 +65,71 @@ available. You can either set =doom-theme= or manually load a theme with the
 #+END_SRC
 
 * Org mode
-If you use =org= and don't want your org files in the default location below,
-change =org-directory=. It must be set before org loads!
+** Set directories
+If you use =org= and don't want your org files in the default location below, change =org-directory=. It must be set before org loads!
+#+BEGIN_SRC elisp :tangle no
+(after! org
+  (setq org-directory "~/Dropbox/org/"))
+#+END_SRC
+** Formatting
+#+begin_src elisp :tangle no
+(after! org
+  (setq org-hide-leading-stars t)
+  (global-visual-line-mode t))
+#+end_src
+** Global keybindings
+#+begin_src elisp :tangle no
+(after! org
+  (global-set-key (kbd "C-c l") 'org-store-link)
+  (global-set-key (kbd "C-c a") 'org-agenda)
+  (global-set-key (kbd "C-c c") 'org-capture))
+#+end_src
+** Disable auto-save and auto-backup
+#+begin_src elisp :tangle no
+(after! org
+  (setq auto-save-default nil
+        make-backup-files nil))
+#+end_src
+** Logging
+#+begin_src elisp :tangle no
+(after! org
+  (setq org-log-done t
+        org-log-into-drawer t
+        org-clock-into-drawer t))
+#+end_src
+** Set todo keywords
+#+begin_src elisp :tangle no
+(after! org
+  (setq org-todo-keywords
+  '((sequence "TODO(t)" "WAIT(w@/!)" "|" "DONE(d!)" "KILL(k!)")
+    ("INSPECT(i)" "UNDERSTAND(u!)" "EVAL(e!)" "|" "READ(r!)" "KILL(k!)"))))
+#+end_src
 
+** Put it all together in one block
 #+BEGIN_SRC elisp
-(setq org-directory "~/Dropbox/org/")
+(after! org
+  (setq org-directory "~/Dropbox/org/"
+        org-roam-directory "~/Dropbox/org/roam"
+        org-hide-leading-stars t
+        auto-save-default nil
+        make-backup-files nil
+        org-log-done t
+        org-log-into-drawer t
+        org-clock-into-drawer t
+        org-todo-keywords
+        '((sequence "TODO(t)" "WAIT(w@/!)" "|" "DONE(d!)" "KILL(k!)")
+            (sequence "INSPECT(i)" "UNDERSTAND(u!)" "EVAL(e!)" "|" "READ(r!)" "KILL(k!)"))))
 #+END_SRC
 
 * LaTeX
 ** Bibliography
 Reftex has a variable that allow you to specify where it should find your bibliography file(s):
-#+BEGIN_SRC elisp
-(setq reftex-default-bibliography "~/Dropbox/crews-econbib/crews_econbib.bib")
+#+BEGIN_SRC elisp :tangle no
+(after! org
+  (setq reftex-default-bibliography "~/Dropbox/crews-econbib/crews_econbib.bib"))
 #+END_SRC
-
 ** PDF viewer
-#+BEGIN_SRC elisp
-(setq +latex-viewers '(zathura))
+#+BEGIN_SRC elisp :tangle no
+(after! org
+  (setq +latex-viewers '(zathura)))
 #+END_SRC
