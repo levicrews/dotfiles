@@ -15,7 +15,7 @@
     // Editor
     "editor.rulers": [80],
     "editor.fontFamily": "'Cascadia Code PL', 'monospace', monospace",
-    "editor.fontLigatures": true,
+    "editor.fontLigatures": false,
     "editor.tabCompletion": "on",
     "editor.snippetSuggestions": "top",
     "editor.multiCursorModifier": "ctrlCmd",
