@@ -12,6 +12,7 @@ graphviz
 htop
 hugo
 jabref
+jq
 manpages-dev
 mmv
 neofetch
@@ -23,7 +24,10 @@ ripgrep
 rofi
 rstudio
 samba
+shellcheck
+sqlite3
 w3m
+wordnet
 xclip
 yadm
 youtube-dl
