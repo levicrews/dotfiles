@@ -1,10 +1,17 @@
 #+TITLE: config
 #+DESCRIPTION: My private Doom Emacs configuration
+#+STARTUP: overview
 
 #+BEGIN_SRC elisp
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 #+END_SRC
 
+* Getting help
+You can always read the [[https://github.com/hlissner/doom-emacs/blob/develop/docs/index.org][documentation]] or the [[https://github.com/hlissner/doom-emacs/blob/develop/docs/faq.org][FAQ]], but with Emacs' built-in help system, documentation is actually just a keystroke away:
+- for functions :: 'C-h f'
+- for variables :: 'C-h v'
+- for a keybind :: 'C-h k'
+- to search available keybinds :: 'C-h b b'
 * Compiled lists to work your way through
 ** [[https://github.com/emacs-tw/awesome-emacs][Awesome Emacs]]: A community driven list of useful Emacs packages, utilities, libraries, and tutorials
 Many of the packages listed in Awesome Emacs are either (i) already included here or (ii) are rendered redundant by this configuration. That said, there's still plenty to be discovered by looking through the list, especially if your needs differ from mine. If you're interested in a pre-built Emacs distribution but you don't like this one, give a careful look to the *Starter Kit* heading of the list.
@@ -49,8 +56,8 @@ They all accept either a font-spec, font string ("Input Mono-12"), or xlfd font 
 You generally only need these two:
 
 #+BEGIN_SRC elisp
-(setq doom-font (font-spec :family "monospace" :size 12 :weight 'semi-light)
-      doom-variable-pitch-font (font-spec :family "sans" :size 13))
+(setq doom-font (font-spec :family "Cascadia Mono PL" :size 13 :weight 'Regular)
+      doom-big-font (font-spec :family "Cascadia Mono PL" :size 19 :weight 'SemiBold))
 #+END_SRC
 
 ** Line numbers
@@ -77,25 +84,29 @@ If you use =org= and don't want your org files in the default location below, ch
 (after! org
   (setq org-directory "~/Dropbox/org/"))
 #+END_SRC
+
 ** Formatting
 #+begin_src elisp :tangle no
 (after! org
   (setq org-hide-leading-stars t)
   (global-visual-line-mode t))
 #+end_src
+
 ** Global keybindings
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (after! org
   (global-set-key (kbd "C-c l") 'org-store-link)
   (global-set-key (kbd "C-c a") 'org-agenda)
   (global-set-key (kbd "C-c c") 'org-capture))
 #+end_src
+
 ** Disable auto-save and auto-backup
 #+begin_src elisp :tangle no
 (after! org
   (setq auto-save-default nil
         make-backup-files nil))
 #+end_src
+
 ** Logging
 #+begin_src elisp :tangle no
 (after! org
@@ -103,6 +114,7 @@ If you use =org= and don't want your org files in the default location below, ch
         org-log-into-drawer t
         org-clock-into-drawer t))
 #+end_src
+
 ** Set todo keywords
 #+begin_src elisp :tangle no
 (after! org
@@ -121,13 +133,25 @@ If you use =org= and don't want your org files in the default location below, ch
         auto-save-default nil
         make-backup-files nil
         org-log-done t
-        org-log-into-drawer t
+        org-log-into-drawer nil
         org-clock-into-drawer t
         org-todo-keywords
         '((sequence "TODO(t)" "WAIT(w@/!)" "|" "DONE(d)" "KILL(k)")
             (sequence "INSPECT(i)" "UNDERSTAND(u!)" "EVAL(e!)" "|" "READ(r)" "KILL(k)"))))
 #+END_SRC
 
+** Org-super-agenda
+#+begin_src elisp :tangle no
+(def-package! org-super-agenda
+  :after org-agenda
+  :init
+  (setq org-super-agenda-groups '((:name "Today"
+                                   :time-grid t
+                                   :scheduled today
+                                   :deadline today)))
+  :config
+  (org-super-agenda-mode))
+#+end_src
 * LaTeX
 ** Bibliography
 Reftex has a variable that allow you to specify where it should find your bibliography file(s):
