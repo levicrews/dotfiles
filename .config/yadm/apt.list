@@ -1,6 +1,5 @@
-automake
 curl
-emacs27
+emacs26
 fd-find
 font-manager
 gdebi
@@ -11,7 +10,6 @@ golang-go
 graphviz
 htop
 hugo
-jabref
 jq
 manpages-dev
 mmv
@@ -33,3 +31,16 @@ yadm
 youtube-dl
 zathura
 zoom
+
+# dependencies for diff-pdf
+automake
+g++
+libpoppler-glib-dev
+libwxgtk3.0-dev
+poppler-utils
+
+# dependencies for teiler
+copyq
+ffmpeg
+maim
+slop

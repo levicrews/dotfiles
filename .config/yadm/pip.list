@@ -2,8 +2,10 @@ dask
 docutils
 econtools
 eg
+gme
 grip
 icdiff
 pipenv
+python-rofi
 tldr
 quantecon
