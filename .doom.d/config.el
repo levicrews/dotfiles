@@ -26,6 +26,7 @@
         org-log-done t
         org-log-into-drawer nil
         org-clock-into-drawer t
+        org-agenda-window-setup 'current-window
         org-todo-keywords
         '((sequence "TODO(t)" "WAIT(w@/!)" "|" "DONE(d)" "KILL(k)")
             (sequence "INSPECT(i)" "UNDERSTAND(u!)" "EVAL(e!)" "|" "READ(r)" "KILL(k)"))))
