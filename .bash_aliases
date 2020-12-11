@@ -19,11 +19,10 @@ alias l='ls -CF'
 # cd aliases
 alias cd..='cd ..'
 alias ..='cd ..'
-alias ...='cd ../../../'
-alias ....='cd ../../../../'
-alias .....='cd ../../../../'
+alias ...='cd ../../'
+alias .3='cd ../../../'
 alias .4='cd ../../../../'
-alias .5='cd ../../../../..'
+alias .5='cd ../../../../../'
 
 # making directories
 alias mkdir='mkdir -pv'
