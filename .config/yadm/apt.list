@@ -1,7 +1,9 @@
+bat
 curl
 emacs26
 fd-find
 font-manager
+fonts-powerline
 gdebi
 gdebi-core
 gh
