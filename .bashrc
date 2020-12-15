@@ -2,6 +2,11 @@
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
 
+# editors
+export ALTERNATE_EDITOR="code"
+export EDITOR="emacsclient -c -a code"         # $EDITOR opens in GUI mode
+export VISUAL="emacsclient -c -a code"         # $VISUAL opens in GUI mode
+
 # If not running interactively, don't do anything
 case $- in
     *i*) ;;
