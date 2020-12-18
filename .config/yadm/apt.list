@@ -12,6 +12,7 @@ golang-go
 graphviz
 htop
 hugo
+inkscape
 jq
 manpages-dev
 mmv
@@ -26,6 +27,7 @@ rstudio
 samba
 shellcheck
 sqlite3
+sxhkd
 w3m
 wordnet
 xclip

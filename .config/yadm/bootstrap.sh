@@ -19,6 +19,8 @@ fi
 COMMENT=\#*
 
 sudo -v
+add-apt-repository ppa:inkscape.dev/stable
+apt-get update
 
 find * -name "*.list" | while read fn; do
     cmd="${fn%.*}" # Bash string operator
