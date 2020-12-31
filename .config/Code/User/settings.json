@@ -119,8 +119,12 @@
     "editor.suggestSelection": "first",
     "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
 
+    // Julia
+    "julia.execution.resultType": "inline",
+
     // Project Manager
     "projectManager.git.baseFolders": [
         "$home/Documents"
-    ]
+    ],
+    "explorer.confirmDragAndDrop": false,
 }
