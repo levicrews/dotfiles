@@ -88,7 +88,10 @@ If you use =org= and don't want your org files in the default location below, ch
 ** Formatting
 #+begin_src elisp :tangle no
 (after! org
-  (setq org-hide-leading-stars t)
+  (setq org-ellipsis "…" ;; ▼, ↴, ⬎
+        org-hide-leading-stars t
+        org-startup-indented t
+        org-startup-folded t)
   (global-visual-line-mode t))
 #+end_src
 
@@ -116,6 +119,8 @@ If you use =org= and don't want your org files in the default location below, ch
 #+end_src
 
 ** Set todo keywords
+- ideally each would be only four letters (hence KILL for CANCELLED)
+- reading TODO sequence implements the three stages of reading from Adler & Van Doren
 #+begin_src elisp :tangle no
 (after! org
   (setq org-todo-keywords
@@ -128,28 +133,104 @@ If you use =org= and don't want your org files in the default location below, ch
 (after! org
   (setq org-directory "~/Dropbox/org/"
         org-roam-directory "~/Dropbox/org/roam"
+        org-ellipsis " ▼" ;; …, ↴, ⬎
         org-hide-leading-stars t
+        org-startup-indented t
+        org-startup-folded t
         org-fontify-done-headline nil
         auto-save-default nil
         make-backup-files nil
         org-log-done t
-        org-log-into-drawer nil
+        org-log-into-drawer t
         org-clock-into-drawer t
-        org-agenda-window-setup 'current-window
         org-todo-keywords
         '((sequence "TODO(t)" "NEXT(n)" "ONGO(o!)" "WAIT(w@/!)" "|" "DONE(d)" "KILL(k)")
             (sequence "INSPECT(i)" "UNDERSTAND(u!)" "EVAL(e!)" "|" "READ(r)" "KILL(k)"))))
 #+END_SRC
 
-** Org-super-agenda
-#+begin_src elisp :tangle no
-(def-package! org-super-agenda
+** [[https://github.com/alphapapa/org-super-agenda][Org-super-agenda]]
+This package lets you "supercharge" your Org daily/weekly agenda. The idea is to group items into sections, rather than having them all in one big list.
+
+This package filters the results from =org-agenda-finalize-entries=, which runs just before items are inserted into agenda views. The filtered groups are then inserted into the agenda buffer, and any remaining items are inserted at the end. Empty groups are not displayed.
+
+The end result is your standard daily/weekly agenda, but arranged into groups defined by you. You might put items with certain tags in one group, habits in another group, items with certain todo keywords in another, and items with certain priorities in another. The possibilities are only limited by the grouping functions.
+
+The primary use of this package is for the daily/weekly agenda, made by the org-agenda-list command, but it also works for other agenda views, like org-tags-view, org-todo-list, org-search-view, etc. See the official set of examples [[https://github.com/alphapapa/org-super-agenda/blob/master/examples.org][here]].
+
+/Note again/: =org-super-agenda= does *not* collect items! It only groups items that are collected by =org-agenda= or [[https://github.com/alphapapa/org-ql][=org-ql=]], which provides an easier way to write queries to generate agenda-like views. So if your Agenda command or =org-ql= query does not collect certain items, they will not be displayed, regardless of what =org-super-agenda= groups you configure.
+
+The following custom agenda view combines two =org-super-agenda= filters in a [[https://orgmode.org/manual/Block-agenda.html][block agenda]].
+
+*** TODO [[https://orgmode.org/manual/Tracking-your-habits.html#Tracking-your-habits][habits]]
+- daily initiation
+- nightly shut down
+- chastity
+- weekly review
+- quarterly review
+- annual review
+*** TODO what custom views do I want?
+**** proposed groups
+- the schedule for today (DOs and DUEs + clocked time)
+- habits
+- SYSTEM (reading, gardening, maintenance, etc.)
+- research projects (publication pipeline)
+  + NEXT or ONGO
+  + any reading headlines (INSPECT, UNDERSTAND, EVAL)
+- teaching + service: NEXT or ONGO
+- upcoming seminars?
+- home: NEXT or ONGO
+- all other NEXT or ONGO
+**** potential add-ons
+- will tags or categories play a role?
+  + categories are (by default) just the filename in which the TODO is stored
+- effort estimates?
+- show clocked tasks in the clock-view?
+*** code
+#+begin_src elisp
+(use-package! org-super-agenda
   :after org-agenda
   :init
-  (setq org-super-agenda-groups '((:name "Today"
-                                   :time-grid t
-                                   :scheduled today
-                                   :deadline today)))
+  (setq org-agenda-restore-windows-after-quit t
+        org-agenda-start-with-log-mode t ;; show clocked and closed tasks in agenda
+        org-agenda-span 'week
+        org-agenda-start-on-weekday 1 ;; 0 for Sunday, 1 for Monday
+        org-agenda-skip-scheduled-if-done t
+        org-agenda-skip-deadline-if-done t
+        org-agenda-include-deadlines nil
+        org-agenda-breadcrumbs-separator " ❱ "
+        org-agenda-block-separator nil
+        org-agenda-compact-blocks t)
+  (setq org-agenda-custom-commands
+        '(("c" "Super view"
+           ((agenda "" ((org-agenda-span 'day)
+                        (org-agenda-start-day nil)
+                        (org-agenda-overriding-header "")
+                        (org-super-agenda-groups
+                         '((:name "Lagging"
+                            :scheduled past
+                            :deadline past)
+                           (:name "Today"
+                            :time-grid t
+                            :log t ;; clocked and closed
+                            :date today ;; meetings
+                            :scheduled today ;; DOs vs DUEs (deadlines)
+                            :deadline today)
+                           (:name "Upcoming"
+                            :date future
+                            :scheduled future
+                            :deadline future)))))
+            (todo "NEXT|ONGO" ((org-agenda-overriding-header "")
+                         (org-super-agenda-groups
+                          '((:name "Habits"
+                             :habit t)
+                            (:name "Research pipeline"
+                             :file-path "[^a-z0-9]p-[a-z0-9]*\\.org")
+                            (:name "Teaching + Service"
+                             :file-path ("econ27000-intl\\.org" "bus33503-mfge\\.org" "service-econ\\.org"))
+                            (:name "SysAdmin"
+                             :file-path ("foreman\\.org" "system.*\\.org"))
+                            (:name "Home"
+                             :file-path "home\\.org")))))))))
   :config
   (org-super-agenda-mode))
 #+end_src
