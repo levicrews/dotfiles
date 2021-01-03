@@ -9,6 +9,11 @@
 (setq display-line-numbers-type t)
 
 (setq doom-theme 'doom-zenburn)
+(after! org
+  (set-face-foreground 'org-hide (doom-color 'bg))
+  (set-face-foreground 'org-document-info-keyword (doom-lighten 'fg-1 0.2))
+  (set-face-foreground 'org-done (doom-lighten 'fg-1 0.05))
+  (set-face-foreground 'org-ellipsis (doom-lighten 'fg-1 0.2)))
 ;;(setq doom-theme 'doom-palenight)
 
 (after! org
@@ -42,7 +47,7 @@
         org-agenda-start-on-weekday 1 ;; 0 for Sunday, 1 for Monday
         org-agenda-skip-scheduled-if-done t
         org-agenda-skip-deadline-if-done t
-        org-agenda-include-deadlines nil
+        org-agenda-include-deadlines t
         org-agenda-breadcrumbs-separator " ❱ "
         org-agenda-block-separator nil
         org-agenda-compact-blocks t)
@@ -62,7 +67,6 @@
                             :scheduled today ;; DOs vs DUEs (deadlines)
                             :deadline today)
                            (:name "Upcoming"
-                            :date future
                             :scheduled future
                             :deadline future)))))
             (todo "NEXT|ONGO" ((org-agenda-overriding-header "")

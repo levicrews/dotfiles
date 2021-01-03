@@ -1,6 +1,5 @@
 #+TITLE: config
 #+DESCRIPTION: My private Doom Emacs configuration
-#+STARTUP: overview
 
 #+BEGIN_SRC elisp
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
@@ -74,8 +73,15 @@ available. You can either set =doom-theme= or manually load a theme with the
 
 #+BEGIN_SRC elisp
 (setq doom-theme 'doom-zenburn)
+(after! org
+  (set-face-foreground 'org-hide (doom-color 'bg))
+  (set-face-foreground 'org-document-info-keyword (doom-lighten 'fg-1 0.2))
+  (set-face-foreground 'org-done (doom-lighten 'fg-1 0.05))
+  (set-face-foreground 'org-ellipsis (doom-lighten 'fg-1 0.2)))
 ;;(setq doom-theme 'doom-palenight)
 #+END_SRC
+
+See this [[https://github.com/hlissner/emacs-doom-themes/issues/216][issue]] for instructions on overriding particular colors. See [[https://github.com/hlissner/emacs-doom-themes/blob/89a22c954e4989e3bc0abe4dd9cf8b7e95826140/doom-themes.el][doom-themes.el]] for the definition of =doom-lighten=. The color ~fg-1~ is defined [[https://github.com/hlissner/emacs-doom-themes/pull/447/commits/c44bfee1d9e2e1732ca5b36fbc13e0149f846a6a][here]]. See [[https://github.com/tkf/org-mode/blob/master/lisp/org-faces.el][org-faces.el]] for the list of faces you can set in Org mode.
 
 * Org mode
 ** Set directories
@@ -196,7 +202,7 @@ The following custom agenda view combines two =org-super-agenda= filters in a [[
         org-agenda-start-on-weekday 1 ;; 0 for Sunday, 1 for Monday
         org-agenda-skip-scheduled-if-done t
         org-agenda-skip-deadline-if-done t
-        org-agenda-include-deadlines nil
+        org-agenda-include-deadlines t
         org-agenda-breadcrumbs-separator " ❱ "
         org-agenda-block-separator nil
         org-agenda-compact-blocks t)
@@ -216,7 +222,6 @@ The following custom agenda view combines two =org-super-agenda= filters in a [[
                             :scheduled today ;; DOs vs DUEs (deadlines)
                             :deadline today)
                            (:name "Upcoming"
-                            :date future
                             :scheduled future
                             :deadline future)))))
             (todo "NEXT|ONGO" ((org-agenda-overriding-header "")
