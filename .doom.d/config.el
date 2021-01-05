@@ -16,15 +16,20 @@
   (set-face-foreground 'org-ellipsis (doom-lighten 'fg-1 0.2)))
 ;;(setq doom-theme 'doom-palenight)
 
+(setq org (concat (getenv "HOME") "/Dropbox/org/")
+      jab_bib (concat (getenv "HOME") "/Dropbox/crews-econbib/crews_econbib.bib")
+      org-directory org
+      deft-directory (concat org "roam/")
+      org-roam-directory (concat org "roam/")
+      org-roam-dailies-directory (concat org "roam/journal/"))
+
 (after! org
   (global-set-key (kbd "C-c l") 'org-store-link)
   (global-set-key (kbd "C-c a") 'org-agenda)
   (global-set-key (kbd "C-c c") 'org-capture))
 
 (after! org
-  (setq org-directory "~/Dropbox/org/"
-        org-roam-directory "~/Dropbox/org/roam"
-        org-ellipsis " ▼" ;; …, ↴, ⬎
+  (setq org-ellipsis " ▼" ;; …, ↴, ⬎
         org-hide-leading-stars t
         org-startup-indented t
         org-startup-folded t
@@ -83,3 +88,26 @@
                              :file-path "home\\.org")))))))))
   :config
   (org-super-agenda-mode))
+
+(use-package! org-roam
+  :after deft org
+  :bind (("C-c n t" . org-roam-today)
+         :map org-mode-map
+         (("C-c n b" . org-roam) ;; call this to show backlinks in side-buffer
+          ("C-c n u" . org-roam-update-buffer)
+          ("C-c n l" . org-roam-get-linked-files)
+          ("C-c n i" . org-roam-insert)
+          ("C-c n r" . org-roam-random-note)))
+  :custom
+  (org-roam-tag-sources '(prop last-directory))
+  (org-roam-dailies-capture-templates
+      '(("d" "default" entry
+         #'org-roam-capture--get-point
+         "* %?"
+         :file-name "journal/%<%Y-%m-%d>"
+         :head "#+title: %<%d-%B-%Y>\n\n"))))
+
+(use-package! deft
+  :after org
+  :bind
+  ("C-c n d" . deft))
