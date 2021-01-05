@@ -150,7 +150,6 @@
        ;;ocaml             ; an objective camel
        (org   +hugo
               +dragndrop
-              +journal
               +noter
               +roam
               +pandoc
