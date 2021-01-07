@@ -29,3 +29,7 @@ fi
 # set PATH so it includes manually installed binaries
 export PATH=/usr/local/stata16:$PATH
 export PATH=~/.emacs.d/bin:$PATH
+export PATH=/opt/gurobi/bin:$PATH
+
+# set Gurobi license
+export GRB_LICENSE_FILE=/opt/gurobi/gurobi.lic
