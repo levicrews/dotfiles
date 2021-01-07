@@ -8,20 +8,26 @@
 
 (setq display-line-numbers-type t)
 
+(setq global-visual-line-mode t)
+
 (setq doom-theme 'doom-zenburn)
 (after! org
-  (set-face-foreground 'org-hide (doom-color 'bg))
   (set-face-foreground 'org-document-info-keyword (doom-lighten 'fg-1 0.2))
   (set-face-foreground 'org-done (doom-lighten 'fg-1 0.05))
   (set-face-foreground 'org-ellipsis (doom-lighten 'fg-1 0.2)))
 ;;(setq doom-theme 'doom-palenight)
 
 (setq org (concat (getenv "HOME") "/Dropbox/org/")
-      jab_bib (concat (getenv "HOME") "/Dropbox/crews-econbib/crews_econbib.bib")
+      crewsbib (concat (getenv "HOME") "/Dropbox/crewsbib/")
       org-directory org
       deft-directory (concat org "roam/")
       org-roam-directory (concat org "roam/")
-      org-roam-dailies-directory (concat org "roam/journal/"))
+      org-roam-dailies-directory (concat org "roam/journal/")
+      reftex-default-bibliography (concat crewsbib "crewsbib.bib"))
+
+(after! org
+  (setq auto-save-default nil
+        make-backup-files nil))
 
 (after! org
   (global-set-key (kbd "C-c l") 'org-store-link)
@@ -33,15 +39,17 @@
         org-hide-leading-stars t
         org-startup-indented t
         org-startup-folded t
-        org-fontify-done-headline nil
-        auto-save-default nil
-        make-backup-files nil
-        org-log-done t
+        org-fontify-done-headline nil))
+
+(after! org
+  (setq org-log-done t
         org-log-into-drawer t
-        org-clock-into-drawer t
-        org-todo-keywords
-        '((sequence "TODO(t)" "NEXT(n)" "ONGO(o!)" "WAIT(w@/!)" "|" "DONE(d)" "KILL(k)")
-            (sequence "INSPECT(i)" "UNDERSTAND(u!)" "EVAL(e!)" "|" "READ(r)" "KILL(k)"))))
+        org-clock-into-drawer t))
+
+(after! org
+  (setq org-todo-keywords
+  '((sequence "TODO(t)" "NEXT(n)" "ONGO(o!)" "WAIT(w@/!)" "|" "DONE(d)" "KILL(k)")
+    (sequence "INSPECT(i)" "UNDERSTAND(u!)" "EVAL(e!)" "|" "READ(r)" "KILL(k!)"))))
 
 (use-package! org-super-agenda
   :after org-agenda
@@ -89,16 +97,52 @@
   :config
   (org-super-agenda-mode))
 
+(use-package! org-noter-pdftools
+  :after org-noter
+  :config
+  (with-eval-after-load 'pdf-annot
+    (add-hook 'pdf-annot-activate-handler-functions #'org-noter-pdftools-jump-to-note)))
+
+(use-package! org-ref
+    :after org
+    :config
+    (setq org-ref-notes-directory (concat org-roam-directory "refs")
+          org-ref-default-bibliography '((concat crewsbib "crewsbib.bib"))
+          org-ref-pdf-directory (concat crewsbib "pdf/")))
+
+(use-package! bibtex-completion
+  :defer t
+  :config
+  (setq bibtex-completion-bibliography (concat crewsbib "crewsbib.bib")
+        bibtex-completion-library-path (concat crewsbib "pdf/")
+        bibtex-completion-pdf-field "File" ;; pulls PDF path from "File" field of JabRef
+        bibtex-completion-find-additional-pdfs t ;; will match all <citekey>-appendix.pdf
+        bibtex-completion-notes-path (concat org-roam-directory "refs") ;; one note file per reference
+        bibtex-completion-additional-search-fields '(keywords journal booktitle)
+        bibtex-completion-pdf-symbol "Ⓟ"
+        bibtex-completion-notes-symbol "Ⓝ"
+        bibtex-completion-format-citation-functions
+            '((org-mode      . bibtex-completion-format-citation-org-title-link-to-PDF)
+              (latex-mode    . bibtex-completion-format-citation-cite)
+              (markdown-mode . bibtex-completion-format-citation-pandoc-citeproc)
+              (default       . bibtex-completion-format-citation-default))))
+
+(use-package! deft
+  :after org
+  :bind
+  ("C-c n f" . deft))
+
 (use-package! org-roam
   :after deft org
-  :bind (("C-c n t" . org-roam-today)
+  :bind (("C-c n d" . org-roam-today)
          :map org-mode-map
-         (("C-c n b" . org-roam) ;; call this to show backlinks in side-buffer
+         (("C-c n l" . org-roam) ;; call this to show backlinks in side-buffer
           ("C-c n u" . org-roam-update-buffer)
-          ("C-c n l" . org-roam-get-linked-files)
           ("C-c n i" . org-roam-insert)
+          ("C-c n c" . org-roam-capture)
+          ("C-c n g" . org-roam-graph)
           ("C-c n r" . org-roam-random-note)))
-  :custom
+  :config
   (org-roam-tag-sources '(prop last-directory))
   (org-roam-dailies-capture-templates
       '(("d" "default" entry
@@ -107,7 +151,6 @@
          :file-name "journal/%<%Y-%m-%d>"
          :head "#+title: %<%d-%B-%Y>\n\n"))))
 
-(use-package! deft
-  :after org
-  :bind
-  ("C-c n d" . deft))
+(use-package! org-roam-bibtex
+  :after org-roam
+  :hook (org-roam-mode . org-roam-bibtex-mode))

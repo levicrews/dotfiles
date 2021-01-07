@@ -50,3 +50,12 @@
 ;(unpin! t)
 (package! emojify)
 (package! org-super-agenda)
+(package! org-ref)
+(package! org-noter-pdftools)
+;;;; org-roam-bibtex (including the subsequent ~unpin!~ commands)
+(package! org-roam-bibtex
+  :recipe (:host github :repo "org-roam/org-roam-bibtex"))
+;; When using org-roam via the `+roam` flag
+(unpin! org-roam company-org-roam)
+;; When using bibtex-completion via the `biblio` module
+(unpin! bibtex-completion helm-bibtex ivy-bibtex)

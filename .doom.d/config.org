@@ -17,10 +17,10 @@ Many of the packages listed in Awesome Emacs are either (i) already included her
 ** [[https://github.com/thinkhuman/writingwithemacs][Writing with Emacs]]: Tips, examples, and resources for writing with Emacs
 Most writers are not hackers, too, but many have turned to Emacs nonetheless as their writing tool of choice.
 * How to configure Doom Emacs
-/Remember/: you do not need to run =doom sync= after modifying this file! It is sufficient to reload Doom with =M-x doom/reload= or 'C-h r r'. In practice, though, I've found that =doom sync= is the only fool-proof way for your changes to take effect.
+/Remember/: you do not need to run =doom sync= after modifying this file! It is sufficient to reload Doom with =M-x doom/reload= or =C-h r r=. In practice, though, I've found that =doom sync= is the only fool-proof way for your changes to take effect.
 
 Here are some additional functions/macros that could help you configure Doom:
-- =load!= for loading external *.el files relative to this one
+- =load!= for loading external ~*.el~ files relative to this one
 - =use-package!= for configuring packages
 - =after!= for running code after a package has loaded
 - =add-load-path!= for adding directories to the =load-path=, relative to
@@ -29,10 +29,10 @@ Here are some additional functions/macros that could help you configure Doom:
 - =map!= for binding new keys
 
 To get information about any of these functions/macros, move the cursor over
-the highlighted symbol at press 'C-c c k' (evil users must press just 'K').
+the highlighted symbol at press =C-c c k= (evil users must press just =K=).
 This will open documentation for it, including demos of how they are used.
 
-You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
+You can also try =gd= (or =C-c c d=) to jump to their definition and see how
 they are implemented.
 
 * User info
@@ -66,6 +66,16 @@ numbers are disabled. For relative line numbers, set this to =relative=.
 (setq display-line-numbers-type t)
 #+END_SRC
 
+** Linewrapping
+#+begin_src elisp
+(setq global-visual-line-mode t)
+#+end_src
+If you want ~auto-fill~ mode on in all major modes, do this:
+#+begin_src elisp :tangle no
+(setq-default auto-fill-function 'do-auto-fill
+              fill-column 80)
+#+end_src
+
 * Theme
 There are two ways to load a theme. Both assume the theme is installed and
 available. You can either set =doom-theme= or manually load a theme with the
@@ -74,7 +84,6 @@ available. You can either set =doom-theme= or manually load a theme with the
 #+BEGIN_SRC elisp
 (setq doom-theme 'doom-zenburn)
 (after! org
-  (set-face-foreground 'org-hide (doom-color 'bg))
   (set-face-foreground 'org-document-info-keyword (doom-lighten 'fg-1 0.2))
   (set-face-foreground 'org-done (doom-lighten 'fg-1 0.05))
   (set-face-foreground 'org-ellipsis (doom-lighten 'fg-1 0.2)))
@@ -88,21 +97,19 @@ See this [[https://github.com/hlissner/emacs-doom-themes/issues/216][issue]] for
 If you use =org= and don't want your org files in the default location below, change =org-directory=. It must be set before org loads!
 #+BEGIN_SRC elisp
 (setq org (concat (getenv "HOME") "/Dropbox/org/")
-      jab_bib (concat (getenv "HOME") "/Dropbox/crews-econbib/crews_econbib.bib")
+      crewsbib (concat (getenv "HOME") "/Dropbox/crewsbib/")
       org-directory org
       deft-directory (concat org "roam/")
       org-roam-directory (concat org "roam/")
-      org-roam-dailies-directory (concat org "roam/journal/"))
+      org-roam-dailies-directory (concat org "roam/journal/")
+      reftex-default-bibliography (concat crewsbib "crewsbib.bib"))
 #+END_SRC
 
-** Formatting
-#+begin_src elisp :tangle no
+** Disable auto-save and auto-backup
+#+begin_src elisp
 (after! org
-  (setq org-ellipsis "…" ;; ▼, ↴, ⬎
-        org-hide-leading-stars t
-        org-startup-indented t
-        org-startup-folded t)
-  (global-visual-line-mode t))
+  (setq auto-save-default nil
+        make-backup-files nil))
 #+end_src
 
 ** Global keybindings
@@ -113,15 +120,18 @@ If you use =org= and don't want your org files in the default location below, ch
   (global-set-key (kbd "C-c c") 'org-capture))
 #+end_src
 
-** Disable auto-save and auto-backup
-#+begin_src elisp :tangle no
+** Formatting
+#+begin_src elisp
 (after! org
-  (setq auto-save-default nil
-        make-backup-files nil))
+  (setq org-ellipsis " ▼" ;; …, ↴, ⬎
+        org-hide-leading-stars t
+        org-startup-indented t
+        org-startup-folded t
+        org-fontify-done-headline nil))
 #+end_src
 
 ** Logging
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (after! org
   (setq org-log-done t
         org-log-into-drawer t
@@ -131,30 +141,12 @@ If you use =org= and don't want your org files in the default location below, ch
 ** Set todo keywords
 - ideally each would be only four letters (hence KILL for CANCELLED)
 - reading TODO sequence implements the three stages of reading from Adler & Van Doren
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (after! org
   (setq org-todo-keywords
-  '((sequence "TODO(t)" "WAIT(w@/!)" "|" "DONE(d!)" "KILL(k!)")
-    ("INSPECT(i)" "UNDERSTAND(u!)" "EVAL(e!)" "|" "READ(r!)" "KILL(k!)"))))
+  '((sequence "TODO(t)" "NEXT(n)" "ONGO(o!)" "WAIT(w@/!)" "|" "DONE(d)" "KILL(k)")
+    (sequence "INSPECT(i)" "UNDERSTAND(u!)" "EVAL(e!)" "|" "READ(r)" "KILL(k!)"))))
 #+end_src
-
-** Put it all together in one block
-#+BEGIN_SRC elisp
-(after! org
-  (setq org-ellipsis " ▼" ;; …, ↴, ⬎
-        org-hide-leading-stars t
-        org-startup-indented t
-        org-startup-folded t
-        org-fontify-done-headline nil
-        auto-save-default nil
-        make-backup-files nil
-        org-log-done t
-        org-log-into-drawer t
-        org-clock-into-drawer t
-        org-todo-keywords
-        '((sequence "TODO(t)" "NEXT(n)" "ONGO(o!)" "WAIT(w@/!)" "|" "DONE(d)" "KILL(k)")
-            (sequence "INSPECT(i)" "UNDERSTAND(u!)" "EVAL(e!)" "|" "READ(r)" "KILL(k)"))))
-#+END_SRC
 
 ** [[https://github.com/alphapapa/org-super-agenda][Org-super-agenda]]
 This package lets you "supercharge" your Org daily/weekly agenda. The idea is to group items into sections, rather than having them all in one big list.
@@ -242,20 +234,82 @@ The following custom agenda view combines two =org-super-agenda= filters in a [[
   :config
   (org-super-agenda-mode))
 #+end_src
+** [[https://github.com/fuxialexander/org-pdftools][Org-pdftools]] + [[https://github.com/weirdNox/org-noter][Org-noter]]
+Both ~org-pdftools~ and ~org-noter!~ have elsewhere been loaded in this Doom config:
+~org-pdftools~ through the ~:tools pdf~ option and ~org-noter~ through the ~org + noter~ flag in ~init.el~.
+The code below (from ~org-pdftools/README.org~) just ensures that the two packages are tied together properly.
+
+#+begin_src elisp
+(use-package! org-noter-pdftools
+  :after org-noter
+  :config
+  (with-eval-after-load 'pdf-annot
+    (add-hook 'pdf-annot-activate-handler-functions #'org-noter-pdftools-jump-to-note)))
+#+end_src
+
+** [[https://github.com/tmalsburg/helm-bibtex][Helm-bibtex
+]]
+#+begin_src elisp
+(use-package! bibtex-completion
+  :defer t
+  :config
+  (setq bibtex-completion-bibliography (concat crewsbib "crewsbib.bib")
+        bibtex-completion-library-path (concat crewsbib "pdf/")
+        bibtex-completion-pdf-field "File" ;; pulls PDF path from "File" field of JabRef
+        bibtex-completion-find-additional-pdfs t ;; will match all <citekey>-appendix.pdf
+        bibtex-completion-notes-path (concat org-roam-directory "refs") ;; one note file per reference
+        bibtex-completion-additional-search-fields '(keywords journal booktitle)
+        bibtex-completion-pdf-symbol "Ⓟ"
+        bibtex-completion-notes-symbol "Ⓝ"
+        bibtex-completion-format-citation-functions
+            '((org-mode      . bibtex-completion-format-citation-org-title-link-to-PDF)
+              (latex-mode    . bibtex-completion-format-citation-cite)
+              (markdown-mode . bibtex-completion-format-citation-pandoc-citeproc)
+              (default       . bibtex-completion-format-citation-default))))
+#+end_src
+
+** [[https://github.com/jkitchin/org-ref][Org-ref]]
+
+#+begin_src elisp
+(use-package! org-ref
+    :after org
+    :config
+    (setq org-ref-notes-directory (concat org-roam-directory "refs")
+          org-ref-default-bibliography '((concat crewsbib "crewsbib.bib"))
+          org-ref-pdf-directory (concat crewsbib "pdf/")))
+#+end_src
+
+** [[https://github.com/jrblevin/deft][Deft]]
+Used to search through my org-roam files (daily entries + permanent notes).
+Keep all of Doom's default settings, less evil keybindings.
+File names are automatically set in ~kebab-case~ using the note's title.
+~deft-recursive~ is turned on to search subdirectories.
+The default note extension is ~.org~.
+Use =C-c C-q= to quit!
+
+#+begin_src elisp
+(use-package! deft
+  :after org
+  :bind
+  ("C-c n f" . deft))
+#+end_src
+
 ** [[https://github.com/org-roam/org-roam][Org-roam]]
 Org-roam is a plain-text knowledge management system.
 See the manual [[https://www.orgroam.com/manual.html][here]].
+
 #+begin_src elisp
 (use-package! org-roam
   :after deft org
-  :bind (("C-c n t" . org-roam-today)
+  :bind (("C-c n d" . org-roam-today)
          :map org-mode-map
-         (("C-c n b" . org-roam) ;; call this to show backlinks in side-buffer
+         (("C-c n l" . org-roam) ;; call this to show backlinks in side-buffer
           ("C-c n u" . org-roam-update-buffer)
-          ("C-c n l" . org-roam-get-linked-files)
           ("C-c n i" . org-roam-insert)
+          ("C-c n c" . org-roam-capture)
+          ("C-c n g" . org-roam-graph)
           ("C-c n r" . org-roam-random-note)))
-  :custom
+  :config
   (org-roam-tag-sources '(prop last-directory))
   (org-roam-dailies-capture-templates
       '(("d" "default" entry
@@ -264,26 +318,16 @@ See the manual [[https://www.orgroam.com/manual.html][here]].
          :file-name "journal/%<%Y-%m-%d>"
          :head "#+title: %<%d-%B-%Y>\n\n"))))
 #+end_src
-** [[https://github.com/jrblevin/deft][Deft]]
-Used to search through my org-roam files (daily entries + permanent notes).
-Keep all of Doom's default settings, less evil keybindings.
-File names are automatically set in ~kebab-case~ using the note's title.
-~deft-recursive~ is turned on to search subdirectories.
-The default note extension is ~.org~.
-Use =C-c C-q= to quit!
+
+** [[https://github.com/org-roam/org-roam-bibtex][Org-roam-bibtex]]
+
 #+begin_src elisp
-(use-package! deft
-  :after org
-  :bind
-  ("C-c n d" . deft))
+(use-package! org-roam-bibtex
+  :after org-roam
+  :hook (org-roam-mode . org-roam-bibtex-mode))
 #+end_src
+
 * LaTeX
-** Bibliography
-Reftex has a variable that allow you to specify where it should find your bibliography file(s):
-#+BEGIN_SRC elisp :tangle no
-(after! org
-  (setq reftex-default-bibliography "~/Dropbox/crews-econbib/crews_econbib.bib"))
-#+END_SRC
 ** PDF viewer
 #+BEGIN_SRC elisp :tangle no
 (after! org
