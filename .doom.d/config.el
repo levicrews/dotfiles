@@ -3,31 +3,52 @@
 (setq user-full-name "Levi Crews"
       user-mail-address "levigcrews@gmail.com")
 
-(setq doom-font (font-spec :family "Cascadia Mono PL" :size 13 :weight 'Regular)
-      doom-big-font (font-spec :family "Cascadia Mono PL" :size 19 :weight 'SemiBold))
+(setq doom-font (font-spec :family "Cascadia Mono PL" :size 13 :weight 'regular)
+      doom-big-font (font-spec :family "Cascadia Mono PL" :size 20 :weight 'bold))
 
 (setq display-line-numbers-type t)
 
 (setq global-visual-line-mode t)
 
-(setq doom-theme 'doom-zenburn)
-(after! org
-  (set-face-foreground 'org-document-info-keyword (doom-lighten 'fg-1 0.2))
-  (set-face-foreground 'org-done (doom-lighten 'fg-1 0.05))
-  (set-face-foreground 'org-ellipsis (doom-lighten 'fg-1 0.2)))
-;;(setq doom-theme 'doom-palenight)
+(global-set-key
+    (kbd "C-z")
+    (defhydra hydra-global-menu (:color red :hint nil)
+   "
+^Display^        ^Buffers^                    ^Actions^
+^^^^^^^^^-----------------------------------------------------
+_g_: zoom in     _d_: close all buffers       _u_: update all packages
+_s_: zoom out    _o_: open buffer on desktop  _l_: display line numbers
 
-(setq org (concat (getenv "HOME") "/Dropbox/org/")
-      crewsbib (concat (getenv "HOME") "/Dropbox/crewsbib/")
-      org-directory org
-      deft-directory (concat org "roam/")
-      org-roam-directory (concat org "roam/")
-      org-roam-dailies-directory (concat org "roam/journal/")
-      reftex-default-bibliography (concat crewsbib "crewsbib.bib"))
+_q_: quit this menu                         _r_: restart emacs
+"
+   ("g" text-scale-increase)
+   ("s" text-scale-decrease)
+   ("d" kill-all-buffers)
+   ("l" global-display-line-numbers-mode)
+   ("r" stop-and-restart-emacs)
+   ("u" eds-straight-pull-or-prune)
+   ("o" eds/open-buffer-on-desktop)
+   ("q" nil)))
 
-(after! org
-  (setq auto-save-default nil
-        make-backup-files nil))
+(setq auto-save-default nil
+      make-backup-files nil)
+(delete-selection-mode 1)                       ; Replace selection when inserting text
+(global-subword-mode 1)                         ; Iterate through CamelCase words
+
+(load-theme 'doom-zenburn t)
+(custom-theme-set-faces! 'doom-zenburn
+  `(org-document-info-keyword :foreground ,(doom-lighten 'fg-1 0.2))
+  `(org-done :foreground ,(doom-lighten 'fg-1 0.05))
+  `(org-ellipsis :foreground ,(doom-lighten 'fg-1 0.2)))
+
+(setq org-dir (concat (getenv "HOME") "/Dropbox/org/")
+      crewsbib-dir (concat (getenv "HOME") "/Dropbox/crewsbib/")
+      crewsbib (concat crewsbib-dir "crewsbib.bib")
+      org-directory org-dir
+      deft-directory (concat org-dir "roam/")
+      org-roam-directory (concat org-dir "roam/")
+      org-roam-dailies-directory (concat org-dir "roam/journal/")
+      reftex-default-bibliography (list crewsbib))
 
 (after! org
   (global-set-key (kbd "C-c l") 'org-store-link)
@@ -103,37 +124,59 @@
   (with-eval-after-load 'pdf-annot
     (add-hook 'pdf-annot-activate-handler-functions #'org-noter-pdftools-jump-to-note)))
 
-(use-package! org-ref
-    :after org
-    :config
-    (setq org-ref-notes-directory (concat org-roam-directory "refs")
-          org-ref-default-bibliography '((concat crewsbib "crewsbib.bib"))
-          org-ref-pdf-directory (concat crewsbib "pdf/")))
+(use-package! ivy-bibtex
+  :when (featurep! :completion ivy)
+  :config
+  (add-to-list 'ivy-re-builders-alist '(ivy-bibtex . ivy--regex-plus))
+  ;;(ivy-set-display-transformer 'org-ref-ivy-insert-cite-link 'ivy-bibtex-display-transformer)
+  )
 
 (use-package! bibtex-completion
   :defer t
   :config
-  (setq bibtex-completion-bibliography (concat crewsbib "crewsbib.bib")
-        bibtex-completion-library-path (concat crewsbib "pdf/")
-        bibtex-completion-pdf-field "File" ;; pulls PDF path from "File" field of JabRef
+  (setq bibtex-completion-bibliography crewsbib
+        bibtex-completion-library-path (concat crewsbib-dir "pdf/")
+        bibtex-completion-pdf-field "file" ;; pulls PDF path from "File" field of JabRef
         bibtex-completion-find-additional-pdfs t ;; will match all <citekey>-appendix.pdf
         bibtex-completion-notes-path (concat org-roam-directory "refs") ;; one note file per reference
+        bibtex-completion-notes-template-multiple-files
+        (concat
+         "#+TITLE: ${title}\n"
+         "#+ROAM_KEY: cite:${=key=}\n"
+         "#+ROAM_TAGS: ${keywords}\n"
+         "* INSPECT RAP\n"
+         ":PROPERTIES:\n"
+         ":Custom_ID: ${=key=}\n"
+         ":NOTER_DOCUMENT: %(orb-process-file-field \"${=key=}\")\n"
+         ":AUTHOR: ${authors}\n"
+         ":JOURNAL: ${journaltitle}\n"
+         ":YEAR: ${year}\n"
+         ":DOI: ${doi}\n"
+         ":END:\n\n")
         bibtex-completion-additional-search-fields '(keywords journal booktitle)
-        bibtex-completion-pdf-symbol "Ⓟ"
-        bibtex-completion-notes-symbol "Ⓝ"
+        bibtex-completion-display-formats
+        '((article       . "${=has-pdf=:1}${=has-note=:1} ${=type=:4} ${year:4} ${author:36} ${title:*} ${journal:20}")
+          (book          . "${=has-pdf=:1}${=has-note=:1} ${=type=:4} ${year:4} ${author:36} ${title:*}")
+          (inbook        . "${=has-pdf=:1}${=has-note=:1} ${=type=:4} ${year:4} ${author:36} ${title:*} Chapter ${chapter:30}")
+          (incollection  . "${=has-pdf=:1}${=has-note=:1} ${=type=:4} ${year:4} ${author:36} ${title:*} ${booktitle:30}")
+          (inproceedings . "${=has-pdf=:1}${=has-note=:1} ${=type=:4} ${year:4} ${author:36} ${title:*} ${booktitle:30}")
+          (t             . "${=has-pdf=:1}${=has-note=:1} ${=type=:4} ${year:4} ${author:36} ${title:*}"))
+        bibtex-completion-pdf-symbol "▛"
+        bibtex-completion-notes-symbol "§"
         bibtex-completion-format-citation-functions
             '((org-mode      . bibtex-completion-format-citation-org-title-link-to-PDF)
               (latex-mode    . bibtex-completion-format-citation-cite)
               (markdown-mode . bibtex-completion-format-citation-pandoc-citeproc)
-              (default       . bibtex-completion-format-citation-default))))
+              (default       . bibtex-completion-format-citation-default))
+        ))
 
 (use-package! deft
   :after org
   :bind
-  ("C-c n f" . deft))
+  ("C-c n s" . deft))
 
 (use-package! org-roam
-  :after deft org
+  :after org
   :bind (("C-c n d" . org-roam-today)
          :map org-mode-map
          (("C-c n l" . org-roam) ;; call this to show backlinks in side-buffer
@@ -143,8 +186,8 @@
           ("C-c n g" . org-roam-graph)
           ("C-c n r" . org-roam-random-note)))
   :config
-  (org-roam-tag-sources '(prop last-directory))
-  (org-roam-dailies-capture-templates
+  ;;(org-roam-tag-sources '(prop last-directory))
+  (setq org-roam-dailies-capture-templates
       '(("d" "default" entry
          #'org-roam-capture--get-point
          "* %?"
@@ -152,5 +195,55 @@
          :head "#+title: %<%d-%B-%Y>\n\n"))))
 
 (use-package! org-roam-bibtex
-  :after org-roam
-  :hook (org-roam-mode . org-roam-bibtex-mode))
+  :after (org-roam)
+  :hook (org-roam-mode . org-roam-bibtex-mode)
+  :bind (:map org-roam-bibtex-mode-map
+         (("C-c n f" . orb-find-non-ref-file))
+         :map org-mode-map
+         (("C-c n t" . orb-insert-non-ref)
+          ("C-c n a" . orb-note-actions)))
+  :config
+  ;;(orb-autokey-format "%A[5]%y")
+  ;;(​orb-note-actions-interface 'ivy)
+  (orb-templates
+   `(("r" "ref" plain
+      (function org-roam-capture--get-point)
+      ""
+      :file-name "refs/${citekey}"
+      :head ,(s-join "\n"
+                     (list
+                      (concat "#+title: "
+                              orb-title-format)
+                      "#+roam_key: ${ref}"
+                      "#+created: %U"
+                      "#+last_modified: %U\n\n"))
+      :unnarrowed t)
+     ("p" "ref + physical" plain
+      (function org-roam-capture--get-point)
+      ""
+      :file-name "refs/${citekey}"
+      :head ,(s-join "\n"
+                     (list
+                      (concat "#+title: "
+                              orb-title-format)
+                      "#+roam_key: ${ref}"
+                      ""
+                      "* RAP+M :physical:")))
+     ("n" "ref + noter" plain
+      (function org-roam-capture--get-point)
+      ""
+      :file-name "refs/${citekey}"
+      :head ,(s-join "\n"
+                     (list
+                      (concat "#+title: "
+                              orb-title-format)
+                      "#+roam_key: ${ref}"
+                      ""
+                      "* RAP+M :noter:"
+                      ":PROPERTIES:"
+                      ":NOTER_DOCUMENT: %(orb-process-file-field \"${citekey}\")"
+                      ":NOTER_PAGE:"
+                      ":END:"))))))
+
+(after! org
+  (setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f")))

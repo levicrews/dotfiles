@@ -50,12 +50,15 @@
 ;(unpin! t)
 (package! emojify)
 (package! org-super-agenda)
-(package! org-ref)
 (package! org-noter-pdftools)
-;;;; org-roam-bibtex (including the subsequent ~unpin!~ commands)
+(package! org-ref)
+(package! bibtex-completion :pin "1bb81d77e08296a50de7ebfe5cf5b0c715b7f3d6")
+(when (featurep! :completion ivy)
+  (package! ivy-bibtex :pin "1bb81d77e08296a50de7ebfe5cf5b0c715b7f3d6"))
+(when (featurep! :completion helm)
+  (package! helm-bibtex :pin "1bb81d77e08296a50de7ebfe5cf5b0c715b7f3d6"))
 (package! org-roam-bibtex
   :recipe (:host github :repo "org-roam/org-roam-bibtex"))
-;; When using org-roam via the `+roam` flag
-(unpin! org-roam company-org-roam)
-;; When using bibtex-completion via the `biblio` module
-(unpin! bibtex-completion helm-bibtex ivy-bibtex)
+(package! org-roam-server :recipe (:host github :repo "org-roam/org-roam-server" :files ("*")))
+(package! company-org-roam :recipe (:host github :repo "org-roam/company-org-roam"))
+(unpin! org-roam)
