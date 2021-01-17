@@ -62,3 +62,4 @@
 (package! org-roam-server :recipe (:host github :repo "org-roam/org-roam-server" :files ("*")))
 (package! company-org-roam :recipe (:host github :repo "org-roam/company-org-roam"))
 (unpin! org-roam)
+;; (unpin! deft) ;; package cl is deprecated
