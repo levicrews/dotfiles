@@ -127,4 +127,6 @@
         "$home/Documents"
     ],
     "explorer.confirmDragAndDrop": false,
+    "jupyter.interactiveWindowMode": "perFile",
+    "jupyter.askForKernelRestart": false,
 }
