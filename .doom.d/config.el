@@ -3,6 +3,11 @@
 (setq user-full-name "Levi Crews"
       user-mail-address "levigcrews@gmail.com")
 
+(remove-hook 'org-mode-hook #'+literate-enable-recompile-h)
+
+(setq auto-save-visited-mode t
+      auto-revert-mode t)
+
 (setq doom-font (font-spec :family "Cascadia Mono PL" :size 13 :weight 'regular)
       doom-big-font (font-spec :family "Cascadia Mono PL" :size 20 :weight 'bold))
 
@@ -173,7 +178,18 @@ _q_: quit this menu                         _r_: restart emacs
 (use-package! deft
   :after org
   :bind
-  ("C-c n s" . deft))
+  ("C-c n s" . deft)
+  :init
+  (setq deft-file-naming-rules
+      '((noslash . "-")
+        (nospace . "-")
+        (case-fn . downcase)))
+  :custom
+  (deft-recursive t)
+  (deft-use-filename-as-title nil)
+  (deft-use-filter-string-for-filename t)
+  (deft-extensions '("tex" "org"))
+  (deft-default-extension "org"))
 
 (use-package! org-roam
   :after org

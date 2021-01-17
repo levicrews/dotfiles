@@ -44,6 +44,18 @@ clients, file templates and snippets.
       user-mail-address "levigcrews@gmail.com")
 #+END_SRC
 
+* Don't tangle this config on save
+#+begin_src elisp
+(remove-hook 'org-mode-hook #'+literate-enable-recompile-h)
+#+end_src
+* Syncing
+Following this [[https://www.nicklanasa.com/posts/emacs-syncing-dropbox-beorg][post]] from Nick Lanasa, the following block ensures that your local Emacs and Beorg always stay in sync via Dropbox.
+- ~auto-save-mode~ is used to save files in the background when you don't save them explicitly. This propagates changes from local Emacs to Beorg.
+- ~auto-revert-mode~ is used to propagate changes from Beorg automagically back to your local Emacs.
+#+begin_src elisp
+(setq auto-save-visited-mode t
+      auto-revert-mode t)
+#+end_src
 * Editor
 ** Fonts
 Doom exposes five (optional) variables for controlling fonts in Doom. Here
@@ -114,11 +126,6 @@ _q_: quit this menu                         _r_: restart emacs
 There are two ways to load a theme. Both assume the theme is installed and
 available. You can either set =doom-theme= or manually load a theme with the
 =load-theme= function.
-
-#+BEGIN_SRC elisp :tangle no
-(setq doom-theme 'doom-zenburn)
-;;(setq doom-theme 'doom-palenight)
-#+END_SRC
 
 See this [[https://github.com/hlissner/emacs-doom-themes/issues/216][issue]] for instructions on overriding particular colors. See [[https://github.com/hlissner/emacs-doom-themes/blob/89a22c954e4989e3bc0abe4dd9cf8b7e95826140/doom-themes.el][doom-themes.el]] for the definition of =doom-lighten=. The color ~fg-1~ is defined [[https://github.com/hlissner/emacs-doom-themes/pull/447/commits/c44bfee1d9e2e1732ca5b36fbc13e0149f846a6a][here]]. See [[https://github.com/tkf/org-mode/blob/master/lisp/org-faces.el][org-faces.el]] for the list of faces you can set in Org mode.
 
@@ -360,13 +367,29 @@ Use =C-c C-q= to quit!
 (use-package! deft
   :after org
   :bind
-  ("C-c n s" . deft))
+  ("C-c n s" . deft)
+  :init
+  (setq deft-file-naming-rules
+      '((noslash . "-")
+        (nospace . "-")
+        (case-fn . downcase)))
+  :custom
+  (deft-recursive t)
+  (deft-use-filename-as-title nil)
+  (deft-use-filter-string-for-filename t)
+  (deft-extensions '("tex" "org"))
+  (deft-default-extension "org"))
 #+end_src
 
 ** [[https://github.com/org-roam/org-roam][Org-roam]]
 Org-roam is a plain-text knowledge management system.
 See the manual [[https://www.orgroam.com/manual.html][here]].
-
+*** Daily journal
+Org-roam has a [[https://youtu.be/1q9x2aZCJJ4][dailies page]] that uses [[https://github.com/bastibe/org-journal][org-journal]] (or, at least, some of the code) as a backend.
+Org-journal on its own [[https://org-roam.discourse.group/t/org-journal-vs-org-roam-dailies/384][handles TODOs better]], but I don't want any TODOs in my journal anyways.
+The issues [[https://github.com/bastibe/org-journal/pull/278][here]] and [[https://github.com/org-roam/org-roam/pull/978][here]] suggest a permanent divorce of Org-roam from Org-journal as of late July 2020.
+(Finalized 10 Nov 2020.)
+*** code
 #+begin_src elisp
 (use-package! org-roam
   :after org
@@ -388,7 +411,7 @@ See the manual [[https://www.orgroam.com/manual.html][here]].
          :head "#+title: %<%d-%B-%Y>\n\n"))))
 #+end_src
 
-** [[https://github.com/org-roam/org-roam-bibtex][Org-roam-bibtex]]
+*** [[https://github.com/org-roam/org-roam-bibtex][Org-roam-bibtex]]
 
 #+begin_src elisp
 (use-package! org-roam-bibtex
