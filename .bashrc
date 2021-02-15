@@ -146,4 +146,4 @@ unset __conda_setup
 
 ############################# SOURCE USER SCRIPTS ##############################
 
-source ~/Documents/auto-init/.auto_init_commands.sh
+# source ~/Documents/auto-init/.auto_init_commands.sh
