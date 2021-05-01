@@ -115,7 +115,9 @@ _q_: quit this menu                         _r_: restart emacs
                             (:name "Research pipeline"
                              :file-path "[^a-z0-9]p-[a-z0-9]*\\.org")
                             (:name "Teaching + Service"
-                             :file-path ("econ27000-intl\\.org" "bus33503-mfge\\.org" "service-econ\\.org"))
+                             :file-path ("econ33200-TA\\.org" "service-econ\\.org"))
+                            (:name "Referee"
+                             :file-path ("referee\\.org"))
                             (:name "SysAdmin"
                              :file-path ("foreman\\.org" "system.*\\.org"))
                             (:name "Home"
@@ -129,9 +131,27 @@ _q_: quit this menu                         _r_: restart emacs
   (with-eval-after-load 'pdf-annot
     (add-hook 'pdf-annot-activate-handler-functions #'org-noter-pdftools-jump-to-note)))
 
+(use-package! org-ref
+    :after org
+    :defer t
+    :init
+    (setq org-ref-completion-library 'org-ref-ivy-cite)
+    (let ((cache-dir (concat doom-cache-dir "org-ref")))
+    (unless (file-exists-p cache-dir)
+      (make-directory cache-dir t))
+    (setq orhc-bibtex-cache-file (concat cache-dir "/orhc-bibtex-cache")))
+    :config
+    (setq org-ref-default-bibliography (list crewsbib)
+          org-ref-default-citation-link "cite"
+          org-ref-notes-directory (concat org-roam-directory "refs/")
+          org-ref-notes-function 'orb-edit-notes
+          org-ref-pdf-directory (concat crewsbib-dir "pdf/")
+          org-ref-get-pdf-filename-function 'org-ref-get-pdf-filename-helm-bibtex))
+
 (use-package! ivy-bibtex
   :when (featurep! :completion ivy)
   :config
+  (global-set-key (kbd "C-c n b") 'ivy-bibtex)
   (add-to-list 'ivy-re-builders-alist '(ivy-bibtex . ivy--regex-plus))
   ;;(ivy-set-display-transformer 'org-ref-ivy-insert-cite-link 'ivy-bibtex-display-transformer)
   )
@@ -144,20 +164,6 @@ _q_: quit this menu                         _r_: restart emacs
         bibtex-completion-pdf-field "file" ;; pulls PDF path from "File" field of JabRef
         bibtex-completion-find-additional-pdfs t ;; will match all <citekey>-appendix.pdf
         bibtex-completion-notes-path (concat org-roam-directory "refs") ;; one note file per reference
-        bibtex-completion-notes-template-multiple-files
-        (concat
-         "#+TITLE: ${title}\n"
-         "#+ROAM_KEY: cite:${=key=}\n"
-         "#+ROAM_TAGS: ${keywords}\n"
-         "* INSPECT RAP\n"
-         ":PROPERTIES:\n"
-         ":Custom_ID: ${=key=}\n"
-         ":NOTER_DOCUMENT: %(orb-process-file-field \"${=key=}\")\n"
-         ":AUTHOR: ${authors}\n"
-         ":JOURNAL: ${journaltitle}\n"
-         ":YEAR: ${year}\n"
-         ":DOI: ${doi}\n"
-         ":END:\n\n")
         bibtex-completion-additional-search-fields '(keywords journal booktitle)
         bibtex-completion-display-formats
         '((article       . "${=has-pdf=:1}${=has-note=:1} ${=type=:4} ${year:4} ${author:36} ${title:*} ${journal:20}")
@@ -191,27 +197,42 @@ _q_: quit this menu                         _r_: restart emacs
   (deft-extensions '("tex" "org"))
   (deft-default-extension "org"))
 
-(use-package! org-roam
-  :after org
-  :bind (("C-c n d" . org-roam-today)
+(after! org
+  (map! ("C-c n d" #'org-roam-today)
          :map org-mode-map
-         (("C-c n l" . org-roam) ;; call this to show backlinks in side-buffer
-          ("C-c n u" . org-roam-update-buffer)
-          ("C-c n i" . org-roam-insert)
-          ("C-c n c" . org-roam-capture)
-          ("C-c n g" . org-roam-graph)
-          ("C-c n r" . org-roam-random-note)))
-  :config
-  ;;(org-roam-tag-sources '(prop last-directory))
-  (setq org-roam-dailies-capture-templates
-      '(("d" "default" entry
-         #'org-roam-capture--get-point
-         "* %?"
-         :file-name "journal/%<%Y-%m-%d>"
-         :head "#+title: %<%d-%B-%Y>\n\n"))))
+         (("C-c n l" #'org-roam) ;; call this to show backlinks in side-buffer
+          ("C-c n u" #'org-roam-update-buffer)
+          ("C-c n i" #'org-roam-insert)
+          ("C-c n c" #'org-roam-capture)
+          ("C-c n g" #'org-roam-graph)
+          ("C-c n r" #'org-roam-random-note)))
+  (setq org-roam-tag-sources '(prop last-directory)
+        org-roam-capture-templates
+        '(("d" "default" plain #'org-roam-capture--get-point "%?"
+         :file-name "%<%Y%m%d%H%M%S>-${slug}"
+         :head "#+title: ${title}\n#+roam_alias: \n#+created: %U\n#+last_modified: %U\n"
+         :unnarrowed t))
+        org-roam-dailies-capture-templates
+        '(("d" "default" plain
+           #'org-roam-capture--get-point
+           "* %?"
+           :file-name "journal/%<%Y-%m-%d>"
+           :head "#+title: %<%d-%B-%Y>\n\n")
+          ("t" "today" plain
+           #'org-roam-capture--get-point
+           "* %?"
+           :file-name "journal/%<%Y-%m-%d>"
+           :head "#+title: %<%d-%B-%Y>\n\n"
+           %["~/Dropbox/org/templates/daily.template"])
+          ("w" "weekly review" plain
+           #'org-roam-capture--get-point
+           "* %?"
+           :file-name "journal/%<%Y-%m-%d>"
+           :head "#+title: %<%d-%B-%Y>\n\n"
+           %["~/Dropbox/org/templates/review-week.template"]))))
 
 (use-package! org-roam-bibtex
-  :after (org-roam)
+  :after org-roam
   :hook (org-roam-mode . org-roam-bibtex-mode)
   :bind (:map org-roam-bibtex-mode-map
          (("C-c n f" . orb-find-non-ref-file))
@@ -219,10 +240,22 @@ _q_: quit this menu                         _r_: restart emacs
          (("C-c n t" . orb-insert-non-ref)
           ("C-c n a" . orb-note-actions)))
   :config
-  ;;(orb-autokey-format "%A[5]%y")
-  ;;(​orb-note-actions-interface 'ivy)
-  (orb-templates
-   `(("r" "ref" plain
+  (require 'org-ref)
+  (require 'bibtex-completion)
+  (require 'ivy-bibtex))
+
+(setq orb-autokey-format "%A[5]%y"
+      orb-preformat-keywords
+      '("citekey" "title" "url" "doi" "year" "journal" "author-or-editor" "keywords" "file")
+      orb-process-file-keyword t
+      orb-file-field-extensions '("pdf")
+      orb-insert-interface 'ivy-bibtex
+      orb-note-actions-interface 'ivy
+      orb-insert-link-description 'citation)
+(defvar orb-title-format "${author-or-editor} (${year}). ${title}."
+  "Format of the title to use for `orb-templates'.")
+(setq orb-templates
+      `(("r" "ref" plain
       (function org-roam-capture--get-point)
       ""
       :file-name "refs/${citekey}"
@@ -230,10 +263,9 @@ _q_: quit this menu                         _r_: restart emacs
                      (list
                       (concat "#+title: "
                               orb-title-format)
-                      "#+roam_key: ${ref}"
+                      "#+roam_key: cite:${citekey}"
                       "#+created: %U"
-                      "#+last_modified: %U\n\n"))
-      :unnarrowed t)
+                      "#+last_modified: %U\n")))
      ("p" "ref + physical" plain
       (function org-roam-capture--get-point)
       ""
@@ -242,9 +274,10 @@ _q_: quit this menu                         _r_: restart emacs
                      (list
                       (concat "#+title: "
                               orb-title-format)
-                      "#+roam_key: ${ref}"
-                      ""
-                      "* RAP+M :physical:")))
+                      "#+roam_key: cite:${citekey}"
+                      "#+created: %U"
+                      "#+last_modified: %U\n"
+                      "* Summary :physical:")))
      ("n" "ref + noter" plain
       (function org-roam-capture--get-point)
       ""
@@ -253,13 +286,25 @@ _q_: quit this menu                         _r_: restart emacs
                      (list
                       (concat "#+title: "
                               orb-title-format)
-                      "#+roam_key: ${ref}"
-                      ""
+                      "#+roam_key: cite:${citekey}"
+                      "#+roam_tags: ${keywords}"
+                      "#+created: %U"
+                      "#+last_modified: %U\n"
                       "* RAP+M :noter:"
                       ":PROPERTIES:"
-                      ":NOTER_DOCUMENT: %(orb-process-file-field \"${citekey}\")"
-                      ":NOTER_PAGE:"
-                      ":END:"))))))
+                      ":noter_document: ${file}"
+                      ":noter_page:"
+                      ":author: ${author-or-editor}"
+                      ":journal: ${journal}"
+                      ":year: ${year}"
+                      ":doi: ${doi}"
+                      ":END:"
+                      "** Position"
+                      "** Research question"
+                      "** Method"
+                      "*** data"
+                      "*** model"
+                      "** Answer")))))
 
 (after! org
   (setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f")))

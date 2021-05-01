@@ -180,6 +180,10 @@ If you use =org= and don't want your org files in the default location below, ch
 ** Set todo keywords
 - ideally each would be only four letters (hence KILL for CANCELLED)
 - reading TODO sequence implements the three stages of reading from Adler & Van Doren
+  + mark state change between stages
+  + INSPECT :: read to grasp the structure; read preface, skim body, read conclusion
+  + UNDERSTAND :: read to be convinced; try to understand what the author means to say
+  + EVAL :: read to tear apart; argue, poke holes, uncover implicit assumptions
 #+begin_src elisp
 (after! org
   (setq org-todo-keywords
@@ -200,14 +204,6 @@ The primary use of this package is for the daily/weekly agenda, made by the org-
 
 The following custom agenda view combines two =org-super-agenda= filters in a [[https://orgmode.org/manual/Block-agenda.html][block agenda]].
 
-*** TODO [[https://orgmode.org/manual/Tracking-your-habits.html#Tracking-your-habits][habits]]
-- daily initiation
-- GitHub commit
-- nightly shut down
-- chastity
-- weekly review
-- quarterly review
-- annual review
 *** TODO what custom views do I want?
 **** proposed groups
 - the schedule for today (DOs and DUEs + clocked time)
@@ -265,7 +261,9 @@ The following custom agenda view combines two =org-super-agenda= filters in a [[
                             (:name "Research pipeline"
                              :file-path "[^a-z0-9]p-[a-z0-9]*\\.org")
                             (:name "Teaching + Service"
-                             :file-path ("econ27000-intl\\.org" "bus33503-mfge\\.org" "service-econ\\.org"))
+                             :file-path ("econ33200-TA\\.org" "service-econ\\.org"))
+                            (:name "Referee"
+                             :file-path ("referee\\.org"))
                             (:name "SysAdmin"
                              :file-path ("foreman\\.org" "system.*\\.org"))
                             (:name "Home"
@@ -289,14 +287,21 @@ The code below (from ~org-pdftools/README.org~) just ensures that the two packag
 ** [[https://github.com/jkitchin/org-ref][Org-ref]]
 Note that the ivy-backend ~org-ref~ is [[https://github.com/jkitchin/org-ref/issues/793][not actually]] ~ivy-bibtex~! If you want to use the Helm-bibtex package with ~org-ref~, you need to actually use ~helm-bibtex~, which means that you need to use ~helm~ for search in your Doom ~init.el~. If you stick with ~ivy~, as I'm doing here, see [[https://github.com/jkitchin/org-ref/issues/717][this snippet]] to make a nicer display.
 
-#+begin_src elisp :tangle no
+This [[https://org-roam.discourse.group/t/org-ref-code-in-doom-emacs-init-file/1483][Discourse thread]] was quite helpful.
+
+#+begin_src elisp
 (use-package! org-ref
     :after org
+    :defer t
     :init
     (setq org-ref-completion-library 'org-ref-ivy-cite)
+    (let ((cache-dir (concat doom-cache-dir "org-ref")))
+    (unless (file-exists-p cache-dir)
+      (make-directory cache-dir t))
+    (setq orhc-bibtex-cache-file (concat cache-dir "/orhc-bibtex-cache")))
     :config
     (setq org-ref-default-bibliography (list crewsbib)
-          org-ref-default-citation-link "citet"
+          org-ref-default-citation-link "cite"
           org-ref-notes-directory (concat org-roam-directory "refs/")
           org-ref-notes-function 'orb-edit-notes
           org-ref-pdf-directory (concat crewsbib-dir "pdf/")
@@ -307,6 +312,7 @@ Note that the ivy-backend ~org-ref~ is [[https://github.com/jkitchin/org-ref/iss
 (use-package! ivy-bibtex
   :when (featurep! :completion ivy)
   :config
+  (global-set-key (kbd "C-c n b") 'ivy-bibtex)
   (add-to-list 'ivy-re-builders-alist '(ivy-bibtex . ivy--regex-plus))
   ;;(ivy-set-display-transformer 'org-ref-ivy-insert-cite-link 'ivy-bibtex-display-transformer)
   )
@@ -323,20 +329,6 @@ Note that the ivy-backend ~org-ref~ is [[https://github.com/jkitchin/org-ref/iss
         bibtex-completion-pdf-field "file" ;; pulls PDF path from "File" field of JabRef
         bibtex-completion-find-additional-pdfs t ;; will match all <citekey>-appendix.pdf
         bibtex-completion-notes-path (concat org-roam-directory "refs") ;; one note file per reference
-        bibtex-completion-notes-template-multiple-files
-        (concat
-         "#+TITLE: ${title}\n"
-         "#+ROAM_KEY: cite:${=key=}\n"
-         "#+ROAM_TAGS: ${keywords}\n"
-         "* INSPECT RAP\n"
-         ":PROPERTIES:\n"
-         ":Custom_ID: ${=key=}\n"
-         ":NOTER_DOCUMENT: %(orb-process-file-field \"${=key=}\")\n"
-         ":AUTHOR: ${authors}\n"
-         ":JOURNAL: ${journaltitle}\n"
-         ":YEAR: ${year}\n"
-         ":DOI: ${doi}\n"
-         ":END:\n\n")
         bibtex-completion-additional-search-fields '(keywords journal booktitle)
         bibtex-completion-display-formats
         '((article       . "${=has-pdf=:1}${=has-note=:1} ${=type=:4} ${year:4} ${author:36} ${title:*} ${journal:20}")
@@ -391,31 +383,46 @@ The issues [[https://github.com/bastibe/org-journal/pull/278][here]] and [[https
 (Finalized 10 Nov 2020.)
 *** code
 #+begin_src elisp
-(use-package! org-roam
-  :after org
-  :bind (("C-c n d" . org-roam-today)
+(after! org
+  (map! ("C-c n d" #'org-roam-today)
          :map org-mode-map
-         (("C-c n l" . org-roam) ;; call this to show backlinks in side-buffer
-          ("C-c n u" . org-roam-update-buffer)
-          ("C-c n i" . org-roam-insert)
-          ("C-c n c" . org-roam-capture)
-          ("C-c n g" . org-roam-graph)
-          ("C-c n r" . org-roam-random-note)))
-  :config
-  ;;(org-roam-tag-sources '(prop last-directory))
-  (setq org-roam-dailies-capture-templates
-      '(("d" "default" entry
-         #'org-roam-capture--get-point
-         "* %?"
-         :file-name "journal/%<%Y-%m-%d>"
-         :head "#+title: %<%d-%B-%Y>\n\n"))))
+         (("C-c n l" #'org-roam) ;; call this to show backlinks in side-buffer
+          ("C-c n u" #'org-roam-update-buffer)
+          ("C-c n i" #'org-roam-insert)
+          ("C-c n c" #'org-roam-capture)
+          ("C-c n g" #'org-roam-graph)
+          ("C-c n r" #'org-roam-random-note)))
+  (setq org-roam-tag-sources '(prop last-directory)
+        org-roam-capture-templates
+        '(("d" "default" plain #'org-roam-capture--get-point "%?"
+         :file-name "%<%Y%m%d%H%M%S>-${slug}"
+         :head "#+title: ${title}\n#+roam_alias: \n#+created: %U\n#+last_modified: %U\n"
+         :unnarrowed t))
+        org-roam-dailies-capture-templates
+        '(("d" "default" plain
+           #'org-roam-capture--get-point
+           "* %?"
+           :file-name "journal/%<%Y-%m-%d>"
+           :head "#+title: %<%d-%B-%Y>\n\n")
+          ("t" "today" plain
+           #'org-roam-capture--get-point
+           "* %?"
+           :file-name "journal/%<%Y-%m-%d>"
+           :head "#+title: %<%d-%B-%Y>\n\n"
+           %["~/Dropbox/org/templates/daily.template"])
+          ("w" "weekly review" plain
+           #'org-roam-capture--get-point
+           "* %?"
+           :file-name "journal/%<%Y-%m-%d>"
+           :head "#+title: %<%d-%B-%Y>\n\n"
+           %["~/Dropbox/org/templates/review-week.template"]))))
 #+end_src
 
 *** [[https://github.com/org-roam/org-roam-bibtex][Org-roam-bibtex]]
 
 #+begin_src elisp
 (use-package! org-roam-bibtex
-  :after (org-roam)
+  :after org-roam
   :hook (org-roam-mode . org-roam-bibtex-mode)
   :bind (:map org-roam-bibtex-mode-map
          (("C-c n f" . orb-find-non-ref-file))
@@ -423,10 +430,22 @@ The issues [[https://github.com/bastibe/org-journal/pull/278][here]] and [[https
          (("C-c n t" . orb-insert-non-ref)
           ("C-c n a" . orb-note-actions)))
   :config
-  ;;(orb-autokey-format "%A[5]%y")
-  ;;(​orb-note-actions-interface 'ivy)
-  (orb-templates
-   `(("r" "ref" plain
+  (require 'org-ref)
+  (require 'bibtex-completion)
+  (require 'ivy-bibtex))
+
+(setq orb-autokey-format "%A[5]%y"
+      orb-preformat-keywords
+      '("citekey" "title" "url" "doi" "year" "journal" "author-or-editor" "keywords" "file")
+      orb-process-file-keyword t
+      orb-file-field-extensions '("pdf")
+      orb-insert-interface 'ivy-bibtex
+      orb-note-actions-interface 'ivy
+      orb-insert-link-description 'citation)
+(defvar orb-title-format "${author-or-editor} (${year}). ${title}."
+  "Format of the title to use for `orb-templates'.")
+(setq orb-templates
+      `(("r" "ref" plain
       (function org-roam-capture--get-point)
       ""
       :file-name "refs/${citekey}"
@@ -434,10 +453,9 @@ The issues [[https://github.com/bastibe/org-journal/pull/278][here]] and [[https
                      (list
                       (concat "#+title: "
                               orb-title-format)
-                      "#+roam_key: ${ref}"
+                      "#+roam_key: cite:${citekey}"
                       "#+created: %U"
-                      "#+last_modified: %U\n\n"))
-      :unnarrowed t)
+                      "#+last_modified: %U\n")))
      ("p" "ref + physical" plain
       (function org-roam-capture--get-point)
       ""
@@ -446,9 +464,10 @@ The issues [[https://github.com/bastibe/org-journal/pull/278][here]] and [[https
                      (list
                       (concat "#+title: "
                               orb-title-format)
-                      "#+roam_key: ${ref}"
-                      ""
-                      "* RAP+M :physical:")))
+                      "#+roam_key: cite:${citekey}"
+                      "#+created: %U"
+                      "#+last_modified: %U\n"
+                      "* Summary :physical:")))
      ("n" "ref + noter" plain
       (function org-roam-capture--get-point)
       ""
@@ -457,13 +476,25 @@ The issues [[https://github.com/bastibe/org-journal/pull/278][here]] and [[https
                      (list
                       (concat "#+title: "
                               orb-title-format)
-                      "#+roam_key: ${ref}"
-                      ""
+                      "#+roam_key: cite:${citekey}"
+                      "#+roam_tags: ${keywords}"
+                      "#+created: %U"
+                      "#+last_modified: %U\n"
                       "* RAP+M :noter:"
                       ":PROPERTIES:"
-                      ":NOTER_DOCUMENT: %(orb-process-file-field \"${citekey}\")"
-                      ":NOTER_PAGE:"
-                      ":END:"))))))
+                      ":noter_document: ${file}"
+                      ":noter_page:"
+                      ":author: ${author-or-editor}"
+                      ":journal: ${journal}"
+                      ":year: ${year}"
+                      ":doi: ${doi}"
+                      ":END:"
+                      "** Position"
+                      "** Research question"
+                      "** Method"
+                      "*** data"
+                      "*** model"
+                      "** Answer")))))
 #+end_src
 
 * LaTeX

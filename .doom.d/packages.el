@@ -57,9 +57,9 @@
   (package! ivy-bibtex :pin "1bb81d77e08296a50de7ebfe5cf5b0c715b7f3d6"))
 (when (featurep! :completion helm)
   (package! helm-bibtex :pin "1bb81d77e08296a50de7ebfe5cf5b0c715b7f3d6"))
+(unpin! org-roam)
 (package! org-roam-bibtex
   :recipe (:host github :repo "org-roam/org-roam-bibtex"))
 (package! org-roam-server :recipe (:host github :repo "org-roam/org-roam-server" :files ("*")))
 (package! company-org-roam :recipe (:host github :repo "org-roam/company-org-roam"))
-(unpin! org-roam)
 ;; (unpin! deft) ;; package cl is deprecated
