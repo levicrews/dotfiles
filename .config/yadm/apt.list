@@ -29,6 +29,8 @@ samba
 shellcheck
 sqlite3
 sxhkd
+texlive
+latexmk
 w3m
 wordnet
 xclip
