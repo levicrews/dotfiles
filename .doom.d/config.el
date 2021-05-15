@@ -46,6 +46,12 @@ _q_: quit this menu                         _r_: restart emacs
   `(org-done :foreground ,(doom-lighten 'fg-1 0.05))
   `(org-ellipsis :foreground ,(doom-lighten 'fg-1 0.2)))
 
+(require 'time-stamp)
+(add-hook 'write-file-functions 'time-stamp) ; update when saving
+
+(global-set-key (kbd "C-c d") 'define-word-at-point)
+(global-set-key (kbd "C-c D") 'define-word)
+
 (setq org-dir (concat (getenv "HOME") "/Dropbox/org/")
       crewsbib-dir (concat (getenv "HOME") "/Dropbox/crewsbib/")
       crewsbib (concat crewsbib-dir "crewsbib.bib")
@@ -210,7 +216,7 @@ _q_: quit this menu                         _r_: restart emacs
         org-roam-capture-templates
         '(("d" "default" plain #'org-roam-capture--get-point "%?"
          :file-name "%<%Y%m%d%H%M%S>-${slug}"
-         :head "#+title: ${title}\n#+roam_alias: \n#+created: %U\n#+last_modified: %U\n"
+         :head "#+title: ${title}\n#+roam_alias: \n#+created: %U\n#+last_modified: %U\n\n"
          :unnarrowed t))
         org-roam-dailies-capture-templates
         '(("d" "default" plain

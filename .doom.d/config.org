@@ -136,7 +136,16 @@ See this [[https://github.com/hlissner/emacs-doom-themes/issues/216][issue]] for
   `(org-done :foreground ,(doom-lighten 'fg-1 0.05))
   `(org-ellipsis :foreground ,(doom-lighten 'fg-1 0.2)))
 #+end_src
-
+* Timestamps
+#+begin_src elisp
+(require 'time-stamp)
+(add-hook 'write-file-functions 'time-stamp) ; update when saving
+#+end_src
+* Generic text editing
+#+begin_src elisp
+(global-set-key (kbd "C-c d") 'define-word-at-point)
+(global-set-key (kbd "C-c D") 'define-word)
+#+end_src
 * Org mode
 ** Set directories
 If you use =org= and don't want your org files in the default location below, change =org-directory=. It must be set before org loads!
@@ -381,7 +390,7 @@ Org-roam has a [[https://youtu.be/1q9x2aZCJJ4][dailies page]] that uses [[https:
 Org-journal on its own [[https://org-roam.discourse.group/t/org-journal-vs-org-roam-dailies/384][handles TODOs better]], but I don't want any TODOs in my journal anyways.
 The issues [[https://github.com/bastibe/org-journal/pull/278][here]] and [[https://github.com/org-roam/org-roam/pull/978][here]] suggest a permanent divorce of Org-roam from Org-journal as of late July 2020.
 (Finalized 10 Nov 2020.)
-*** code
+*** code block
 #+begin_src elisp
 (after! org
   (map! ("C-c n d" #'org-roam-today)
@@ -396,7 +405,7 @@ The issues [[https://github.com/bastibe/org-journal/pull/278][here]] and [[https
         org-roam-capture-templates
         '(("d" "default" plain #'org-roam-capture--get-point "%?"
          :file-name "%<%Y%m%d%H%M%S>-${slug}"
-         :head "#+title: ${title}\n#+roam_alias: \n#+created: %U\n#+last_modified: %U\n"
+         :head "#+title: ${title}\n#+roam_alias: \n#+created: %U\n#+last_modified: %U\n\n"
          :unnarrowed t))
         org-roam-dailies-capture-templates
         '(("d" "default" plain
