@@ -73,6 +73,13 @@ _q_: quit this menu                         _r_: restart emacs
         org-startup-folded t
         org-fontify-done-headline nil))
 
+(add-hook 'org-mode-hook (lambda ()
+  "Beautify Org Checkbox Symbol"
+  (push '("[ ]" .  "☐") prettify-symbols-alist)
+  (push '("[X]" . "☑" ) prettify-symbols-alist)
+  (push '("[-]" . "❍" ) prettify-symbols-alist)
+  (prettify-symbols-mode)))
+
 (after! org
   (setq org-log-done t
         org-log-into-drawer t
@@ -214,9 +221,13 @@ _q_: quit this menu                         _r_: restart emacs
           ("C-c n r" #'org-roam-random-note)))
   (setq org-roam-tag-sources '(prop last-directory)
         org-roam-capture-templates
-        '(("d" "default" plain #'org-roam-capture--get-point "%?"
+        '(("p" "plain" plain #'org-roam-capture--get-point "%?"
          :file-name "%<%Y%m%d%H%M%S>-${slug}"
-         :head "#+title: ${title}\n#+roam_alias: \n#+created: %U\n#+last_modified: %U\n\n"
+         :head "#+title: ${title}\n#+roam_alias: \n#+roam_tags: \n#+created: %U\n#+last_modified: %U\n\n"
+         :unnarrowed t)
+          ("d" "data" plain #'org-roam-capture--get-point "%?"
+         :file-name "refs/${slug}"
+         :head "#+title: ${title}\n#+roam_alias: \n#+roam_tags: data refs\n#+created: %U\n#+last_modified: %U\n\n* Overview\n:PROPERTIES:\n:url: \n:END:\n* Specifications\n* Access\n"
          :unnarrowed t))
         org-roam-dailies-capture-templates
         '(("d" "default" plain
@@ -270,6 +281,7 @@ _q_: quit this menu                         _r_: restart emacs
                       (concat "#+title: "
                               orb-title-format)
                       "#+roam_key: cite:${citekey}"
+                      "#+roam_tags: ${keywords}"
                       "#+created: %U"
                       "#+last_modified: %U\n")))
      ("p" "ref + physical" plain
@@ -281,9 +293,11 @@ _q_: quit this menu                         _r_: restart emacs
                       (concat "#+title: "
                               orb-title-format)
                       "#+roam_key: cite:${citekey}"
+                      "#+roam_tags: ${keywords}"
                       "#+created: %U"
                       "#+last_modified: %U\n"
-                      "* Summary :physical:")))
+                      "* Summary :physical:"
+                      "* Coming to terms")))
      ("n" "ref + noter" plain
       (function org-roam-capture--get-point)
       ""
@@ -310,7 +324,25 @@ _q_: quit this menu                         _r_: restart emacs
                       "** Method"
                       "*** data"
                       "*** model"
-                      "** Answer")))))
+                      "** Answer")))
+     ("u" "ref + url" plain
+      (function org-roam-capture--get-point)
+      ""
+      :file-name "refs/${citekey}"
+      :head ,(s-join "\n"
+                     (list
+                      (concat "#+title: "
+                              orb-title-format)
+                      "#+roam_key: cite:${citekey}"
+                      "#+roam_tags: ${keywords}"
+                      "#+created: %U"
+                      "#+last_modified: %U\n"
+                      "* Summary"
+                      ":PROPERTIES:"
+                      ":author: ${author-or-editor}"
+                      ":year: ${year}"
+                      ":url: ${url}"
+                      ":END:")))))
 
 (after! org
   (setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f")))

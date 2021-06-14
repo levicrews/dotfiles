@@ -176,6 +176,13 @@ If you use =org= and don't want your org files in the default location below, ch
         org-startup-indented t
         org-startup-folded t
         org-fontify-done-headline nil))
+
+(add-hook 'org-mode-hook (lambda ()
+  "Beautify Org Checkbox Symbol"
+  (push '("[ ]" .  "☐") prettify-symbols-alist)
+  (push '("[X]" . "☑" ) prettify-symbols-alist)
+  (push '("[-]" . "❍" ) prettify-symbols-alist)
+  (prettify-symbols-mode)))
 #+end_src
 
 ** Logging
@@ -403,9 +410,13 @@ The issues [[https://github.com/bastibe/org-journal/pull/278][here]] and [[https
           ("C-c n r" #'org-roam-random-note)))
   (setq org-roam-tag-sources '(prop last-directory)
         org-roam-capture-templates
-        '(("d" "default" plain #'org-roam-capture--get-point "%?"
+        '(("p" "plain" plain #'org-roam-capture--get-point "%?"
          :file-name "%<%Y%m%d%H%M%S>-${slug}"
-         :head "#+title: ${title}\n#+roam_alias: \n#+created: %U\n#+last_modified: %U\n\n"
+         :head "#+title: ${title}\n#+roam_alias: \n#+roam_tags: \n#+created: %U\n#+last_modified: %U\n\n"
+         :unnarrowed t)
+          ("d" "data" plain #'org-roam-capture--get-point "%?"
+         :file-name "refs/${slug}"
+         :head "#+title: ${title}\n#+roam_alias: \n#+roam_tags: data refs\n#+created: %U\n#+last_modified: %U\n\n* Overview\n:PROPERTIES:\n:url: \n:END:\n* Specifications\n* Access\n"
          :unnarrowed t))
         org-roam-dailies-capture-templates
         '(("d" "default" plain
@@ -463,6 +474,7 @@ The issues [[https://github.com/bastibe/org-journal/pull/278][here]] and [[https
                       (concat "#+title: "
                               orb-title-format)
                       "#+roam_key: cite:${citekey}"
+                      "#+roam_tags: ${keywords}"
                       "#+created: %U"
                       "#+last_modified: %U\n")))
      ("p" "ref + physical" plain
@@ -474,9 +486,11 @@ The issues [[https://github.com/bastibe/org-journal/pull/278][here]] and [[https
                       (concat "#+title: "
                               orb-title-format)
                       "#+roam_key: cite:${citekey}"
+                      "#+roam_tags: ${keywords}"
                       "#+created: %U"
                       "#+last_modified: %U\n"
-                      "* Summary :physical:")))
+                      "* Summary :physical:"
+                      "* Coming to terms")))
      ("n" "ref + noter" plain
       (function org-roam-capture--get-point)
       ""
@@ -503,7 +517,25 @@ The issues [[https://github.com/bastibe/org-journal/pull/278][here]] and [[https
                       "** Method"
                       "*** data"
                       "*** model"
-                      "** Answer")))))
+                      "** Answer")))
+     ("u" "ref + url" plain
+      (function org-roam-capture--get-point)
+      ""
+      :file-name "refs/${citekey}"
+      :head ,(s-join "\n"
+                     (list
+                      (concat "#+title: "
+                              orb-title-format)
+                      "#+roam_key: cite:${citekey}"
+                      "#+roam_tags: ${keywords}"
+                      "#+created: %U"
+                      "#+last_modified: %U\n"
+                      "* Summary"
+                      ":PROPERTIES:"
+                      ":author: ${author-or-editor}"
+                      ":year: ${year}"
+                      ":url: ${url}"
+                      ":END:")))))
 #+end_src
 
 * LaTeX
