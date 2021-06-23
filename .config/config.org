@@ -1,0 +1,97 @@
+#+title: Configuration
+#+author: Levi Crews
+#+email: levigcrews@gmail.com
+
+* dotfile manager
+
+[[https://yadm.io/#][yadm]] is Yet Another Dotfiles Manager. yadm helps you maintain a single
+repository of dotfiles while keeping them where they belong---in $HOME.
+No symlinks are required. And using yadm is easy: yadm is just a veneer
+over a bare git repo, so if you know how to use Git, you know how to
+use yadm.
+
+Other features of yadm:
+1. Bootstrap script for installation
+2. OS-specific config files
+3. Encryption
+4. Custom hooks
+
+* colors
+
+[[https://mayccoll.github.io/Gogh/][Gogh]] provides color schemes for Ubuntu.
+
+* bash prompt
+
+[[https://github.com/starship/starship][Starship]] is the minimal, blazing-fast, and infinitely customizable prompt for any shell.
+
+** Installation
+#+BEGIN_SRC
+curl -fsSL https://starship.rs/install.sh | bash
+#+END_SRC
+Add the following to the end of =~/.bashrc=:
+#+BEGIN_SRC sh
+eval "$(starship init bash)"
+#+END_SRC
+Store your configuration in =~/.config/starship.toml=
+
+* system keybindings
+
+[[https://github.com/baskerville/sxhkd][sxhkd]] is a simple X hotkey daemon.
+
+Some people think that sxhkd works only for BSPWM, a particular window manager by the same developer. This is just a myth. SXHKD will work with any window manager or even desktop environments like Gnome as long as it is running the X window server.
+
+I followed [[https://stackoverflow.com/a/8290652/11952647][these instructions]] to run sxhkd on startup in Ubuntu 20.04.
+The relevant file is ~.config/autostart/sxhkd.desktop~.
+
+keybindings stored in ~.config/sxhkd/sxhkdrc~
+
+Can it also map capslock to ctrl?
+
+* launcher
+
+[[https://github.com/davatorium/rofi][rofi]] is, among other things, a window switcher, application launcher,
+and ~dmenu~ replacement. It's comparable to [[https://www.alfredapp.com/][Alfred]] for MacOS or [[https://albertlauncher.github.io/][Albert]]
+for Linux.
+
+What does it mean for ~rofi~ to be a ~dmenu~ replacement? Adam Simpson
+gives us a great explanation [[https://adamsimpson.net/writing/getting-started-with-rofi][here]]. ~dmenu~ is a fast and lightweight
+dynamic menu for X. It reads arbitrary text from ~stdin~ and creates
+a menu with one item for each line. The user can then select an item,
+through the arrow keys or by typing a part of the name, and the line
+is printed to ~stdout~. From there, the output can be piped through an
+arbitrary sequence of commands and custom scripts.
+
+Here's a simple example: Prompt the user to select 'World' or 'People',
+then print the resulting greeting.
+#+begin_src shell
+echo "Hello $(echo 'World\nPeople' | rofi -dmenu)"
+#+end_src
+
+Here's a more advanced example: Change your audio output device.
+#+begin_src shell
+#!/bin/bash
+
+source="$(pactl list short sinks | cut -f 2 | rofi -dpi 1 -dmenu -p "Change audio:")";
+inputs="$(pactl list sink-inputs short | cut -f 1)";
+
+for input in $inputs; do
+  pactl move-sink-input "$input" "$source";
+done
+
+pactl set-default-sink "$source";
+#+end_src
+
+I used [[https://github.com/adi1090x/rofi][adi1090x/rofi]] as my baseline and reconfigured from there.
+
+check out [[https://youtube.com/playlist?list=PLt6-rPpOpkb3XKwdUoLtUhCqkMbyqomba][these videos]] by budlabs -- #16-18 are the best videos I've seen on ~rofi~.
+
+- launch GUI apps with ~drun~
+- switch windows (already built into Ubuntu)
+- take screenshots with ~scrot~ (and save by default to ~org/figures~)
+- control system (audio, power, etc.)
+- run custom scripts that I don't know how to write in lisp
+  + five random papers per day
+
+No doubt there's some Emacs way to handle most of these tasks.
+
+* Doom emacs
