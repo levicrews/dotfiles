@@ -7,9 +7,6 @@
     "workbench.settings.editor": "json",
     "workbench.settings.useSplitJSON": true,
     "workbench.settings.openDefaultSettings": false,
-
-    // Window
-    "window.zoomLevel": 0,
     "window.restoreWindows": "none",
 
     // Editor
@@ -37,7 +34,7 @@
     // LaTeX
     "latex-workshop.latex.autoBuild.run": "never",
     "latex-workshop.latex.autoClean.run": "onBuilt",
-    "latex-workshop.view.pdf.viewer": "tab",
+    "latex-workshop.view.pdf.viewer": "browser",
     "latex-workshop.latex.clean.fileTypes": [
         "*.aux",
         "*.bbl",
@@ -129,4 +126,11 @@
     "explorer.confirmDragAndDrop": false,
     "jupyter.interactiveWindowMode": "perFile",
     "jupyter.askForKernelRestart": false,
+    "explorer.confirmDelete": false,
+    "git.confirmSync": false,
+    "vsicons.dontShowNewVersionMessage": true,
+    "workbench.editorAssociations": {
+        "*.ipynb": "jupyter.notebook.ipynb"
+    },
+    "security.workspace.trust.untrustedFiles": "open",
 }
