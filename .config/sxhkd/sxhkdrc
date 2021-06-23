@@ -8,15 +8,19 @@ super + shift + l
 
 # rofi: quicklinks
 super + shift + q
-    applet_quicklinks
+    menu_quicklinks
 
 # rofi: screenshot
 super + shift + s
-    applet_screenshot
+    menu_screenshot
 
 # rofi: power
 super + shift + p
-    applet_powermenu
+    menu_powermenu
+
+# rofi: power
+super + shift + n
+    menu_network
 
 # rofi: sxhkd help
 super + shift + h
