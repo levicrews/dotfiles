@@ -1,5 +1,6 @@
 bat
 curl
+diatheke
 emacs26
 fd-find
 font-manager
@@ -15,8 +16,10 @@ hugo
 inkscape
 jq
 manpages-dev
+mdp
 mmv
 neofetch
+pdftk
 pympress
 python3-pip
 python3-pyqt5
@@ -26,11 +29,13 @@ ripgrep
 rofi
 rstudio
 samba
+scrot
 shellcheck
 sqlite3
 sxhkd
 texlive
 latexmk
+viewnior
 w3m
 wordnet
 xclip
@@ -45,9 +50,3 @@ g++
 libpoppler-glib-dev
 libwxgtk3.0-dev
 poppler-utils
-
-# dependencies for teiler
-copyq
-ffmpeg
-maim
-slop
