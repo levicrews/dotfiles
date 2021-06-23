@@ -1,0 +1,23 @@
+# restart sxhkd
+super + shift + r
+    killall -e sxhkd && sxhkd &
+
+# rofi: default launcher
+super + shift + l
+    launcher_text
+
+# rofi: quicklinks
+super + shift + q
+    applet_quicklinks
+
+# rofi: screenshot
+super + shift + s
+    applet_screenshot
+
+# rofi: power
+super + shift + p
+    applet_powermenu
+
+# rofi: sxhkd help
+super + shift + h
+    sxhkd-help
