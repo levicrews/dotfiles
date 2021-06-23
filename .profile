@@ -33,6 +33,7 @@ export INFOPATH=/usr/local/texlive/2020/texmf-dist/doc/info:$INFOPATH
 export PATH=/usr/local/stata16:$PATH
 export PATH=~/.emacs.d/bin:$PATH
 export PATH=/opt/gurobi/bin:$PATH
+export PATH=~/.config/rofi/bin:$PATH
 
 # set Gurobi license
 export GRB_LICENSE_FILE=/opt/gurobi/gurobi.lic
