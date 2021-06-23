@@ -4,17 +4,22 @@
 
 * dotfile manager
 
-[[https://yadm.io/#][yadm]] is Yet Another Dotfiles Manager. yadm helps you maintain a single
-repository of dotfiles while keeping them where they belong---in $HOME.
-No symlinks are required. And using yadm is easy: yadm is just a veneer
-over a bare git repo, so if you know how to use Git, you know how to
-use yadm.
+[[https://yadm.io/#][yadm]] is Yet Another Dotfiles Manager. ~yadm~ helps you maintain a
+single repository of dotfiles while keeping them where they belong
+-- in ~$HOME~. No symlinks are required. And using ~yadm~ is easy:
+~yadm~ is just a veneer over a bare git repo, so if you know how to
+use Git, you know how to use ~yadm~.
 
-Other features of yadm:
+Other features of ~yadm~:
 1. Bootstrap script for installation
 2. OS-specific config files
 3. Encryption
 4. Custom hooks
+
+One note on ~yadm~ usage: you'll have to refer to files by their full
+filepath, which can get rather annoying. If you've modified a bunch of
+files from different directories (so you can't use a glob operator)
+but you wish to stage them all at once, use the command =yadm add -u=.
 
 * colors
 
@@ -35,17 +40,21 @@ eval "$(starship init bash)"
 Store your configuration in =~/.config/starship.toml=
 
 * system keybindings
+** key remapping
 
-[[https://github.com/baskerville/sxhkd][sxhkd]] is a simple X hotkey daemon.
+** hotkeys
 
-Some people think that sxhkd works only for BSPWM, a particular window manager by the same developer. This is just a myth. SXHKD will work with any window manager or even desktop environments like Gnome as long as it is running the X window server.
+[[https://github.com/baskerville/sxhkd][sxhkd]] is a simple X hotkey daemon that works with any desktop
+environment running the X window server (including Gnome, the
+default on Ubuntu).
 
-I followed [[https://stackoverflow.com/a/8290652/11952647][these instructions]] to run sxhkd on startup in Ubuntu 20.04.
-The relevant file is ~.config/autostart/sxhkd.desktop~.
+The syntax to configure hotkeys is clean and simple. See my list of
+hotkeys in =~/.config/sxhkd/sxhkdrc=. Most call various menus through
+~rofi~, discussed in the next section.
 
-keybindings stored in ~.config/sxhkd/sxhkdrc~
-
-Can it also map capslock to ctrl?
+I followed [[https://stackoverflow.com/a/8290652/11952647][these instructions]] to automatically run sxhkd in the
+background upon startup in Ubuntu 20.04. The relevant configuration
+file is =~/.config/autostart/sxhkd.desktop=.
 
 * launcher
 
@@ -53,13 +62,48 @@ Can it also map capslock to ctrl?
 and ~dmenu~ replacement. It's comparable to [[https://www.alfredapp.com/][Alfred]] for MacOS or [[https://albertlauncher.github.io/][Albert]]
 for Linux.
 
+** configuration
+
+I used [[https://github.com/adi1090x/rofi][adi1090x/rofi]] as my baseline and reconfigured from there. The
+reconfiguration involved...
+- adding the ~zenburn.rasi~ theme to match my Doom emacs config
+- replacing broken glyphs
+- selecting styles (menu vs. applet, text vs. colorful)
+- setting up sxhkd hotkeys to call scripts (prefix: =super + shift=)
+- deleting the ~powermenu~ folder (already includes applets for that)
+
+I find it frustrating how much of the original code is redundant, so
+one day I may try to refactor the codebase.
+
+** usage
+
+Any task that interacts with the system or machine itself is within
+the scope of ~rofi~. This includes...
+- controlling the system (power, network, etc.)
+- launching GUI apps with ~drun~
+- searching files
+- taking screenshots with ~scrot~ (saved by default to ~org/figures~)
+- opening quicklinks in my default browser
+- performing quick calculations
+- running custom scripts that I don't know how to write in Lisp
+
+Ubuntu already has decent keybindings for window management, but that
+can also be handled by rofi (and is included in my default launcher
+menu).
+
+All other tasks, to the extent possible, are handled directly by
+Emacs. I'm on an unending quest to rid myself of the mouse, so
+ultimately I hope all tasks would fall either under ~rofi~ or Emacs.
+
+** what is a ~dmenu~ replacement?
+
 What does it mean for ~rofi~ to be a ~dmenu~ replacement? Adam Simpson
 gives us a great explanation [[https://adamsimpson.net/writing/getting-started-with-rofi][here]]. ~dmenu~ is a fast and lightweight
-dynamic menu for X. It reads arbitrary text from ~stdin~ and creates
-a menu with one item for each line. The user can then select an item,
-through the arrow keys or by typing a part of the name, and the line
-is printed to ~stdout~. From there, the output can be piped through an
-arbitrary sequence of commands and custom scripts.
+dynamic menu for any X server. It reads arbitrary text from ~stdin~
+and creates a menu with one item for each line. The user can then
+select an item (through the arrow keys or by typing a part of the name)
+and the line is printed to ~stdout~. From there, the output can be
+piped through an arbitrary sequence of commands and custom scripts.
 
 Here's a simple example: Prompt the user to select 'World' or 'People',
 then print the resulting greeting.
@@ -81,17 +125,9 @@ done
 pactl set-default-sink "$source";
 #+end_src
 
-I used [[https://github.com/adi1090x/rofi][adi1090x/rofi]] as my baseline and reconfigured from there.
+** advanced references
 
-check out [[https://youtube.com/playlist?list=PLt6-rPpOpkb3XKwdUoLtUhCqkMbyqomba][these videos]] by budlabs -- #16-18 are the best videos I've seen on ~rofi~.
-
-- launch GUI apps with ~drun~
-- switch windows (already built into Ubuntu)
-- take screenshots with ~scrot~ (and save by default to ~org/figures~)
-- control system (audio, power, etc.)
-- run custom scripts that I don't know how to write in lisp
-  + five random papers per day
-
-No doubt there's some Emacs way to handle most of these tasks.
+Check out [[https://youtube.com/playlist?list=PLt6-rPpOpkb3XKwdUoLtUhCqkMbyqomba][these videos]] by budlabs -- #16-18 are the best videos I've
+seen on ~rofi~.
 
 * Doom emacs
