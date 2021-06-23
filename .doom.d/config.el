@@ -346,3 +346,13 @@ _q_: quit this menu                         _r_: restart emacs
 
 (after! org
   (setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f")))
+
+(use-package! insert-esv
+  :init
+  (setq insert-esv-crossway-api-key "24c9430529b290c392e875b1563aac55e4210a7d")
+  (setq insert-esv-include-short-copyright 'true)
+  (setq insert-esv-include-headings 'false)
+  (setq insert-esv-include-first-verse-numbers 'false)
+  (setq insert-esv-include-footnotes 'false)
+  (setq insert-esv-include-passage-horizontal-lines 'false)
+  (setq insert-esv-line-length '65))

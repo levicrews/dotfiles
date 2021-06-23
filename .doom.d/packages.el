@@ -64,3 +64,4 @@
 (package! company-org-roam :recipe (:host github :repo "org-roam/company-org-roam"))
 ;; (unpin! deft) ;; package cl is deprecated
 (package! org-analyzer)
+(package! insert-esv)
