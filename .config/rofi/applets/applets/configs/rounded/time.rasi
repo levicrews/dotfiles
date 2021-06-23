@@ -8,7 +8,7 @@
  */
 
 configuration {
-	font:                      		"Comfortaa 12";
+	font:                      		"Cascadia Code PL 12";
     disable-history:                false;
     fullscreen:                     false;
 	hide-scrollbar: 				true;
