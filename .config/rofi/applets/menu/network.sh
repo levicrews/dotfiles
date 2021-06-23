@@ -23,9 +23,9 @@ urgent=""
 if (ping -c 1 archlinux.org || ping -c 1 google.com || ping -c 1 bitbucket.org || ping -c 1 github.com || ping -c 1 sourceforge.net) &>/dev/null; then
 	if [[ $STATUS == *"enable"* ]]; then
         if [[ $IFACE == e* ]]; then
-            connected=""
+            connected="直"
         else
-            connected=""
+            connected="直"
         fi
 	active="-a 0"
 	SSID="﬉ $(iwgetid -r)"
@@ -35,11 +35,11 @@ else
     urgent="-u 0"
     SSID="Disconnected"
     PIP="Not Available"
-    connected=""
+    connected="睊"
 fi
 
 ## Icons
-bmon=""
+bmon="" # tachometer, because checking bandwidth (Hex: f0e4)
 launch_cli=""
 launch=""
 
@@ -53,16 +53,15 @@ case $chosen in
 			nmcli radio wifi off
 		else
 			nmcli radio wifi on
-		fi 
+		fi
         ;;
     $bmon)
-        termite -e bmon
+        gnome-terminal -e bmon
         ;;
     $launch_cli)
-        termite -e nmtui
+        gnome-terminal -e nmtui
         ;;
     $launch)
         nm-connection-editor
         ;;
 esac
-
