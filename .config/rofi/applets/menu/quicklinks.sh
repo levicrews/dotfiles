@@ -16,47 +16,58 @@ msg() {
 }
 
 # Browser
-if [[ -f /usr/bin/firefox ]]; then
+if [[ -f /usr/bin/google-chrome ]]; then
+	app="google-chrome"
+elif [[ -f /usr/bin/firefox ]]; then
 	app="firefox"
-elif [[ -f /usr/bin/chromium ]]; then
-	app="chromium"
-elif [[ -f /usr/bin/midori ]]; then
-	app="midori"
 else
 	msg "No suitable web browser found!"
 	exit 1
 fi
 
-# Links
-google=""
-facebook=""
-twitter=""
-github=""
-mail=""
-youtube=""
+# Logos: glyphs from https://www.nerdfonts.com/cheat-sheet
+ucmail="" #Hex: f19d
+gmail="" #Hex: f6ef
+brainfm="" #Hex: f7ca
+google="" #Hex: f1a0
+twitter="" #Hex: f099
+feedly="" #Hex: e27b
+github="" #Hex: f09b
+# asana="" #Hex: f7b0
+asana="⛬" #file-icons U+26EC (technically Julia)
+website="" #Hex: f2c3
+# website="Ⓗ" #file-icons U+24bBD (Hugo)
 
 # Variable passed to rofi
-options="$google\n$facebook\n$twitter\n$github\n$mail\n$youtube"
+options="$ucmail\n$gmail\n$brainfm\n$google\n$twitter\n$feedly\n$github\n$asana\n$website"
 
 chosen="$(echo -e "$options" | $rofi_command -p "Open In  :  $app" -dmenu -selected-row 0)"
 case $chosen in
-    $google)
-        $app https://www.google.com &
+    $ucmail)
+        $app https://mail.google.com/mail/u/2/#starred &
         ;;
-    $facebook)
-        $app https://www.facebook.com &
+    $gmail)
+        $app https://mail.google.com/mail/u/0/#starred &
+        ;;
+    $brainfm)
+        $app https://www.brain.fm/app/player &
+        ;;
+    $google)
+        $app https://www.google.com/ &
         ;;
     $twitter)
-        $app https://www.twitter.com &
+        $app https://twitter.com/LeviGCrews/likes &
+        ;;
+    $feedly)
+        $app https://feedly.com/i/saved &
         ;;
     $github)
-        $app https://www.github.com &
+        $app https://github.com/levicrews &
         ;;
-    $mail)
-        $app https://www.gmail.com &
+    $asana)
+        $app https://app.asana.com/0/1200143296215459/list &
         ;;
-    $youtube)
-        $app https://www.youtube.com &
+    $website)
+        $app https://www.levicrews.com/ &
         ;;
 esac
-
