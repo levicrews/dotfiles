@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=sxhkd
+GenericName=Simple X hotkey daemon
+Comment=Provides hotkeys to custom rofi menus
+Exec=sh -c "pgrep sxhkd || sxhkd -c ~/.config/sxhkd/sxhkdrc &"
+Terminal=false
+Type=Application
+X-GNOME-Autostart-enabled=true
