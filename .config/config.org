@@ -71,9 +71,12 @@ reconfiguration involved...
 - selecting styles (menu vs. applet, text vs. colorful)
 - setting up sxhkd hotkeys to call scripts (prefix: =super + shift=)
 - deleting the ~powermenu~ folder (already includes applets for that)
+- adding ~filebrowser~ and ~calc~ modi to launcher menu
 
 I find it frustrating how much of the original code is redundant, so
 one day I may try to refactor the codebase.
+
+This configuration requires rofi 1.6.0 or later.
 
 ** usage
 
