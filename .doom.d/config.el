@@ -355,4 +355,5 @@ _q_: quit this menu                         _r_: restart emacs
   (setq insert-esv-include-first-verse-numbers 'false)
   (setq insert-esv-include-footnotes 'false)
   (setq insert-esv-include-passage-horizontal-lines 'false)
-  (setq insert-esv-line-length '65))
+  (setq insert-esv-line-length '65)
+  (global-set-key (kbd "C-x i") 'insert-esv-passage))
