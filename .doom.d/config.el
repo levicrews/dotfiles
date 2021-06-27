@@ -342,7 +342,7 @@ _q_: quit this menu                         _r_: restart emacs
                       "#+roam_tags: ${keywords}"
                       "#+created: %U"
                       "#+last_modified: %U\n"
-                      "* RAP+M :noter:"
+                      "* Annotations :noter:"
                       ":PROPERTIES:"
                       ":noter_document: ${file}"
                       ":noter_page:"
@@ -351,12 +351,14 @@ _q_: quit this menu                         _r_: restart emacs
                       ":year: ${year}"
                       ":doi: ${doi}"
                       ":END:"
+                      "* RAP+M"
                       "** Position"
                       "** Research question"
                       "** Method"
                       "*** data"
                       "*** model"
-                      "** Answer")))
+                      "** Answer"
+                      )))
      ("u" "ref + url" plain
       (function org-roam-capture--get-point)
       ""

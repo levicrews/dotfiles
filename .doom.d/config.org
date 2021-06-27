@@ -584,7 +584,7 @@ I use whatever keybindings come out of the box instead.
                       "#+roam_tags: ${keywords}"
                       "#+created: %U"
                       "#+last_modified: %U\n"
-                      "* RAP+M :noter:"
+                      "* Annotations :noter:"
                       ":PROPERTIES:"
                       ":noter_document: ${file}"
                       ":noter_page:"
@@ -593,12 +593,14 @@ I use whatever keybindings come out of the box instead.
                       ":year: ${year}"
                       ":doi: ${doi}"
                       ":END:"
+                      "* RAP+M"
                       "** Position"
                       "** Research question"
                       "** Method"
                       "*** data"
                       "*** model"
-                      "** Answer")))
+                      "** Answer"
+                      )))
      ("u" "ref + url" plain
       (function org-roam-capture--get-point)
       ""
