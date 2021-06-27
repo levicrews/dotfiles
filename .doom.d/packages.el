@@ -50,6 +50,7 @@
 ;(unpin! t)
 (package! emojify)
 (package! org-super-agenda)
+(package! org-pdftools)
 (package! org-noter-pdftools)
 (package! org-ref)
 (package! bibtex-completion :pin "1bb81d77e08296a50de7ebfe5cf5b0c715b7f3d6")
@@ -65,3 +66,4 @@
 ;; (unpin! deft) ;; package cl is deprecated
 (package! org-analyzer)
 (package! insert-esv)
+(package! magit-section) ;; temporary: https://github.com/hlissner/doom-emacs/issues/2415

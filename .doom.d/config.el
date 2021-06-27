@@ -75,7 +75,7 @@ _q_: quit this menu                         _r_: restart emacs
 
 (add-hook 'org-mode-hook (lambda ()
   "Beautify Org Checkbox Symbol"
-  (push '("[ ]" .  "☐") prettify-symbols-alist)
+  (push '("[ ]" . "☐") prettify-symbols-alist)
   (push '("[X]" . "☑" ) prettify-symbols-alist)
   (push '("[-]" . "❍" ) prettify-symbols-alist)
   (prettify-symbols-mode)))
@@ -128,7 +128,7 @@ _q_: quit this menu                         _r_: restart emacs
                             (:name "Research pipeline"
                              :file-path "[^a-z0-9]p-[a-z0-9]*\\.org")
                             (:name "Teaching + Service"
-                             :file-path ("econ33200-TA\\.org" "service-econ\\.org"))
+                             :file-path ("service-econ\\.org"))
                             (:name "Referee"
                              :file-path ("referee\\.org"))
                             (:name "SysAdmin"
@@ -138,9 +138,43 @@ _q_: quit this menu                         _r_: restart emacs
   :config
   (org-super-agenda-mode))
 
+(use-package! org-noter
+  :config
+  (require 'org-noter-pdftools))
+
+(use-package! org-pdftools
+  :hook (org-mode . org-pdftools-setup-link))
+
 (use-package! org-noter-pdftools
   :after org-noter
   :config
+  ;; Add a function to ensure precise note is inserted
+  (defun org-noter-pdftools-insert-precise-note (&optional toggle-no-questions)
+    (interactive "P")
+    (org-noter--with-valid-session
+     (let ((org-noter-insert-note-no-questions (if toggle-no-questions
+                                                   (not org-noter-insert-note-no-questions)
+                                                 org-noter-insert-note-no-questions))
+           (org-pdftools-use-isearch-link t)
+           (org-pdftools-use-freestyle-annot t))
+       (org-noter-insert-note (org-noter--get-precise-info)))))
+
+  ;; fix https://github.com/weirdNox/org-noter/pull/93/commits/f8349ae7575e599f375de1be6be2d0d5de4e6cbf
+  (defun org-noter-set-start-location (&optional arg)
+    "When opening a session with this document, go to the current location.
+    With a prefix ARG, remove start location."
+    (interactive "P")
+    (org-noter--with-valid-session
+     (let ((inhibit-read-only t)
+           (ast (org-noter--parse-root))
+           (location (org-noter--doc-approx-location (when (called-interactively-p 'any) 'interactive))))
+       (with-current-buffer (org-noter--session-notes-buffer session)
+         (org-with-wide-buffer
+          (goto-char (org-element-property :begin ast))
+          (if arg
+              (org-entry-delete nil org-noter-property-note-location)
+            (org-entry-put nil org-noter-property-note-location
+                           (org-noter--pretty-print-location location))))))))
   (with-eval-after-load 'pdf-annot
     (add-hook 'pdf-annot-activate-handler-functions #'org-noter-pdftools-jump-to-note)))
 
@@ -161,14 +195,6 @@ _q_: quit this menu                         _r_: restart emacs
           org-ref-pdf-directory (concat crewsbib-dir "pdf/")
           org-ref-get-pdf-filename-function 'org-ref-get-pdf-filename-helm-bibtex))
 
-(use-package! ivy-bibtex
-  :when (featurep! :completion ivy)
-  :config
-  (global-set-key (kbd "C-c n b") 'ivy-bibtex)
-  (add-to-list 'ivy-re-builders-alist '(ivy-bibtex . ivy--regex-plus))
-  ;;(ivy-set-display-transformer 'org-ref-ivy-insert-cite-link 'ivy-bibtex-display-transformer)
-  )
-
 (use-package! bibtex-completion
   :defer t
   :config
@@ -179,14 +205,14 @@ _q_: quit this menu                         _r_: restart emacs
         bibtex-completion-notes-path (concat org-roam-directory "refs") ;; one note file per reference
         bibtex-completion-additional-search-fields '(keywords journal booktitle)
         bibtex-completion-display-formats
-        '((article       . "${=has-pdf=:1}${=has-note=:1} ${=type=:4} ${year:4} ${author:36} ${title:*} ${journal:20}")
-          (book          . "${=has-pdf=:1}${=has-note=:1} ${=type=:4} ${year:4} ${author:36} ${title:*}")
-          (inbook        . "${=has-pdf=:1}${=has-note=:1} ${=type=:4} ${year:4} ${author:36} ${title:*} Chapter ${chapter:30}")
-          (incollection  . "${=has-pdf=:1}${=has-note=:1} ${=type=:4} ${year:4} ${author:36} ${title:*} ${booktitle:30}")
-          (inproceedings . "${=has-pdf=:1}${=has-note=:1} ${=type=:4} ${year:4} ${author:36} ${title:*} ${booktitle:30}")
-          (t             . "${=has-pdf=:1}${=has-note=:1} ${=type=:4} ${year:4} ${author:36} ${title:*}"))
-        bibtex-completion-pdf-symbol "▛"
-        bibtex-completion-notes-symbol "§"
+        '((article       . "${=has-pdf=:2}${=has-note=:2} ${=type=:4} ${year:4} ${author:36} ${title:*} ${journal:20}")
+          (book          . "${=has-pdf=:2}${=has-note=:2} ${=type=:4} ${year:4} ${author:36} ${title:*}")
+          (inbook        . "${=has-pdf=:2}${=has-note=:2} ${=type=:4} ${year:4} ${author:36} ${title:*} Chapter ${chapter:30}")
+          (incollection  . "${=has-pdf=:2}${=has-note=:2} ${=type=:4} ${year:4} ${author:36} ${title:*} ${booktitle:30}")
+          (inproceedings . "${=has-pdf=:2}${=has-note=:2} ${=type=:4} ${year:4} ${author:36} ${title:*} ${booktitle:30}")
+          (t             . "${=has-pdf=:2}${=has-note=:2} ${=type=:4} ${year:4} ${author:36} ${title:*}"))
+        bibtex-completion-pdf-symbol ""
+        bibtex-completion-notes-symbol ""
         bibtex-completion-format-citation-functions
             '((org-mode      . bibtex-completion-format-citation-org-title-link-to-PDF)
               (latex-mode    . bibtex-completion-format-citation-cite)
@@ -194,10 +220,16 @@ _q_: quit this menu                         _r_: restart emacs
               (default       . bibtex-completion-format-citation-default))
         ))
 
+(use-package! ivy-bibtex
+  :when (featurep! :completion ivy)
+  :config
+  (global-set-key (kbd "C-c n b") 'ivy-bibtex)
+  (add-to-list 'ivy-re-builders-alist '(ivy-bibtex . ivy--regex-plus))
+  ;;(ivy-set-display-transformer 'org-ref-ivy-insert-cite-link 'ivy-bibtex-display-transformer)
+  )
+
 (use-package! deft
   :after org
-  :bind
-  ("C-c n s" . deft)
   :init
   (setq deft-file-naming-rules
       '((noslash . "-")
