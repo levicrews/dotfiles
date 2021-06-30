@@ -138,9 +138,14 @@ _q_: quit this menu                         _r_: restart emacs
   :config
   (org-super-agenda-mode))
 
+;; This will change the color of the annotation.
+(setq pdf-annot-default-markup-annotation-properties
+      '((color . "orange")))
+
 (use-package! org-noter
   :config
-  (require 'org-noter-pdftools))
+  (require 'org-noter-pdftools)
+  (setq org-noter-hide-other nil))
 
 (use-package! org-pdftools
   :hook (org-mode . org-pdftools-setup-link))
@@ -225,8 +230,36 @@ _q_: quit this menu                         _r_: restart emacs
   :config
   (global-set-key (kbd "C-c n b") 'ivy-bibtex)
   (add-to-list 'ivy-re-builders-alist '(ivy-bibtex . ivy--regex-plus))
+  (setq ivy-bibtex-default-action 'ivy-bibtex-edit-notes)
   ;;(ivy-set-display-transformer 'org-ref-ivy-insert-cite-link 'ivy-bibtex-display-transformer)
-  )
+
+  (defun lgc/bibtex-random-ref (&optional arg local-bib)
+  "Find a random BibTeX entry using ivy.
+   With a prefix ARG the cache is invalidated and the bibliography
+   reread. If LOCAL-BIB is non-nil, display that the BibTeX entries are read
+   from the local bibliography.  This is set internally by `ivy-bibtex-with-local-bibliography'."
+   (interactive "P")
+   (when arg
+     (bibtex-completion-clear-cache))
+   (bibtex-completion-init)
+   (let* ((candidates (bibtex-completion-candidates))
+          (key (bibtex-completion-key-at-point))
+          (preselect (and key
+                         (cl-position-if (lambda (cand)
+                                           (member (cons "=key=" key)
+                                                   (cdr cand)))
+                                         candidates)))) ;; ~candidates~ is a list
+
+      (ivy-read (format "random BibTeX entry: " (if local-bib " (local)" ""))
+                (list (nth (random (length candidates)) candidates)
+                      (nth (random (length candidates)) candidates)
+                      (nth (random (length candidates)) candidates))
+                :preselect preselect
+                :caller 'lgc/bibtex-random-ref
+                ;;:history 'ivy-bibtex-history
+                :action ivy-bibtex-default-action)))
+
+  (global-set-key (kbd "C-c n p") 'lgc/bibtex-random-ref))
 
 (use-package! deft
   :after org
