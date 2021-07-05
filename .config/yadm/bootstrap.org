@@ -1,0 +1,308 @@
+#+TITLE: Bootstrap
+#+AUTHOR: Levi Crews
+#+EMAIL: levigcrews@gmail.com
+
+* TODO add file-local-var to automatically tangle this doc
+* TODO add correct file destination to each code block
+* TODO Scope
+* Bootstrap script
+Adapted from https://github.com/rkalis/dotfiles and associated blog posts.
+
+#+begin_src shell
+#! /usr/bin/env sh
+
+DIR=$(dirname "$0")
+cd "$DIR"
+
+source coloredecho.sh
+
+info "Prompting for sudo password..."
+if sudo -v; then
+    # Keep-alive: update existing `sudo` time stamp until `setup.sh` has finished
+    while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+    success "Sudo credentials updated."
+else
+    error "Failed to obtain sudo credentials."
+fi
+
+COMMENT=\#*
+
+sudo -v
+add-apt-repository ppa:kelleyk/emacs
+add-apt-repository ppa:inkscape.dev/stable
+apt update
+
+find * -name "*.list" | while read fn; do
+    cmd="${fn%.*}" # Bash string operator
+    set -- $cmd
+    info "Installing $1 packages..."
+    while read package; do
+        if [[ $package == $COMMENT ]]; then continue; fi
+        if [[ $cmd == code ]]; then
+            substep_info "Installing VSCode extension $package..."
+            $cmd --install-extension $package
+        elif [[ $cmd == npm ]]; then
+            substep_info "Installing Node.js package $package..."
+            $cmd install -g $package
+        else
+            substep_info "Installing $package..."
+            $cmd install $package
+        fi
+    done < "$fn"
+    success "Finished installing $1 packages."
+done
+#+end_src
+* Colored progress messages
+Taken again from https://github.com/rkalis/dotfiles and associated blog posts. Called in ~bootstrap.sh~ to give the user easy-to-read progress updates as the installation proceeds.
+#+begin_src shell
+#! /usr/bin/env sh
+
+# Took these printing functions from https://github.com/Sajjadhosn/dotfiles
+coloredEcho() {
+    local exp="$1";
+    local color="$2";
+    local arrow="$3";
+    if ! [[ $color =~ '^[0-9]$' ]] ; then
+       case $(echo $color | tr '[:upper:]' '[:lower:]') in
+        black) color=0 ;;
+        red) color=1 ;;
+        green) color=2 ;;
+        yellow) color=3 ;;
+        blue) color=4 ;;
+        magenta) color=5 ;;
+        cyan) color=6 ;;
+        white|*) color=7 ;; # white or invalid color
+       esac
+    fi
+    tput bold;
+    tput setaf "$color";
+    echo "$arrow $exp";
+    tput sgr0;
+}
+
+info() {
+    coloredEcho "$1" blue "========>"
+}
+
+success() {
+    coloredEcho "$1" green "========>"
+}
+
+error() {
+    coloredEcho "$1" red "========>"
+}
+
+substep_info() {
+    coloredEcho "$1" magenta "===="
+}
+
+substep_success() {
+    coloredEcho "$1" cyan "===="
+}
+
+substep_error() {
+    coloredEcho "$1" red "===="
+}
+#+end_src
+* apt.list
+** list
+#+begin_src
+bat
+bmon
+curl
+diatheke
+emacs26
+fd-find
+font-manager
+fonts-powerline
+gdebi
+gdebi-core
+gh
+git
+golang-go
+graphviz
+htop
+hugo
+inkscape
+jq
+manpages-dev
+mdp
+miller
+mmv
+nodejs
+npm
+pdftk
+pympress
+python3-pip
+python3-pyqt5
+qalc
+qpdfview
+r-base
+ripgrep
+rofi
+rstudio
+samba
+scrot
+shellcheck
+sqlite3
+surfraw
+sxhkd
+texlive
+latexmk
+viewnior
+w3m
+wordnet
+xclip
+yadm
+youtube-dl
+zathura
+#+end_src
+** notes
+*** [[https://github.com/sharkdp/bat][bat]]: =cat= clone with syntax highlighting and Git integration
+*** [[https://github.com/tgraf/bmon][bmon]]: bandwidth monitor
+- called by ~rofi~
+*** diatheke: command line Bible reader
+*** [[https://github.com/cli/cli][gh]]: GitHub CLI
+- supercedes HTTPS and SSH interactions with GitHub
+*** [[https://github.com/inkscape/inkscape][inkscape]]: free and open source vector drawing
+- Castel: [[https://castel.dev/post/lecture-notes-2/][How I draw figures for my math notes using Inkscape]]
+*** [[https://github.com/visit1985/mdp][mdp]]: command-line based Markdown presentation tool
+*** [[https://github.com/johnkerl/miller][miller]]: like =awk=, =sed=, =cut=, =join=, and =sort= for name-indexed data such as CSV, TSV, and tabular JSON
+*** [[https://github.com/itchyny/mmv][mmv]]: rename multiple files using your default editor
+*** pdftk: command line tool to merge and split PDFs
+- used to compile class slides into one PDF for entry in BibTeX database
+*** qalc: powerful and easy to use command line calculator
+- called by ~rofi~ launcher
+*** pdf viewers: qpdfview & zathura
+*** [[https://github.com/BurntSushi/ripgrep][ripgrep]]: =grep=, but better
+*** rofi
+- explained in detail elsewhere
+*** [[https://github.com/dreamer/scrot][scrot]]: command-line screenshot utility
+- called by ~rofi~
+*** [[https://gitlab.com/surfraw/Surfraw][surfraw]]: CLI to popular web search engines
+*** sxhkd
+- hotkey manager used to specify ~rofi~ hotkeys
+- explained in detail elsewhere
+*** [[https://github.com/ytdl-org/youtube-dl/][youtube-dl]]
+- download YouTube videos
+** dependencies for =diff-pdf=
+#+begin_src
+automake
+g++
+libpoppler-glib-dev
+libwxgtk3.0-dev
+poppler-utils
+#+end_src
+* snap.list
+** list
+#+begin_src
+--classic code
+vlc
+jabref
+slack --classic
+discord
+harsh
+#+end_src
+** notes
+*** [[https://github.com/wakatara/harsh][harsh]]: A minimalist command line tool for tracking habits
+- use Org mode instead, but I like the plots this makes better than Org's
+* pip.list
+** list
+#+begin_src
+bokeh
+dask
+docutils
+econtools
+eg
+gme
+grip
+icdiff
+minet
+pipenv
+tldr
+quantecon
+#+end_src
+** notes
+*** [[https://github.com/bokeh/bokeh][bokeh]]: interactive visualization library for modern web browsers
+It provides elegant, concise construction of versatile graphics, and affords high-performance interactivity over large or streaming datasets. Bokeh can help anyone who would like to quickly and easily make interactive plots, dashboards, and data applications.
+*** [[https://dask.org/][dask]]: scaling and parallelizing Pandas
+*** [[https://pypi.org/project/docutils/][docutils]]: convert reStructuredText to HTML and LaTeX
+*** [[http://www.danielmsullivan.com/econtools/][econtools]]: package with tools for econometrics and data munging
+*** [[https://github.com/srsudar/eg][eg]]: useful examples at the command line
+*** [[https://www.usitc.gov/data/gravity/gme.htm][gme]]: Python module for USITC Gravity Modeling Environment
+*** [[https://github.com/joeyespo/grip][grip]]: Preview GitHub READMEs locally
+*** [[https://github.com/jeffkaufman/icdiff][icdiff]]: improved colored diff
+*** [[https://github.com/medialab/minet][minet]]: webmining command line tool
+- can be used to collect and extract data from a large variety of web sources such as raw webpages, Facebook, YouTube, Twitter, etc.
+*** [[https://github.com/pypa/pipenv][pipenv]]: automatically creates/manages a virtualenv for projects
+*** [[https://github.com/ofajardo/pyreadr][pyreadr]]: Python package to read/write R data files
+*** [[https://github.com/tldr-pages/tldr][tldr]]: Community-sourced command-line cheatsheets
+* code.list
+#+begin_src
+aaron-bond.better-comments
+albert.tabout
+arcticicestudio.nord-visual-studio-code
+AffenWiesel.matlab-formatter
+akamud.vscode-theme-onedark
+alefragnani.numbered-bookmarks
+alefragnani.project-manager
+bierner.emojisense
+bierner.markdown-checkbox
+bungcip.better-toml
+CoenraadS.bracket-pair-colorizer-2
+DavidAnson.vscode-markdownlint
+eamodio.gitlens
+ericadamski.carbon-now-sh
+formulahendry.code-runner
+geddski.macros
+Gimly81.matlab
+GitHub.vscode-pull-request-github
+GrapeCity.gc-excelviewer
+Ikuyadeu.r
+imjacobclark.vscode-lisp-formatter
+James-Yu.latex-workshop
+julialang.language-julia
+KevinRose.vsc-python-indent
+kylebarron.stata-enhanced
+mikestead.dotenv
+ms-azuretools.vscode-docker
+ms-python.python
+ms-python.vscode-pylance
+ms-toolsai.jupyter
+ms-vsliveshare.vsliveshare
+ms-vsliveshare.vsliveshare-audio
+ms-vsliveshare.vsliveshare-pack
+mxschmitt.postscript
+oijaz.unicode-latex
+patbenatar.advanced-new-file
+PKief.material-icon-theme
+quicktype.quicktype
+RandomFractalsInc.geo-data-viewer
+redhat.vscode-yaml
+shd101wyy.markdown-preview-enhanced
+sidneys1.gitconfig
+sleistner.vscode-fileutils
+tecosaur.latex-utilities
+Tyriar.vscode-terminal-here
+VisualStudioExptTeam.vscodeintellicode
+vmsynkov.colonize
+vscode-icons-team.vscode-icons
+vscode-org-mode.org-mode
+vsls-contrib.codetour
+vsls-contrib.gistfs
+wmaurer.change-case
+wmaurer.vscode-jumpy
+wwm.better-align
+Yeaoh.stataRun
+yzane.markdown-pdf
+yzhang.markdown-all-in-one
+#+end_src
+* npm.list
+** list
+#+begin_src
+carbon-now-cli
+how-2
+#+end_src
+** notes
+*** [[https://github.com/carbon-app/carbon][carbon]] and [[https://github.com/mixn/carbon-now-cli][carbon-now-cli]]: Create and share beautiful images of your source code
+*** [[https://github.com/santinic/how2][how2]]: Stackoverflow from the terminal
