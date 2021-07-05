@@ -11,6 +11,9 @@ if [ -x /usr/bin/dircolors ]; then
     alias egrep='egrep --color=auto'
 fi
 
+# cat with syntax highlighting and Git integration
+alias cat='bat'
+
 # ls aliases
 alias ll='ls -alF'
 alias la='ls -A'
