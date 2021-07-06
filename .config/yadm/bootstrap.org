@@ -3,12 +3,12 @@
 #+EMAIL: levigcrews@gmail.com
 
 * TODO add file-local-var to automatically tangle this doc
-* TODO add correct file destination to each code block
-* TODO Scope
-* Bootstrap script
+* TODO add description of this file
+
+* bootstrap script
 Adapted from https://github.com/rkalis/dotfiles and associated blog posts.
 
-#+begin_src shell
+#+begin_src shell :tangle "bootstrap.sh"
 #! /usr/bin/env sh
 
 DIR=$(dirname "$0")
@@ -51,10 +51,12 @@ find * -name "*.list" | while read fn; do
     done < "$fn"
     success "Finished installing $1 packages."
 done
+
+chmod +x /usr/local/bin/pdfsearch
 #+end_src
-* Colored progress messages
+* colored progress messages
 Taken again from https://github.com/rkalis/dotfiles and associated blog posts. Called in ~bootstrap.sh~ to give the user easy-to-read progress updates as the installation proceeds.
-#+begin_src shell
+#+begin_src shell :tangle "coloredecho.sh"
 #! /usr/bin/env sh
 
 # Took these printing functions from https://github.com/Sajjadhosn/dotfiles
@@ -106,7 +108,7 @@ substep_error() {
 #+end_src
 * apt.list
 ** list
-#+begin_src
+#+begin_src :tangle "apt.list"
 bat
 bmon
 curl
@@ -195,7 +197,7 @@ poppler-utils
 #+end_src
 * snap.list
 ** list
-#+begin_src
+#+begin_src :tangle "snap.list"
 --classic code
 vlc
 jabref
@@ -208,7 +210,7 @@ harsh
 - use Org mode instead, but I like the plots this makes better than Org's
 * pip.list
 ** list
-#+begin_src
+#+begin_src :tangle "pip.list"
 bokeh
 dask
 docutils
@@ -238,7 +240,7 @@ It provides elegant, concise construction of versatile graphics, and affords hig
 *** [[https://github.com/ofajardo/pyreadr][pyreadr]]: Python package to read/write R data files
 *** [[https://github.com/tldr-pages/tldr][tldr]]: Community-sourced command-line cheatsheets
 * code.list
-#+begin_src
+#+begin_src :tangle "code.list"
 aaron-bond.better-comments
 albert.tabout
 arcticicestudio.nord-visual-studio-code
@@ -299,10 +301,24 @@ yzhang.markdown-all-in-one
 #+end_src
 * npm.list
 ** list
-#+begin_src
+#+begin_src :tangle "npm.list"
 carbon-now-cli
 how-2
 #+end_src
 ** notes
 *** [[https://github.com/carbon-app/carbon][carbon]] and [[https://github.com/mixn/carbon-now-cli][carbon-now-cli]]: Create and share beautiful images of your source code
 *** [[https://github.com/santinic/how2][how2]]: Stackoverflow from the terminal
+* custom bash scripts
+** ~pdfsearch~: search all PDFs in current directory for string
+[[https://stackoverflow.com/a/4643518/11952647][This Stackoverflow answer]] suggests the =find ... -exec sh -c ...=
+framework that comprises the body of this short script. [[https://stackoverflow.com/a/4643518/11952647][This answer]]
+taught me how to pass the search query to the =-exec= command.
+The =-q= flag for =pdftotext= just silences error messages.
+The =-m 1= flag for =grep= limits results to one per file.
+
+#+begin_src shell :tangle "/usr/local/bin"
+#! /usr/bin/env sh
+
+tosearch=$1
+find . -name '*.pdf' -exec sh -c 'pdftotext "{}" -q - | grep -m 1 --with-filename --label="{}" --color "$1"' sh "$tosearch" \;
+#+end_src
