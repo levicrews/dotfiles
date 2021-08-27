@@ -21,5 +21,13 @@
         "key": "ctrl+alt+=",
         "command": "wwm.aligncode",
         "when": "editorTextFocus && !editorReadonly"
+    },
+    {
+        "key": "ctrl+alt+s",
+        "command": "code-runner.run"
+    },
+    {
+        "key": "ctrl+alt+n",
+        "command": "-code-runner.run"
     }
 ]
