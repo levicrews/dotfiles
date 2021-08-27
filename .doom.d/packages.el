@@ -59,7 +59,7 @@
 (when (featurep! :completion helm)
   (package! helm-bibtex :pin "1bb81d77e08296a50de7ebfe5cf5b0c715b7f3d6"))
 (unpin! org-roam)
-(package! org-roam-bibtex
+(package! org-roam-bibtex :pin "80a86980801ff233d7c12ae9efef589ffa53df67"
   :recipe (:host github :repo "org-roam/org-roam-bibtex"))
 (package! org-roam-server :recipe (:host github :repo "org-roam/org-roam-server" :files ("*")))
 (package! company-org-roam :recipe (:host github :repo "org-roam/company-org-roam"))
@@ -67,3 +67,8 @@
 (package! org-analyzer)
 (package! insert-esv)
 (package! magit-section) ;; temporary: https://github.com/hlissner/doom-emacs/issues/2415
+(package! sword-to-org
+  :recipe (:host github :repo "alphapapa/sword-to-org"
+           :files ("sword-to-org.el")))
+(package! org-appear :recipe (:host github :repo "awth13/org-appear")
+  :pin "148aa124901ae598f69320e3dcada6325cdc2cf0")
