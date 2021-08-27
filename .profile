@@ -37,3 +37,4 @@ export PATH=~/.config/rofi/bin:$PATH
 
 # set Gurobi license
 export GRB_LICENSE_FILE=/opt/gurobi/gurobi.lic
+. "$HOME/.cargo/env"
