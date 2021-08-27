@@ -134,3 +134,23 @@ Check out [[https://youtube.com/playlist?list=PLt6-rPpOpkb3XKwdUoLtUhCqkMbyqomba
 seen on ~rofi~.
 
 * Doom emacs
+* RCC Midway SAMBA
+SAMBA allows users to connect to (or "mount") their home and project directories on their local computer so that the file system on Midway2 appears as if it were directly connected to the local machine. This method of accessing your RCC home and project space is only available from within the UChicago campus network. From off-campus you will need to first connect through the [[https://cvpn.uchicago.edu/][UChicago VPN]].
+
+One's SAMBA account credentials take the form:
+#+begin_src
+Username: ADLOCAL\CNetID
+Password: CNet password
+Hostname: midwaysmb.rcc.uchicago.edu
+#+end_src
+
+I followed [[https://rcc.uchicago.edu/docs/data-transfer/index.html#connecting-from-ubuntu][these instructions]] to mount my UChicago RCC Midway drive from my Ubuntu file system.
+1. install cifs: =sudo apt install cifs-utils=
+2. make directory: =mkdir /media/midway=
+3. store credentials: =touch ~/.smbcredentials=
+   =echo "username=lgc7" >> ~/.smbcredentials=
+   =echo "password=Yank2fan96Marlee" >> ~/.smbcredentials=
+4. change permissions so only you can read the file: =chmod 600 ~/.smbcredentials=
+5. =sudo echo "//midwaysmb.rcc.uchicago.edu/homes /media/midway cifs credentials=/home/levic/.smbcredentials,domain=ADLOCAL,iocharset=utf8,sec=ntlm,vers=2.0 0 0" >> /etc/fstab=
+6. update mounts: =sudo mount -a=
+7. your Midway folders are now accessible at ~/media/midway~
