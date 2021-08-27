@@ -175,7 +175,18 @@ If you use =org= and don't want your org files in the default location below, ch
         org-hide-leading-stars t
         org-startup-indented t
         org-startup-folded t
+        org-hide-emphasis-markers t
         org-fontify-done-headline nil))
+
+(use-package! org-appear
+  :hook (org-mode . org-appear-mode)
+  :config
+  (setq org-appear-autoemphasis t
+        org-appear-autosubmarkers t
+        org-appear-autolinks nil)
+  ;; for proper first-time setup, `org-appear--set-elements'
+  ;; needs to be run after other hooks have acted.
+  (run-at-time nil nil #'org-appear--set-elements))
 
 (add-hook 'org-mode-hook (lambda ()
   "Beautify Org Checkbox Symbol"
@@ -310,6 +321,8 @@ into a [[https://orgmode.org/manual/Block-agenda.html][block agenda]].
 ** org-noter + org-pdftools
 The package [[https://github.com/weirdNox/org-noter][org-noter]] has elsewhere been loaded in this Doom config through the ~+ noter~ flag in ~init.el~, but Doom doesn't add any code to configure it by default. The code to configure [[https://github.com/fuxialexander/org-pdftools][org-pdftools]] below is taken directly from its README.
 
+[2021-07-20 Tue 09:22] I'm having [[https://github.com/politza/pdf-tools/issues/600][this issue]] in which my highlights show up in incorrect regions. It appears that ~pdf-tools~ is orphaned, so it was forked [[https://github.com/vedang/pdf-tools][here]]. Unclear if my issue was fixed on the fork. Either way, I should update my pin of ~pdf-tools~.
+
 See cite:Limanowski2017 and cite:Gomez2018 for discussions of ~org-noter~.
 
 #+begin_src elisp
@@ -361,11 +374,25 @@ See cite:Limanowski2017 and cite:Gomez2018 for discussions of ~org-noter~.
 
 ** org-ref
 
-The package [[https://github.com/jkitchin/org-ref][org-ref]] provides modules for citations, cross-references, and bibliographies. It's developed by John Kitchin, who also develops [[https://github.com/jkitchin/scimax][scimax]], the Emacs starterkit for scientists and engineers.
+The package [[https://github.com/jkitchin/org-ref][org-ref]] provides modules for citations,
+cross-references, and bibliographies. It's developed by John
+Kitchin, who also develops [[https://github.com/jkitchin/scimax][scimax]], the Emacs starterkit for
+scientists and engineers.
 
-The code below shows how I integrate ~org-ref~ with ~helm-bibtex~ and ~org-roam-bibtex~ to build my bibliographic database. This [[https://org-roam.discourse.group/t/org-ref-code-in-doom-emacs-init-file/1483][Discourse thread]] was quite helpful.
+The code below shows how I integrate ~org-ref~ with ~helm-bibtex~
+and ~org-roam-bibtex~ to build my bibliographic database. This
+[[https://org-roam.discourse.group/t/org-ref-code-in-doom-emacs-init-file/1483][Discourse thread]] was quite helpful.
 
-Note: the ivy-backend for ~org-ref~ is [[https://github.com/jkitchin/org-ref/issues/793][not actually]] ~ivy-bibtex~. Some of the code below may be redundant, but it works!
+Note: the ivy-backend for ~org-ref~ is [[https://github.com/jkitchin/org-ref/issues/793][not actually]] ~ivy-bibtex~.
+Some of the code below may be redundant, but it works!
+
+[2021-07-20 Tue 09:30]: Org mode now has native support for
+citations with ~org-cite~. See the README of [[https://github.com/bdarcus/bibtex-actions][BibTeX Actions]] for an
+alternative workflow that uses this native support. According to [[https://github.com/hlissner/doom-emacs/pull/5212][
+this pull request]] to Doom Emacs, I expect ~org-cite~ to take over.
+(See also [[https://github.com/hlissner/doom-emacs/pull/2888][this one]] and [[https://github.com/jkitchin/org-ref/issues/885][this one]]. See [[https://youtu.be/4ta4J20kpmM][this video]] from John Kitchin.)
+
+[2021-08-05 Thu 06:39]: The new ~org-cite~ feature is described [[https://blog.tecosaur.com/tmio/2021-07-31-citations.html][here]].
 
 #+begin_src elisp
 (use-package! org-ref
@@ -395,6 +422,11 @@ I use Ivy.
 
 [2021-06-30 Wed 13:17]: It takes >30sec to parse my bib with ~2000 entries.
 See [[https://github.com/tmalsburg/helm-bibtex/issues/159][this issue]] on slow parsing for potential fixes.
+
+[2021-07-20 Tue 09:25]: The package [[https://github.com/bdarcus/bibtex-actions][BibTeX Actions]] provides similar
+functionality through [[https://github.com/raxod502/selectrum][selectrum]], [[https://github.com/oantolin/embark/][embark]], and [[https://github.com/minad/marginalia][marginalia]]. Org mode now
+has native support for citations with ~org-cite~. The BibTeX Actions
+README shows how to set it up.
 
 *** features
 - use either Helm or Ivy
