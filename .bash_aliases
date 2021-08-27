@@ -51,3 +51,10 @@ alias ypl='yadm pull'
 
 # fdfind
 alias fd='fdfind'
+
+# disk usage
+alias du='du -d 1 -h | sort -h'
+
+# fuzzy finder file preview
+alias pf="fzf --preview='bat --color=always --style=numbers {}' --bind shift-up:preview-up,shift-down:preview-down"
+alias pt="fzf --preview='less {}' --bind shift-up:preview-up,shift-down:preview-down"
