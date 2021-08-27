@@ -4,7 +4,7 @@
 
 * TODO add file-local-var to automatically tangle this doc
 * TODO add description of this file
-
+* TODO replace =find= and =grep= in =pdfsearch= command to speed it up
 * bootstrap script
 Adapted from https://github.com/rkalis/dotfiles and associated blog posts.
 
@@ -31,6 +31,9 @@ sudo -v
 add-apt-repository ppa:kelleyk/emacs
 add-apt-repository ppa:inkscape.dev/stable
 apt update
+
+# install Rust & Cargo (its package manager)
+curl https://sh.rustup.rs -sSf | sh
 
 find * -name "*.list" | while read fn; do
     cmd="${fn%.*}" # Bash string operator
@@ -111,12 +114,14 @@ substep_error() {
 #+begin_src :tangle "apt.list"
 bat
 bmon
+cookiecutter
 curl
 diatheke
 emacs26
 fd-find
 font-manager
 fonts-powerline
+fzf
 gdebi
 gdebi-core
 gh
@@ -124,6 +129,7 @@ git
 golang-go
 graphviz
 htop
+httpie
 hugo
 inkscape
 jq
@@ -145,13 +151,16 @@ rofi
 rstudio
 samba
 scrot
+silversearcher-ag
 shellcheck
 sqlite3
 surfraw
+sword-text-kjv
 sxhkd
 texlive
 latexmk
 viewnior
+visidata
 w3m
 wordnet
 xclip
@@ -160,19 +169,30 @@ youtube-dl
 zathura
 #+end_src
 ** notes
+
+A number of the tools I install are modern/faster/saner alternatives to common Unix commands. A collection of such tools is maintained in the [[https://github.com/ibraheemdev/modern-unix][modern-unix]] repo on GitHub.
+
 *** [[https://github.com/sharkdp/bat][bat]]: =cat= clone with syntax highlighting and Git integration
+- aliased for =cat=
 *** [[https://github.com/tgraf/bmon][bmon]]: bandwidth monitor
 - called by ~rofi~
+*** [[https://github.com/cookiecutter/cookiecutter][cookiecutter]]: A command-line utility that creates projects from cookiecutters (project templates)
 *** diatheke: command line Bible reader
+*** [[https://github.com/junegunn/fzf][fzf]]: a command line fuzzy finder
 *** [[https://github.com/cli/cli][gh]]: GitHub CLI
 - supercedes HTTPS and SSH interactions with GitHub
+*** [[https://httpie.io/][httpie]]: a user-friendly command-line HTTP client for the API era
+- comes with JSON support, syntax highlighting, persistent sessions, wget-like downloads, plugins, ...
+- can replace =curl= and =wget=
 *** [[https://github.com/inkscape/inkscape][inkscape]]: free and open source vector drawing
 - Castel: [[https://castel.dev/post/lecture-notes-2/][How I draw figures for my math notes using Inkscape]]
+*** [[https://stedolan.github.io/jq/tutorial/][jq]]: a lightweight and flexible command-line JSON processor
 *** [[https://github.com/visit1985/mdp][mdp]]: command-line based Markdown presentation tool
 *** [[https://github.com/johnkerl/miller][miller]]: like =awk=, =sed=, =cut=, =join=, and =sort= for name-indexed data such as CSV, TSV, and tabular JSON
 *** [[https://github.com/itchyny/mmv][mmv]]: rename multiple files using your default editor
 *** pdftk: command line tool to merge and split PDFs
 - used to compile class slides into one PDF for entry in BibTeX database
+- synatx :: ~pdftk <files> cat output <newfile>~
 *** qalc: powerful and easy to use command line calculator
 - called by ~rofi~ launcher
 *** pdf viewers: qpdfview & zathura
@@ -181,10 +201,12 @@ zathura
 - explained in detail elsewhere
 *** [[https://github.com/dreamer/scrot][scrot]]: command-line screenshot utility
 - called by ~rofi~
+*** [[https://github.com/ggreer/the_silver_searcher][silversearcher-ag]]: A code-searching tool similar to ack, but faster
 *** [[https://gitlab.com/surfraw/Surfraw][surfraw]]: CLI to popular web search engines
 *** sxhkd
 - hotkey manager used to specify ~rofi~ hotkeys
 - explained in detail elsewhere
+*** [[https://www.visidata.org/][visidata]]: interactive multitool for tabular data
 *** [[https://github.com/ytdl-org/youtube-dl/][youtube-dl]]
 - download YouTube videos
 ** dependencies for =diff-pdf=
@@ -204,10 +226,12 @@ jabref
 slack --classic
 discord
 harsh
+bibletime
 #+end_src
 ** notes
 *** [[https://github.com/wakatara/harsh][harsh]]: A minimalist command line tool for tracking habits
 - use Org mode instead, but I like the plots this makes better than Org's
+*** [[https://github.com/bibletime/bibletime][bibletime]]: A powerful cross platform Bible study tool
 * pip.list
 ** list
 #+begin_src :tangle "pip.list"
@@ -221,7 +245,10 @@ grip
 icdiff
 minet
 pipenv
+pyomo
+pyreadr
 tldr
+tqdm
 quantecon
 #+end_src
 ** notes
@@ -237,8 +264,23 @@ It provides elegant, concise construction of versatile graphics, and affords hig
 *** [[https://github.com/medialab/minet][minet]]: webmining command line tool
 - can be used to collect and extract data from a large variety of web sources such as raw webpages, Facebook, YouTube, Twitter, etc.
 *** [[https://github.com/pypa/pipenv][pipenv]]: automatically creates/manages a virtualenv for projects
+*** [[http://www.pyomo.org/about][pyomo]]: modeling language with a diverse set of optimization capabilities
 *** [[https://github.com/ofajardo/pyreadr][pyreadr]]: Python package to read/write R data files
 *** [[https://github.com/tldr-pages/tldr][tldr]]: Community-sourced command-line cheatsheets
+*** [[https://github.com/tqdm/tqdm][tqdm]]: a fast, extensible progress bar for Python and CLI
+* cargo.list
+** list
+#+begin_src :tangle "cargo.list"
+broot
+du-dust
+exa
+sd
+#+end_src
+** notes
+*** [[https://github.com/Canop/broot][broot]]: a new way to see and navigate directory trees
+*** [[https://github.com/bootandy/dust][dust]]: a more intuitive version of =du= (disk usage) in rust
+*** [[https://github.com/ogham/exa][exa]]: a modern replacement for =ls=
+*** [[https://github.com/chmln/sd][sd]]: intuitive find & replace CLI (=sed= alternative)
 * code.list
 #+begin_src :tangle "code.list"
 aaron-bond.better-comments
@@ -304,10 +346,12 @@ yzhang.markdown-all-in-one
 #+begin_src :tangle "npm.list"
 carbon-now-cli
 how-2
+tldr
 #+end_src
 ** notes
 *** [[https://github.com/carbon-app/carbon][carbon]] and [[https://github.com/mixn/carbon-now-cli][carbon-now-cli]]: Create and share beautiful images of your source code
 *** [[https://github.com/santinic/how2][how2]]: Stackoverflow from the terminal
+*** [[https://github.com/tldr-pages/tldr][tldr]]: Collaborative cheatsheets for console commands
 * custom bash scripts
 ** ~pdfsearch~: search all PDFs in current directory for string
 [[https://stackoverflow.com/a/4643518/11952647][This Stackoverflow answer]] suggests the =find ... -exec sh -c ...=
@@ -322,3 +366,8 @@ The =-m 1= flag for =grep= limits results to one per file.
 tosearch=$1
 find . -name '*.pdf' -exec sh -c 'pdftotext "{}" -q - | grep -m 1 --with-filename --label="{}" --color "$1"' sh "$tosearch" \;
 #+end_src
+** [[https://github.com/cheat/cheat][cheat]]: create and view custom interactive cheatsheets on the command line
+- Cheatsheets are stored on "cheatpaths", which are directories that contain cheatsheets. Cheatpaths are specified in a YAML config file.
+- Can store personal cheatsheets *and* community cheatsheets
+- compare [[https://github.com/srsudar/eg][eg]] (in ~pip.list~) and [[https://github.com/tldr-pages/tldr][tldr]] (in ~npm.list~), which *only* provide stock examples
+- compare [[https://github.com/gnebbia/kb][kb]], which aims to be a full CLI knowledge base
