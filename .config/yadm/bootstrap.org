@@ -290,6 +290,7 @@ AffenWiesel.matlab-formatter
 akamud.vscode-theme-onedark
 alefragnani.numbered-bookmarks
 alefragnani.project-manager
+axetroy.vscode-changelog-generator
 bierner.emojisense
 bierner.markdown-checkbox
 bungcip.better-toml
