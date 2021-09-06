@@ -304,6 +304,10 @@ _q_: quit this menu                         _r_: restart emacs
           ("d" "data" plain #'org-roam-capture--get-point "%?"
          :file-name "refs/${slug}"
          :head "#+title: ${title}\n#+roam_alias: \n#+roam_tags: data refs\n#+created: %U\n#+last_modified: %U\n\n* Overview\n:PROPERTIES:\n:url: \n:END:\n* Specifications\n* Construction\n* Access\n"
+         :unnarrowed t)
+          ("r" "resource" plain #'org-roam-capture--get-point "%?"
+         :file-name "refs/${slug}"
+         :head "#+title: ${title}\n#+roam_alias: \n#+roam_tags: refs\n#+created: %U\n#+last_modified: %U\n\n* Overview\n:PROPERTIES:\n:url: \n:END:\n"
          :unnarrowed t))
         org-roam-dailies-capture-templates
         '(("d" "default" plain
