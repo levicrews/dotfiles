@@ -247,6 +247,7 @@ minet
 pipenv
 pyomo
 pyreadr
+radian
 tldr
 tqdm
 quantecon
@@ -266,6 +267,7 @@ It provides elegant, concise construction of versatile graphics, and affords hig
 *** [[https://github.com/pypa/pipenv][pipenv]]: automatically creates/manages a virtualenv for projects
 *** [[http://www.pyomo.org/about][pyomo]]: modeling language with a diverse set of optimization capabilities
 *** [[https://github.com/ofajardo/pyreadr][pyreadr]]: Python package to read/write R data files
+*** [[https://github.com/randy3k/radian][radian]]: A 21st-century R console
 *** [[https://github.com/tldr-pages/tldr][tldr]]: Community-sourced command-line cheatsheets
 *** [[https://github.com/tqdm/tqdm][tqdm]]: a fast, extensible progress bar for Python and CLI
 * cargo.list
