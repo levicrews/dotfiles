@@ -112,6 +112,7 @@ substep_error() {
 * apt.list
 ** list
 #+begin_src :tangle "apt.list"
+autojump
 bat
 bmon
 cookiecutter
@@ -172,6 +173,7 @@ zathura
 
 A number of the tools I install are modern/faster/saner alternatives to common Unix commands. A collection of such tools is maintained in the [[https://github.com/ibraheemdev/modern-unix][modern-unix]] repo on GitHub.
 
+*** [[https://github.com/wting/autojump][autojump]]: A =cd= command that learns
 *** [[https://github.com/sharkdp/bat][bat]]: =cat= clone with syntax highlighting and Git integration
 - aliased for =cat=
 *** [[https://github.com/tgraf/bmon][bmon]]: bandwidth monitor
@@ -293,6 +295,7 @@ akamud.vscode-theme-onedark
 alefragnani.numbered-bookmarks
 alefragnani.project-manager
 axetroy.vscode-changelog-generator
+BazelBuild.vscode-bazel
 bierner.emojisense
 bierner.markdown-checkbox
 bungcip.better-toml
@@ -347,11 +350,13 @@ yzhang.markdown-all-in-one
 * npm.list
 ** list
 #+begin_src :tangle "npm.list"
+@bazel/bazelisk
 carbon-now-cli
 how-2
 tldr
 #+end_src
 ** notes
+*** [[file:~/Dropbox/org/roam/refs/bazel.org][bazel]]: Build and test software of any size, quickly and reliably
 *** [[https://github.com/carbon-app/carbon][carbon]] and [[https://github.com/mixn/carbon-now-cli][carbon-now-cli]]: Create and share beautiful images of your source code
 *** [[https://github.com/santinic/how2][how2]]: Stackoverflow from the terminal
 *** [[https://github.com/tldr-pages/tldr][tldr]]: Collaborative cheatsheets for console commands
