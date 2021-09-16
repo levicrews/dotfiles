@@ -19,7 +19,7 @@
     "editor.formatOnPaste": true,
 
     // Diff Editor
-    "diffEditor.ignoreTrimWhitespace": false,
+    "diffEditor.ignoreTrimWhitespace": true,
 
     // Terminal
     "terminal.integrated.fontFamily": "'Cascadia Code PL'",
