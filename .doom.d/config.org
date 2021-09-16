@@ -49,6 +49,7 @@ clients, file templates and snippets.
 (remove-hook 'org-mode-hook #'+literate-enable-recompile-h)
 #+end_src
 * Syncing
+
 Following this [[https://www.nicklanasa.com/posts/emacs-syncing-dropbox-beorg][post]] from Nick Lanasa, the following block ensures that your local Emacs and Beorg always stay in sync via Dropbox.
 - ~auto-save-mode~ is used to save files in the background when you don't save them explicitly. This propagates changes from local Emacs to Beorg.
 - ~auto-revert-mode~ is used to propagate changes from Beorg automagically back to your local Emacs.
@@ -56,6 +57,7 @@ Following this [[https://www.nicklanasa.com/posts/emacs-syncing-dropbox-beorg][p
 (setq auto-save-visited-mode t
       auto-revert-mode t)
 #+end_src
+
 * Editor
 ** Fonts
 Doom exposes five (optional) variables for controlling fonts in Doom. Here
@@ -136,11 +138,6 @@ See this [[https://github.com/hlissner/emacs-doom-themes/issues/216][issue]] for
   `(org-done :foreground ,(doom-lighten 'fg-1 0.05))
   `(org-ellipsis :foreground ,(doom-lighten 'fg-1 0.2)))
 #+end_src
-* Timestamps
-#+begin_src elisp
-(require 'time-stamp)
-(add-hook 'write-file-functions 'time-stamp) ; update when saving
-#+end_src
 * Generic text editing
 #+begin_src elisp
 (global-set-key (kbd "C-c d") 'define-word-at-point)
@@ -194,6 +191,11 @@ If you use =org= and don't want your org files in the default location below, ch
   (push '("[X]" . "☑" ) prettify-symbols-alist)
   (push '("[-]" . "❍" ) prettify-symbols-alist)
   (prettify-symbols-mode)))
+
+;; This reformats the display of org-ref citations
+;; but it makes the buffers too slow
+;; (with-eval-after-load 'org
+  ;; (add-hook 'org-mode-hook 'org-ref-prettify-mode))
 #+end_src
 
 ** logging
@@ -204,6 +206,19 @@ If you use =org= and don't want your org files in the default location below, ch
         org-clock-into-drawer t))
 #+end_src
 
+The following snippet from [[https://org-roam.discourse.group/t/update-a-field-last-modified-at-save/321/20][Jethro]] updates the "last_modified"
+field of my org-roam notes with the current org inactive timestamp
+upon saving.
+
+#+begin_src elisp
+(add-hook 'org-mode-hook
+          (lambda ()
+            (setq-local time-stamp-active t
+                        time-stamp-start "#\\+last_modified:[ \t]*"
+                        time-stamp-end "$"
+                        time-stamp-format "\[%Y-%02m-%02d %3a %02H:%02M\]")
+            (add-hook 'before-save-hook 'time-stamp nil 'local)))
+#+end_src
 ** set todo keywords
 - ideally each would be only four letters (hence KILL for CANCELLED)
 - reading TODO sequence implements the three stages of reading from Adler & Van Doren

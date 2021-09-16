@@ -46,9 +46,6 @@ _q_: quit this menu                         _r_: restart emacs
   `(org-done :foreground ,(doom-lighten 'fg-1 0.05))
   `(org-ellipsis :foreground ,(doom-lighten 'fg-1 0.2)))
 
-(require 'time-stamp)
-(add-hook 'write-file-functions 'time-stamp) ; update when saving
-
 (global-set-key (kbd "C-c d") 'define-word-at-point)
 (global-set-key (kbd "C-c D") 'define-word)
 
@@ -91,10 +88,23 @@ _q_: quit this menu                         _r_: restart emacs
   (push '("[-]" . "❍" ) prettify-symbols-alist)
   (prettify-symbols-mode)))
 
+;; This reformats the display of org-ref citations
+;; but it makes the buffers too slow
+;; (with-eval-after-load 'org
+  ;; (add-hook 'org-mode-hook 'org-ref-prettify-mode))
+
 (after! org
   (setq org-log-done t
         org-log-into-drawer t
         org-clock-into-drawer t))
+
+(add-hook 'org-mode-hook
+          (lambda ()
+            (setq-local time-stamp-active t
+                        time-stamp-start "#\\+last_modified:[ \t]*"
+                        time-stamp-end "$"
+                        time-stamp-format "\[%Y-%02m-%02d %3a %02H:%02M\]")
+            (add-hook 'before-save-hook 'time-stamp nil 'local)))
 
 (after! org
   (setq org-todo-keywords
