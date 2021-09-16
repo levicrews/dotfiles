@@ -148,3 +148,4 @@ unset __conda_setup
 
 # source ~/Documents/auto-init/.auto_init_commands.sh
 . "$HOME/.cargo/env"
+. /usr/share/autojump/autojump.sh

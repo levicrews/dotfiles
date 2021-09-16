@@ -62,3 +62,7 @@ alias pt="fzf --preview='less {}' --bind shift-up:preview-up,shift-down:preview-
 # radian: A 21st-century R console
 # note: "R" still opens the traditional R console
 alias r="radian"
+
+# fuzzy matching most-visited directories
+# https://blog.chaselambda.com/2014/11/07/hella-fast-command-line-navigation.html
+alias zc="new_loc=\$(cat ~/.local/share/autojump/autojump.txt | sort -n | grep -Po '^[^\s]+\s+(\K.*)' | fzf +s -e) && cd \"\$new_loc\""
