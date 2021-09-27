@@ -128,6 +128,7 @@ gdebi-core
 gh
 git
 golang-go
+gnome-sushi
 graphviz
 htop
 httpie
@@ -138,8 +139,10 @@ manpages-dev
 mdp
 miller
 mmv
+moreutils
 nodejs
 npm
+obs-studio
 pdftk
 pympress
 python3-pip
@@ -239,6 +242,7 @@ bibletime
 #+begin_src :tangle "pip.list"
 bokeh
 dask
+dataprep
 docutils
 econtools
 eg
@@ -246,18 +250,23 @@ gme
 grip
 icdiff
 minet
+pandas-datareader
+pandas-profiling[notebook]
 pipenv
+pyjanitor
 pyomo
 pyreadr
+quantecon
 radian
 tldr
 tqdm
-quantecon
+wrds
 #+end_src
 ** notes
 *** [[https://github.com/bokeh/bokeh][bokeh]]: interactive visualization library for modern web browsers
 It provides elegant, concise construction of versatile graphics, and affords high-performance interactivity over large or streaming datasets. Bokeh can help anyone who would like to quickly and easily make interactive plots, dashboards, and data applications.
 *** [[https://dask.org/][dask]]: scaling and parallelizing Pandas
+*** [[https://github.com/sfu-db/dataprep][dataprep]]: The easiest way to prepare data in Python
 *** [[https://pypi.org/project/docutils/][docutils]]: convert reStructuredText to HTML and LaTeX
 *** [[http://www.danielmsullivan.com/econtools/][econtools]]: package with tools for econometrics and data munging
 *** [[https://github.com/srsudar/eg][eg]]: useful examples at the command line
@@ -266,12 +275,16 @@ It provides elegant, concise construction of versatile graphics, and affords hig
 *** [[https://github.com/jeffkaufman/icdiff][icdiff]]: improved colored diff
 *** [[https://github.com/medialab/minet][minet]]: webmining command line tool
 - can be used to collect and extract data from a large variety of web sources such as raw webpages, Facebook, YouTube, Twitter, etc.
+*** [[https://pydata.github.io/pandas-datareader/index.html][pandas-datareader]]: remote data access for pandas
+*** [[https://github.com/pandas-profiling/pandas-profiling][pandas-profiling]]: Create HTML profiling reports from pandas DataFrame objects
 *** [[https://github.com/pypa/pipenv][pipenv]]: automatically creates/manages a virtualenv for projects
+*** [[https://github.com/pyjanitor-devs/pyjanitor][pyjanitor]]: Clean APIs for data cleaning (Python implementation of R package Janitor)
 *** [[http://www.pyomo.org/about][pyomo]]: modeling language with a diverse set of optimization capabilities
 *** [[https://github.com/ofajardo/pyreadr][pyreadr]]: Python package to read/write R data files
 *** [[https://github.com/randy3k/radian][radian]]: A 21st-century R console
 *** [[https://github.com/tldr-pages/tldr][tldr]]: Community-sourced command-line cheatsheets
 *** [[https://github.com/tqdm/tqdm][tqdm]]: a fast, extensible progress bar for Python and CLI
+*** [[https://github.com/wharton/wrds][wrds]]: extract [[file:../../Dropbox/org/roam/refs/wrds.org][WRDS]] data into Pandas
 * cargo.list
 ** list
 #+begin_src :tangle "cargo.list"
