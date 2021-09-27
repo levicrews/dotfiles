@@ -416,6 +416,7 @@ _q_: quit this menu                         _r_: restart emacs
                       "*** data"
                       "*** model"
                       "** Answer"
+                      "* Picking nits"
                       )))
      ("u" "ref + url" plain
       (function org-roam-capture--get-point)

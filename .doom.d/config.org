@@ -687,6 +687,7 @@ I use whatever keybindings come out of the box instead.
                       "*** data"
                       "*** model"
                       "** Answer"
+                      "* Picking nits"
                       )))
      ("u" "ref + url" plain
       (function org-roam-capture--get-point)
