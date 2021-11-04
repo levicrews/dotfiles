@@ -147,7 +147,7 @@ _q_: quit this menu                         _r_: restart emacs
                           '((:name "Habits"
                              :habit t)
                             (:name "Research pipeline"
-                             :file-path "[^a-z0-9]p-[a-z0-9]*\\.org")
+                             :file-path ("[^a-z0-9]p-[a-z0-9]*\\.org" "roam/projects/"))
                             (:name "Teaching + Service"
                              :file-path ("service-econ\\.org"))
                             (:name "Referee"
@@ -226,8 +226,8 @@ _q_: quit this menu                         _r_: restart emacs
   :config
   (setq bibtex-completion-bibliography crewsbib
         bibtex-completion-library-path (concat crewsbib-dir "pdf/")
-        bibtex-completion-pdf-field "file" ;; pulls PDF path from "File" field of JabRef
-        bibtex-completion-find-additional-pdfs t ;; will match all <citekey>-appendix.pdf
+        bibtex-completion-pdf-field nil ;; "file" ;; pulls PDF path from "File" field of JabRef
+        bibtex-completion-find-additional-pdfs nil ;; t ;; will match all <citekey>-appendix.pdf
         bibtex-completion-notes-path (concat org-roam-directory "refs") ;; one note file per reference
         bibtex-completion-additional-search-fields '(keywords journal booktitle)
         bibtex-completion-display-formats

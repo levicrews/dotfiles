@@ -321,7 +321,7 @@ into a [[https://orgmode.org/manual/Block-agenda.html][block agenda]].
                           '((:name "Habits"
                              :habit t)
                             (:name "Research pipeline"
-                             :file-path "[^a-z0-9]p-[a-z0-9]*\\.org")
+                             :file-path ("[^a-z0-9]p-[a-z0-9]*\\.org" "roam/projects/"))
                             (:name "Teaching + Service"
                              :file-path ("service-econ\\.org"))
                             (:name "Referee"
@@ -432,16 +432,14 @@ this pull request]] to Doom Emacs, I expect ~org-cite~ to take over.
 
 The package [[https://github.com/tmalsburg/helm-bibtex][helm-bibtex]] provides a clean search interface for your
 bibliographic database. You can use either Helm or Ivy as your
-front-end completion framework. Consistent with the rest of my config,
-I use Ivy.
+front-end completion framework. Consistent with the rest of my config, I use Ivy.
 
-[2021-06-30 Wed 13:17]: It takes >30sec to parse my bib with ~2000 entries.
-See [[https://github.com/tmalsburg/helm-bibtex/issues/159][this issue]] on slow parsing for potential fixes.
+[2021-06-30 Wed 13:17]: It takes >30sec to parse my bib with 2000 entries. See [[https://github.com/tmalsburg/helm-bibtex/issues/159][this issue]] on slow parsing for potential fixes.
+
+[2021-10-29 Fri 07:01]: It now takes a few minutes to parse my bib with over 400 entries. Per the advice in the previous thread, I set ~bibtex-completion-pdf-field~ to ~nil~ for now.
 
 [2021-07-20 Tue 09:25]: The package [[https://github.com/bdarcus/bibtex-actions][BibTeX Actions]] provides similar
-functionality through [[https://github.com/raxod502/selectrum][selectrum]], [[https://github.com/oantolin/embark/][embark]], and [[https://github.com/minad/marginalia][marginalia]]. Org mode now
-has native support for citations with ~org-cite~. The BibTeX Actions
-README shows how to set it up.
+functionality through [[https://github.com/raxod502/selectrum][selectrum]], [[https://github.com/oantolin/embark/][embark]], and [[https://github.com/minad/marginalia][marginalia]]. Org mode now has native support for citations with ~org-cite~. The BibTeX Actions README shows how to set it up.
 
 *** features
 - use either Helm or Ivy
@@ -461,8 +459,8 @@ README shows how to set it up.
   :config
   (setq bibtex-completion-bibliography crewsbib
         bibtex-completion-library-path (concat crewsbib-dir "pdf/")
-        bibtex-completion-pdf-field "file" ;; pulls PDF path from "File" field of JabRef
-        bibtex-completion-find-additional-pdfs t ;; will match all <citekey>-appendix.pdf
+        bibtex-completion-pdf-field nil ;; "file" ;; pulls PDF path from "File" field of JabRef
+        bibtex-completion-find-additional-pdfs nil ;; t ;; will match all <citekey>-appendix.pdf
         bibtex-completion-notes-path (concat org-roam-directory "refs") ;; one note file per reference
         bibtex-completion-additional-search-fields '(keywords journal booktitle)
         bibtex-completion-display-formats
