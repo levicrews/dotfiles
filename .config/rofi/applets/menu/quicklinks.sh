@@ -44,7 +44,7 @@ options="$ucmail\n$gmail\n$brainfm\n$google\n$twitter\n$feedly\n$github\n$asana\
 chosen="$(echo -e "$options" | $rofi_command -p "Open In  :  $app" -dmenu -selected-row 0)"
 case $chosen in
     $ucmail)
-        $app https://mail.google.com/mail/u/2/#starred &
+        $app https://mail.google.com/mail/u/1/#starred &
         ;;
     $gmail)
         $app https://mail.google.com/mail/u/0/#starred &
