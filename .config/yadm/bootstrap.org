@@ -246,6 +246,7 @@ dataprep
 docutils
 econtools
 eg
+gdown
 gme
 grip
 icdiff
@@ -270,6 +271,8 @@ It provides elegant, concise construction of versatile graphics, and affords hig
 *** [[https://pypi.org/project/docutils/][docutils]]: convert reStructuredText to HTML and LaTeX
 *** [[http://www.danielmsullivan.com/econtools/][econtools]]: package with tools for econometrics and data munging
 *** [[https://github.com/srsudar/eg][eg]]: useful examples at the command line
+*** [[https://github.com/wkentaro/gdown][gdown]]: Download a large file from Google Drive
+~curl~ and ~wget~ fail because Google gives a security notice that they can't bypass automatically.
 *** [[https://www.usitc.gov/data/gravity/gme.htm][gme]]: Python module for USITC Gravity Modeling Environment
 *** [[https://github.com/joeyespo/grip][grip]]: Preview GitHub READMEs locally
 *** [[https://github.com/jeffkaufman/icdiff][icdiff]]: improved colored diff
@@ -332,6 +335,7 @@ ms-azuretools.vscode-docker
 ms-python.python
 ms-python.vscode-pylance
 ms-toolsai.jupyter
+ms-vscode.vscode-github-issue-notebooks
 ms-vsliveshare.vsliveshare
 ms-vsliveshare.vsliveshare-audio
 ms-vsliveshare.vsliveshare-pack
