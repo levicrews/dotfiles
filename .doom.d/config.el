@@ -149,7 +149,7 @@ _q_: quit this menu                         _r_: restart emacs
                             (:name "Research pipeline"
                              :file-path ("[^a-z0-9]p-[a-z0-9]*\\.org" "roam/projects/"))
                             (:name "Teaching + Service"
-                             :file-path ("service-econ\\.org"))
+                             :file-path ("service-econ\\.org" "roam/refs/E33550\\.org"))
                             (:name "Referee"
                              :file-path ("referee\\.org"))
                             (:name "SysAdmin"

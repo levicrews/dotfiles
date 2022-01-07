@@ -232,6 +232,7 @@ upon saving.
   '((sequence "TODO(t)" "NEXT(n)" "ONGO(o!)" "WAIT(w@/!)" "|" "DONE(d)" "KILL(k)")
     (sequence "INSPECT(i)" "UNDERSTAND(u!)" "EVAL(e!)" "|" "READ(r)" "KILL(k!)"))))
 #+end_src
+- Remember: SCHEDULED is the "do" date, not the "due" date
 
 ** org-super agenda
 
@@ -323,7 +324,7 @@ into a [[https://orgmode.org/manual/Block-agenda.html][block agenda]].
                             (:name "Research pipeline"
                              :file-path ("[^a-z0-9]p-[a-z0-9]*\\.org" "roam/projects/"))
                             (:name "Teaching + Service"
-                             :file-path ("service-econ\\.org"))
+                             :file-path ("service-econ\\.org" "roam/refs/E33550\\.org"))
                             (:name "Referee"
                              :file-path ("referee\\.org"))
                             (:name "SysAdmin"
@@ -436,7 +437,7 @@ front-end completion framework. Consistent with the rest of my config, I use Ivy
 
 [2021-06-30 Wed 13:17]: It takes >30sec to parse my bib with 2000 entries. See [[https://github.com/tmalsburg/helm-bibtex/issues/159][this issue]] on slow parsing for potential fixes.
 
-[2021-10-29 Fri 07:01]: It now takes a few minutes to parse my bib with over 400 entries. Per the advice in the previous thread, I set ~bibtex-completion-pdf-field~ to ~nil~ for now.
+[2021-10-29 Fri 07:01]: It now takes a few minutes to parse my bib with over 4000 entries. Per the advice in the previous thread, I set ~bibtex-completion-pdf-field~ to ~nil~ for now.
 
 [2021-07-20 Tue 09:25]: The package [[https://github.com/bdarcus/bibtex-actions][BibTeX Actions]] provides similar
 functionality through [[https://github.com/raxod502/selectrum][selectrum]], [[https://github.com/oantolin/embark/][embark]], and [[https://github.com/minad/marginalia][marginalia]]. Org mode now has native support for citations with ~org-cite~. The BibTeX Actions README shows how to set it up.
@@ -708,6 +709,11 @@ I use whatever keybindings come out of the box instead.
 #+end_src
 
 * LaTeX
+
+My Doom settings handle most of my LaTeX setup (specifically AucTeX
+and CDLaTeX). This [[https://karthinks.com/software/latex-input-for-impatient-scholars/][post]] from Karthinks aligns well with what I want
+from my LaTeX setup.
+
 ** PDF viewer
 #+begin_src elisp :tangle no
 (after! org
