@@ -221,20 +221,24 @@ upon saving.
 #+end_src
 ** set todo keywords
 - ideally each would be only four letters (hence KILL for CANCELLED)
-- reading TODO sequence implements the three stages of reading from Adler & Van Doren
+- reading TODO sequence implements the three stages of reading from cite:AdlervanDoren1972
   + mark state change between stages
-  + INSPECT :: read to grasp the structure; read preface, skim body, read conclusion
-  + UNDERSTAND :: read to be convinced; try to understand what the author means to say
+  + SPEC (inSPECt) :: read to grasp the structure; read preface, skim body, read conclusion
+  + KNOW (understand) :: read to be convinced; try to understand what the author means to say
   + EVAL :: read to tear apart; argue, poke holes, uncover implicit assumptions
+- writing TODO sequence denotes how to grow a stub in the writing inbox:
+  + FILL :: flesh out the idea
+  + LINK :: create the corresponding permanent note and add links
 #+begin_src elisp
 (after! org
   (setq org-todo-keywords
   '((sequence "TODO(t)" "NEXT(n)" "ONGO(o!)" "WAIT(w@/!)" "|" "DONE(d)" "KILL(k)")
-    (sequence "INSPECT(i)" "UNDERSTAND(u!)" "EVAL(e!)" "|" "READ(r)" "KILL(k!)"))))
+    (sequence "SPEC(i)" "KNOW(u!)" "EVAL(e!)" "|" "READ(r)")
+    (sequence "FILL(f)" "LINK(l)" "|" "DONE(d)"))))
 #+end_src
 - Remember: SCHEDULED is the "do" date, not the "due" date
 
-** org-super agenda
+** org-super agenda + reviews
 
 The package [[https://github.com/alphapapa/org-super-agenda][org-super-agenda]] lets you "supercharge" your Org daily
 or weekly agenda. The idea is to group items into sections, rather
@@ -257,7 +261,7 @@ like org-tags-view, org-todo-list, org-search-view, etc. See the official
 set of examples [[https://github.com/alphapapa/org-super-agenda/blob/master/examples.org][here]].
 
 /Note again/: =org-super-agenda= does *not* collect items! It only
-groups items that are collected by =org-agenda= or [[https://github.com/alphapapa/org-ql][=org-ql=]], which
+groups items that are collected by =org-agenda= or [[https://github.com/alphapapa/org-ql][org-ql]], which
 provides an easier way to write queries to generate agenda-like views.
 So if your Agenda command or =org-ql= query does not collect certain
 items, they will not be displayed, regardless of what =org-super-agenda=
@@ -268,13 +272,13 @@ into a [[https://orgmode.org/manual/Block-agenda.html][block agenda]].
 
 *** TODO what custom views do I want?
 **** proposed groups
-- the schedule for today (DOs and DUEs + clocked time)
-- habits
+- [X] the schedule for today (DOs and DUEs + clocked time)
+- [X] habits (show up in clocked )
 - SYSTEM (reading, gardening, maintenance, etc.)
-- research projects (publication pipeline)
+- [X] research projects (publication pipeline)
   + NEXT or ONGO
-  + any reading headlines (INSPECT, UNDERSTAND, EVAL)
-- teaching + service: NEXT or ONGO
+  + any reading headlines (SPEC, KNOW, EVAL)
+- [X] teaching + service: NEXT or ONGO
 - upcoming seminars?
 - home: NEXT or ONGO
 - all other NEXT or ONGO
@@ -300,7 +304,7 @@ into a [[https://orgmode.org/manual/Block-agenda.html][block agenda]].
         org-agenda-block-separator nil
         org-agenda-compact-blocks t)
   (setq org-agenda-custom-commands
-        '(("c" "Super view"
+        '(("c" "The Mill"
            ((agenda "" ((org-agenda-span 'day)
                         (org-agenda-start-day nil)
                         (org-agenda-overriding-header "")
@@ -319,9 +323,7 @@ into a [[https://orgmode.org/manual/Block-agenda.html][block agenda]].
                             :deadline future)))))
             (todo "NEXT|ONGO" ((org-agenda-overriding-header "")
                          (org-super-agenda-groups
-                          '((:name "Habits"
-                             :habit t)
-                            (:name "Research pipeline"
+                          '((:name "Research pipeline"
                              :file-path ("[^a-z0-9]p-[a-z0-9]*\\.org" "roam/projects/"))
                             (:name "Teaching + Service"
                              :file-path ("service-econ\\.org" "roam/refs/E33550\\.org"))
@@ -330,9 +332,23 @@ into a [[https://orgmode.org/manual/Block-agenda.html][block agenda]].
                             (:name "SysAdmin"
                              :file-path ("foreman\\.org" "system.*\\.org"))
                             (:name "Home"
-                             :file-path "home\\.org")))))))))
+                             :file-path "home\\.org")))))
+            (tags-todo "+PRIORITY=\"A\"+TODO=\"SPEC\"|+PRIORITY=\"A\"+TODO=\"KNOW\"|+PRIORITY=\"A\"+TODO=\"EVAL\"|+PRIORITY=\"A\"+TODO=\"FILL\"|+PRIORITY=\"A\"+TODO=\"LINK\"" ((org-agenda-overriding-header "")
+                         (org-super-agenda-groups
+                          '((:name "Reading inbox"
+                             :file-path ("[^a-z0-9]p-[a-z0-9]*\\.org" "roam/projects/" "reading-inbox\\.org"))
+                            (:name "Writing inbox"
+                             :file-path "writing-inbox\\.org")
+                            (:discard (:anything t))))))
+            ))))
   :config
   (org-super-agenda-mode))
+#+end_src
+*** helper functions for reviews
+#+begin_src elisp
+(defun research-pipelines ()
+    (append (file-expand-wildcards "~/Dropbox/org/p-*")
+            (file-expand-wildcards "~/Dropbox/org/roam/projects/*")))
 #+end_src
 ** org-noter + org-pdftools
 The package [[https://github.com/weirdNox/org-noter][org-noter]] has elsewhere been loaded in this Doom config through the ~+ noter~ flag in ~init.el~, but Doom doesn't add any code to configure it by default. The code to configure [[https://github.com/fuxialexander/org-pdftools][org-pdftools]] below is taken directly from its README.

@@ -109,7 +109,8 @@ _q_: quit this menu                         _r_: restart emacs
 (after! org
   (setq org-todo-keywords
   '((sequence "TODO(t)" "NEXT(n)" "ONGO(o!)" "WAIT(w@/!)" "|" "DONE(d)" "KILL(k)")
-    (sequence "INSPECT(i)" "UNDERSTAND(u!)" "EVAL(e!)" "|" "READ(r)" "KILL(k!)"))))
+    (sequence "SPEC(i)" "KNOW(u!)" "EVAL(e!)" "|" "READ(r)")
+    (sequence "FILL(f)" "LINK(l)" "|" "DONE(d)"))))
 
 (use-package! org-super-agenda
   :after org-agenda
@@ -125,7 +126,7 @@ _q_: quit this menu                         _r_: restart emacs
         org-agenda-block-separator nil
         org-agenda-compact-blocks t)
   (setq org-agenda-custom-commands
-        '(("c" "Super view"
+        '(("c" "The Mill"
            ((agenda "" ((org-agenda-span 'day)
                         (org-agenda-start-day nil)
                         (org-agenda-overriding-header "")
@@ -144,9 +145,7 @@ _q_: quit this menu                         _r_: restart emacs
                             :deadline future)))))
             (todo "NEXT|ONGO" ((org-agenda-overriding-header "")
                          (org-super-agenda-groups
-                          '((:name "Habits"
-                             :habit t)
-                            (:name "Research pipeline"
+                          '((:name "Research pipeline"
                              :file-path ("[^a-z0-9]p-[a-z0-9]*\\.org" "roam/projects/"))
                             (:name "Teaching + Service"
                              :file-path ("service-econ\\.org" "roam/refs/E33550\\.org"))
@@ -155,9 +154,21 @@ _q_: quit this menu                         _r_: restart emacs
                             (:name "SysAdmin"
                              :file-path ("foreman\\.org" "system.*\\.org"))
                             (:name "Home"
-                             :file-path "home\\.org")))))))))
+                             :file-path "home\\.org")))))
+            (tags-todo "+PRIORITY=\"A\"+TODO=\"SPEC\"|+PRIORITY=\"A\"+TODO=\"KNOW\"|+PRIORITY=\"A\"+TODO=\"EVAL\"|+PRIORITY=\"A\"+TODO=\"FILL\"|+PRIORITY=\"A\"+TODO=\"LINK\"" ((org-agenda-overriding-header "")
+                         (org-super-agenda-groups
+                          '((:name "Reading inbox"
+                             :file-path ("[^a-z0-9]p-[a-z0-9]*\\.org" "roam/projects/" "reading-inbox\\.org"))
+                            (:name "Writing inbox"
+                             :file-path "writing-inbox\\.org")
+                            (:discard (:anything t))))))
+            ))))
   :config
   (org-super-agenda-mode))
+
+(defun research-pipelines ()
+    (append (file-expand-wildcards "~/Dropbox/org/p-*")
+            (file-expand-wildcards "~/Dropbox/org/roam/projects/*")))
 
 ;; This will change the color of the annotation.
 (setq pdf-annot-default-markup-annotation-properties
