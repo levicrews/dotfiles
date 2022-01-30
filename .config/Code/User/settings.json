@@ -17,6 +17,7 @@
     "editor.snippetSuggestions": "top",
     "editor.multiCursorModifier": "ctrlCmd",
     "editor.formatOnPaste": true,
+    "editor.bracketPairColorization.enabled": true,
 
     // Diff Editor
     "diffEditor.ignoreTrimWhitespace": true,
@@ -133,4 +134,7 @@
         "*.ipynb": "jupyter.notebook.ipynb"
     },
     "security.workspace.trust.untrustedFiles": "open",
+    "git.ignoreLegacyWarning": true,
+    "julia.symbolCacheDownload": true,
+    "julia.enableTelemetry": false,
 }

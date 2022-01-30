@@ -250,6 +250,7 @@ gdown
 gme
 grip
 icdiff
+lux-api
 minet
 pandas-datareader
 pandas-profiling[notebook]
@@ -302,18 +303,21 @@ sd
 *** [[https://github.com/ogham/exa][exa]]: a modern replacement for =ls=
 *** [[https://github.com/chmln/sd][sd]]: intuitive find & replace CLI (=sed= alternative)
 * code.list
+Check for updates to this list with ~code --list-extensions~
 #+begin_src :tangle "code.list"
 aaron-bond.better-comments
-albert.tabout
-arcticicestudio.nord-visual-studio-code
 AffenWiesel.matlab-formatter
 akamud.vscode-theme-onedark
+albert.tabout
 alefragnani.numbered-bookmarks
 alefragnani.project-manager
+alefragnani.rtf
+arcticicestudio.nord-visual-studio-code
 axetroy.vscode-changelog-generator
 BazelBuild.vscode-bazel
 bierner.emojisense
 bierner.markdown-checkbox
+brunnerh.insert-unicode
 bungcip.better-toml
 CoenraadS.bracket-pair-colorizer-2
 DavidAnson.vscode-markdownlint
@@ -330,18 +334,26 @@ James-Yu.latex-workshop
 julialang.language-julia
 KevinRose.vsc-python-indent
 kylebarron.stata-enhanced
+mattn.Lisp
 mikestead.dotenv
 ms-azuretools.vscode-docker
 ms-python.python
 ms-python.vscode-pylance
 ms-toolsai.jupyter
+ms-toolsai.jupyter-keymap
+ms-toolsai.jupyter-renderers
+ms-vscode-remote.remote-containers
+ms-vscode-remote.remote-ssh
+ms-vscode-remote.remote-ssh-edit
 ms-vscode.vscode-github-issue-notebooks
 ms-vsliveshare.vsliveshare
 ms-vsliveshare.vsliveshare-audio
 ms-vsliveshare.vsliveshare-pack
 mxschmitt.postscript
 oijaz.unicode-latex
+OrangeX4.latex-sympy-calculator
 patbenatar.advanced-new-file
+phr0s.bib
 PKief.material-icon-theme
 quicktype.quicktype
 RandomFractalsInc.geo-data-viewer
@@ -351,7 +363,9 @@ sidneys1.gitconfig
 sleistner.vscode-fileutils
 tecosaur.latex-utilities
 Tyriar.vscode-terminal-here
+VisualStudioExptTeam.intellicode-api-usage-examples
 VisualStudioExptTeam.vscodeintellicode
+vivaxy.vscode-conventional-commits
 vmsynkov.colonize
 vscode-icons-team.vscode-icons
 vscode-org-mode.org-mode
@@ -360,6 +374,7 @@ vsls-contrib.gistfs
 wmaurer.change-case
 wmaurer.vscode-jumpy
 wwm.better-align
+xshrim.txt-syntax
 Yeaoh.stataRun
 yzane.markdown-pdf
 yzhang.markdown-all-in-one
