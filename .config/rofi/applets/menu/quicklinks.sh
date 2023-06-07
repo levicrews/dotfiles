@@ -50,7 +50,7 @@ case $chosen in
         $app https://mail.google.com/mail/u/0/#starred &
         ;;
     $brainfm)
-        $app https://www.brain.fm/app/player &
+        $app https://my.brain.fm/ &
         ;;
     $google)
         $app https://www.google.com/ &
@@ -65,7 +65,7 @@ case $chosen in
         $app https://github.com/levicrews &
         ;;
     $asana)
-        $app https://app.asana.com/0/1200143296215459/list &
+        $app https://app.asana.com/0/home/1202371903456271 &
         ;;
     $website)
         $app https://www.levicrews.com/ &
