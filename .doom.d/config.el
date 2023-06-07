@@ -146,15 +146,15 @@ _q_: quit this menu                         _r_: restart emacs
             (todo "NEXT|ONGO" ((org-agenda-overriding-header "")
                          (org-super-agenda-groups
                           '((:name "Research pipeline"
-                             :file-path ("[^a-z0-9]p-[a-z0-9]*\\.org" "roam/projects/"))
-                            (:name "Teaching + Service"
-                             :file-path ("service-econ\\.org" "roam/refs/E33550\\.org"))
+                             :file-path ("roam/projects/"))
+                            (:name "Teaching + Service + Career"
+                             :file-path ("service\\.org" "career\\.org"))
                             (:name "Referee"
                              :file-path ("referee\\.org"))
                             (:name "SysAdmin"
-                             :file-path ("foreman\\.org" "system.*\\.org"))
-                            (:name "Home"
-                             :file-path "home\\.org")))))
+                             :file-path ("system.*\\.org"))
+                            (:name "Home + Church"
+                             :file-path ("home\\.org" "church\\.org"))))))
             (tags-todo "+PRIORITY=\"A\"+TODO=\"SPEC\"|+PRIORITY=\"A\"+TODO=\"KNOW\"|+PRIORITY=\"A\"+TODO=\"EVAL\"|+PRIORITY=\"A\"+TODO=\"FILL\"|+PRIORITY=\"A\"+TODO=\"LINK\"" ((org-agenda-overriding-header "")
                          (org-super-agenda-groups
                           '((:name "Reading inbox"
