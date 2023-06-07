@@ -32,7 +32,7 @@ configuration {
     display-ssh: 					"";
     display-drun: 					"";
     display-combi: 					"";
-    display-file-browser:           "";
+    display-filebrowser:            "";
     file-browser-directory:          "~/Dropbox/crewsbib/pdf";
 }
 

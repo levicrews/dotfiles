@@ -23,6 +23,6 @@ color="${styles[$(( $RANDOM % 10 ))]}"
 # themes=($(ls -p --hide="launcher.sh" --hide="styles" $dir))
 # theme="${themes[$(( $RANDOM % 7 ))]}"
 
-rofi -no-lazy-grab -show file-browser \
--modi window,file-browser,drun,":qalc +u8 -nocurrencies" \
+rofi -no-lazy-grab -show filebrowser \
+-modi window,filebrowser,drun,":qalc +u8 -nocurrencies" \
 -theme $dir/"$theme"
