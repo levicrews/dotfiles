@@ -66,7 +66,7 @@ inputbar {
 listview {
     columns:						4;
     lines:							1;
-    spacing:                        15px;
+    spacing:                        0px;
     cycle:                          true;
     dynamic:                        true;
     layout:                         vertical;
@@ -91,7 +91,7 @@ element-text {
     expand:                         true;
     horizontal-align:               0.5;
     vertical-align:                 0;
-    margin:                         25px 0px 65px 0px;
+    margin:                         25px 0px 30px 0px;
 }
 
 element normal.urgent,
