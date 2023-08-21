@@ -96,6 +96,7 @@ listview {
     padding: 						4px 0px 0px;
 }
 
+
 element {
     border: 						0px;
     padding: 						1px;
@@ -135,6 +136,15 @@ element alternate.urgent {
 element alternate.active {
     background-color: 				@bg;
     text-color:       				@fg;
+}
+
+// https://github.com/davatorium/rofi/issues/1395#issuecomment-908625609
+element-text {
+    background-color: inherit;
+    text-color:       inherit;
+}
+element-icon {
+    background-color: inherit;
 }
 
 sidebar {
