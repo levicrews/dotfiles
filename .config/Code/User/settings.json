@@ -125,7 +125,6 @@
         "$home/Documents"
     ],
     "explorer.confirmDragAndDrop": false,
-    "jupyter.interactiveWindowMode": "perFile",
     "jupyter.askForKernelRestart": false,
     "explorer.confirmDelete": false,
     "git.confirmSync": false,
@@ -137,4 +136,24 @@
     "git.ignoreLegacyWarning": true,
     "julia.symbolCacheDownload": true,
     "julia.enableTelemetry": false,
+    "editor.unicodeHighlight.ambiguousCharacters": false,
+    "redhat.telemetry.enabled": false,
+    "latex-utilities.message.update.show": false,
+    "git.openRepositoryInParentFolders": "always",
+    "[python]": {
+        "editor.formatOnType": true
+    },
+    "jupyter.interactiveWindow.creationMode": "perFile",
+    "editor.inlineSuggest.enabled": true,
+    "github.copilot.enable": {
+        "*": true,
+        "plaintext": false,
+        "markdown": true,
+        "scminput": false,
+        "yaml": false,
+        "txt": true
+    },
+    "[markdown]": {
+        "editor.defaultFormatter": "yzhang.markdown-all-in-one"
+    },
 }
