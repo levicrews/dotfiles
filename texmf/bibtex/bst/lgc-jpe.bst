@@ -1172,8 +1172,6 @@ FUNCTION {misc}
   new.block
   howpublished "howpublished" bibinfo.check output
   new.block
-  format.url output
-  new.block
   format.note output
   fin.entry
 }
@@ -1247,11 +1245,10 @@ FUNCTION {techreport}
   format.title
   "title" output.check
   new.block
-  format.tr.number output.nonnull
   institution "institution" bibinfo.warn output
+  school "school" bibinfo.warn output
+  format.tr.number output.nonnull
   address "address" bibinfo.check output
-  new.block
-  format.note output
   fin.entry
 }
 
@@ -1263,8 +1260,6 @@ FUNCTION {unpublished}
   format.date "year" output.check
   date.block
   format.title "title" output.check
-  new.block
-  format.note "note" output.check
   fin.entry
 }
 
