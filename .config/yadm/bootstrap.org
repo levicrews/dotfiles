@@ -135,6 +135,7 @@ httpie
 hugo
 inkscape
 jq
+just
 manpages-dev
 mdp
 miller
@@ -143,6 +144,7 @@ moreutils
 nodejs
 npm
 obs-studio
+pdfgrep
 pdftk
 pympress
 python3-pip
@@ -171,12 +173,14 @@ xclip
 yadm
 youtube-dl
 zathura
+zoxide
 #+end_src
 ** notes
 
-A number of the tools I install are modern/faster/saner alternatives to common Unix commands. A collection of such tools is maintained in the [[https://github.com/ibraheemdev/modern-unix][modern-unix]] repo on GitHub.
+A number of the tools I install are modern/faster/saner alternatives to common Unix commands. A collection of such tools is maintained in the [[https://github.com/ibraheemdev/modern-unix][modern-unix]] repo on GitHub. See also [[https://jvns.ca/blog/2022/04/12/a-list-of-new-ish--command-line-tools/][Julia Evans's list]].
 
-*** [[https://github.com/wting/autojump][autojump]]: A =cd= command that learns
+*** [[https://github.com/wting/autojump][autojump]]: A =cd= command that learns (Python)
+*** [[https://github.com/ajeetdsouza/zoxide][zoxide]]: a smarter =cd= command (Rust)
 *** [[https://github.com/sharkdp/bat][bat]]: =cat= clone with syntax highlighting and Git integration
 - aliased for =cat=
 *** [[https://github.com/tgraf/bmon][bmon]]: bandwidth monitor
@@ -191,6 +195,7 @@ A number of the tools I install are modern/faster/saner alternatives to common U
 - can replace =curl= and =wget=
 *** [[https://github.com/inkscape/inkscape][inkscape]]: free and open source vector drawing
 - Castel: [[https://castel.dev/post/lecture-notes-2/][How I draw figures for my math notes using Inkscape]]
+*** [[https://github.com/casey/just][just]]: just a command runner
 *** [[https://stedolan.github.io/jq/tutorial/][jq]]: a lightweight and flexible command-line JSON processor
 *** [[https://github.com/visit1985/mdp][mdp]]: command-line based Markdown presentation tool
 *** [[https://github.com/johnkerl/miller][miller]]: like =awk=, =sed=, =cut=, =join=, and =sort= for name-indexed data such as CSV, TSV, and tabular JSON
@@ -228,6 +233,7 @@ poppler-utils
 --classic code
 vlc
 jabref
+morgen
 slack --classic
 discord
 harsh
@@ -328,13 +334,17 @@ geddski.macros
 Gimly81.matlab
 GitHub.vscode-pull-request-github
 GrapeCity.gc-excelviewer
+GuidoTapia2.unicode-math-vscode
 Ikuyadeu.r
 imjacobclark.vscode-lisp-formatter
 James-Yu.latex-workshop
 julialang.language-julia
 KevinRose.vsc-python-indent
+kokakiwi.vscode-just
 kylebarron.stata-enhanced
+matklad.pale-fire
 mattn.Lisp
+mechatroner.rainbow-csv
 mikestead.dotenv
 ms-azuretools.vscode-docker
 ms-python.python
@@ -361,6 +371,7 @@ redhat.vscode-yaml
 shd101wyy.markdown-preview-enhanced
 sidneys1.gitconfig
 sleistner.vscode-fileutils
+stkb.rewrap
 tecosaur.latex-utilities
 Tyriar.vscode-terminal-here
 VisualStudioExptTeam.intellicode-api-usage-examples
