@@ -35,7 +35,8 @@ feedly="" #Hex: e27b
 github="" #Hex: f09b
 asana="⛬" #file-icons U+26EC (technically Julia)
 website="" #Hex: f007
-overleaf="" #FontAwesome: U+F1C9
+# overleaf="" #FontAwesome: U+F1C9
+overleaf="" #FontAwesome: f12c
 
 # Variable passed to rofi
 options="$mail\n$brainfm\n$calendar\n$feedly\n$github\n$twitter\n$asana\n$website\n$overleaf\n$google"
@@ -49,7 +50,7 @@ case $chosen in
         $app https://my.brain.fm/ &
         ;;
     $calendar)
-        $app https://calendar.vimcal.com/home &
+        $app https://calendar.google.com/calendar/u/1/r?pli=1 &
         ;;
     $feedly)
         $app https://feedly.com/i/saved &
