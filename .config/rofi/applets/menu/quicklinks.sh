@@ -29,7 +29,7 @@ fi
 mail="" #Hex: f6ef
 calendar="" #Hex: f073
 brainfm="" #Hex: f7ca
-google="" #Hex: f1a0
+monarch="" #Hex: f1a0
 twitter="" #Hex: f099
 feedly="" #Hex: e27b
 github="" #Hex: f09b
@@ -39,7 +39,7 @@ website="" #Hex: f007
 overleaf="" #FontAwesome: f12c
 
 # Variable passed to rofi
-options="$mail\n$brainfm\n$calendar\n$feedly\n$github\n$twitter\n$asana\n$website\n$overleaf\n$google"
+options="$mail\n$brainfm\n$calendar\n$feedly\n$github\n$twitter\n$asana\n$website\n$overleaf\n$monarch"
 
 chosen="$(echo -e "$options" | $rofi_command -p "Open In  :  $app" -dmenu -selected-row 0)"
 case $chosen in
@@ -70,7 +70,7 @@ case $chosen in
     $overleaf)
         $app https://www.overleaf.com/project &
         ;;
-    $google)
-        $app https://www.google.com/ &
+    $monarch)
+        $app https://app.monarchmoney.com/dashboard &
         ;;
 esac
