@@ -57,7 +57,7 @@
         "*.fdb_latexmk",
         "*.snm",
         "*.synctex(busy)",
-        "*.synctex.gz*",
+        "*.synctex.gz",
         "*.nav"
     ],
     "latex-workshop.latex.recipes": [
@@ -120,6 +120,9 @@
     // Julia
     "julia.execution.resultType": "inline",
 
+    // R
+    "r.lsp.diagnostics": false,
+
     // Project Manager
     "projectManager.git.baseFolders": [
         "$home/Documents"
@@ -147,7 +150,7 @@
     "editor.inlineSuggest.enabled": true,
     "github.copilot.enable": {
         "*": true,
-        "plaintext": false,
+        "plaintext": true,
         "markdown": true,
         "scminput": false,
         "yaml": false,
@@ -156,4 +159,6 @@
     "[markdown]": {
         "editor.defaultFormatter": "yzhang.markdown-all-in-one"
     },
+    "githubPullRequests.pullBranch": "never",
+    "workbench.editor.tabActionCloseVisibility": false,
 }
