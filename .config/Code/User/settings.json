@@ -3,7 +3,6 @@
     "workbench.colorTheme": "Atom One Dark",
     "workbench.iconTheme": "vscode-icons",
     "workbench.startupEditor": "none",
-    "workbench.editor.tabCloseButton": "off",
     "workbench.settings.editor": "json",
     "workbench.settings.useSplitJSON": true,
     "workbench.settings.openDefaultSettings": false,
@@ -25,7 +24,8 @@
     // Terminal
     "terminal.integrated.fontFamily": "'Cascadia Code PL'",
     "terminal.integrated.commandsToSkipShell": [
-        "language-julia.interrupt"
+        "language-julia.interrupt",
+        "matlab.interrupt"
     ],
 
     // Files
@@ -123,6 +123,11 @@
     // R
     "r.lsp.diagnostics": false,
 
+    // Markdown
+    "markdown-pdf.displayHeaderFooter": true,
+    "markdown-pdf.headerTemplate": "<div style=\"font-size: 9px; margin-left: auto; margin-right: 1cm; \"> <span class='date'></span></div>",
+    "markdown-pdf.footerTemplate": "<div style=\"font-size: 9px; margin: 0 auto;\"> <span class='pageNumber'></span> / <span class='totalPages'></span></div>",
+
     // Project Manager
     "projectManager.git.baseFolders": [
         "$home/Documents"
@@ -156,9 +161,18 @@
         "yaml": false,
         "txt": true
     },
+    "github.copilot.advanced": {
+        "slashCommands": {
+            "createWorkspace": false,
+            "createNotebook": false,
+            "search": true
+        }
+    },
     "[markdown]": {
         "editor.defaultFormatter": "yzhang.markdown-all-in-one"
     },
     "githubPullRequests.pullBranch": "never",
     "workbench.editor.tabActionCloseVisibility": false,
+    "github.copilot.editor.enableAutoCompletions": true,
+    "gitlens.launchpad.indicator.enabled": false,
 }
