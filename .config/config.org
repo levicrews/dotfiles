@@ -17,13 +17,22 @@ Other features of ~yadm~:
 4. Custom hooks
 
 One note on ~yadm~ usage: you'll have to refer to files by their full
-filepath, which can get rather annoying. If you've modified a bunch of
-files from different directories (so you can't use a glob operator)
-but you wish to stage them all at once, use the command =yadm add -u=.
+filepath, which can get rather annoying. If you've modified a bunch
+of files from different directories (so you can't use a glob
+operator) but you wish to stage them all at once, use the command
+=yadm add -u=.
 
 * colors
 
 [[https://mayccoll.github.io/Gogh/][Gogh]] provides color schemes for Ubuntu.
+
+[[https://github.com/dylanaraps/pywal][Pywal]] can generate and change color schemes on the fly.
+
+* fonts
+
+My default across all customizable text interfaces (Emacs, VSCode,
+terminal) is Microsoft's [[https://github.com/microsoft/cascadia-code][Cascadia Code]]. Consider trying GitHub Next's
+[[https://monaspace.githubnext.com/][Monaspace]].
 
 * bash prompt
 
@@ -62,10 +71,10 @@ file is =~/.config/autostart/sxhkd.desktop=.
 and ~dmenu~ replacement. It's comparable to [[https://www.alfredapp.com/][Alfred]] for MacOS or [[https://albertlauncher.github.io/][Albert]]
 for Linux.
 
-** configuration
+** configuration (/actually tangle from here!/)
 
-I used [[https://github.com/adi1090x/rofi][adi1090x/rofi]] as my baseline and reconfigured from there. The
-reconfiguration involved...
+I used [[https://github.com/adi1090x/rofi][adi1090x/rofi]] as my baseline and reconfigured from there.
+The reconfiguration involved...
 - adding the ~zenburn.rasi~ theme to match my Doom emacs config
 - replacing broken glyphs
 - selecting styles (menu vs. applet, text vs. colorful)
@@ -73,8 +82,8 @@ reconfiguration involved...
 - deleting the ~powermenu~ folder (already includes applets for that)
 - adding ~filebrowser~ and ~calc~ modi to launcher menu
 
-I find it frustrating how much of the original code is redundant, so
-one day I may try to refactor the codebase.
+I find it frustrating how much of the original code is redundant,
+so one day I may try to refactor the codebase.
 
 This configuration requires rofi 1.6.0 or later.
 
@@ -90,9 +99,9 @@ the scope of ~rofi~. This includes...
 - performing quick calculations
 - running custom scripts that I don't know how to write in Lisp
 
-Ubuntu already has decent keybindings for window management, but that
-can also be handled by rofi (and is included in my default launcher
-menu).
+Ubuntu already has decent keybindings for window management, but
+that can also be handled by rofi (and is included in my default
+launcher menu).
 
 All other tasks, to the extent possible, are handled directly by
 Emacs. I'm on an unending quest to rid myself of the mouse, so
@@ -104,12 +113,13 @@ What does it mean for ~rofi~ to be a ~dmenu~ replacement? Adam Simpson
 gives us a great explanation [[https://adamsimpson.net/writing/getting-started-with-rofi][here]]. ~dmenu~ is a fast and lightweight
 dynamic menu for any X server. It reads arbitrary text from ~stdin~
 and creates a menu with one item for each line. The user can then
-select an item (through the arrow keys or by typing a part of the name)
-and the line is printed to ~stdout~. From there, the output can be
-piped through an arbitrary sequence of commands and custom scripts.
+select an item (through the arrow keys or by typing a part of the
+name) and the line is printed to ~stdout~. From there, the output
+can be piped through an arbitrary sequence of commands and custom
+scripts.
 
-Here's a simple example: Prompt the user to select 'World' or 'People',
-then print the resulting greeting.
+Here's a simple example: Prompt the user to select 'World' or
+'People', then print the resulting greeting.
 #+begin_src shell
 echo "Hello $(echo 'World\nPeople' | rofi -dmenu)"
 #+end_src
@@ -130,27 +140,6 @@ pactl set-default-sink "$source";
 
 ** advanced references
 
-Check out [[https://youtube.com/playlist?list=PLt6-rPpOpkb3XKwdUoLtUhCqkMbyqomba][these videos]] by budlabs -- #16-18 are the best videos I've
-seen on ~rofi~.
+Check out [[https://youtube.com/playlist?list=PLt6-rPpOpkb3XKwdUoLtUhCqkMbyqomba][these videos]] by budlabs -- #16-18 are the best videos I've seen on ~rofi~.
 
 * Doom emacs
-* RCC Midway SAMBA
-SAMBA allows users to connect to (or "mount") their home and project directories on their local computer so that the file system on Midway2 appears as if it were directly connected to the local machine. This method of accessing your RCC home and project space is only available from within the UChicago campus network. From off-campus you will need to first connect through the [[https://cvpn.uchicago.edu/][UChicago VPN]].
-
-One's SAMBA account credentials take the form:
-#+begin_src
-Username: ADLOCAL\CNetID
-Password: CNet password
-Hostname: midwaysmb.rcc.uchicago.edu
-#+end_src
-
-I followed [[https://rcc.uchicago.edu/docs/data-transfer/index.html#connecting-from-ubuntu][these instructions]] to mount my UChicago RCC Midway drive from my Ubuntu file system.
-1. install cifs: =sudo apt install cifs-utils=
-2. make directory: =mkdir /media/midway=
-3. store credentials: =touch ~/.smbcredentials=
-   =echo "username=lgc7" >> ~/.smbcredentials=
-   =echo "password=Yank2fan96Marlee" >> ~/.smbcredentials=
-4. change permissions so only you can read the file: =chmod 600 ~/.smbcredentials=
-5. =sudo echo "//midwaysmb.rcc.uchicago.edu/homes /media/midway cifs credentials=/home/levic/.smbcredentials,domain=ADLOCAL,iocharset=utf8,sec=ntlm,vers=2.0 0 0" >> /etc/fstab=
-6. update mounts: =sudo mount -a=
-7. your Midway folders are now accessible at ~/media/midway~
