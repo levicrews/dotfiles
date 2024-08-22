@@ -141,9 +141,11 @@ mdp
 miller
 mmv
 moreutils
+neofetch
 nodejs
 npm
 obs-studio
+pandoc
 pdfgrep
 pdftk
 pympress
@@ -200,6 +202,7 @@ A number of the tools I install are modern/faster/saner alternatives to common U
 *** [[https://github.com/visit1985/mdp][mdp]]: command-line based Markdown presentation tool
 *** [[https://github.com/johnkerl/miller][miller]]: like =awk=, =sed=, =cut=, =join=, and =sort= for name-indexed data such as CSV, TSV, and tabular JSON
 *** [[https://github.com/itchyny/mmv][mmv]]: rename multiple files using your default editor
+*** [[https://github.com/dylanaraps/neofetch][neofetch]]: a command line system information tool
 *** pdftk: command line tool to merge and split PDFs
 - used to compile class slides into one PDF for entry in BibTeX database
 - synatx :: ~pdftk <files> cat output <newfile>~
@@ -349,6 +352,7 @@ mikestead.dotenv
 ms-azuretools.vscode-docker
 ms-python.python
 ms-python.vscode-pylance
+ms-toolsai.datawrangler
 ms-toolsai.jupyter
 ms-toolsai.jupyter-keymap
 ms-toolsai.jupyter-renderers
