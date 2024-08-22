@@ -400,6 +400,8 @@ on the fork. Either way, I should update my pin of ~pdf-tools~.
 See cite:Limanowski2017 and cite:Gomez2018 for discussions of
 ~org-noter~.
 
+[2024-01-28 Sun]: DistroTube made a [[https://youtu.be/v2-m7_X3uy8?si=GwHpfRusINmzrvIE][video]] walking through his configuration of ~pdf-tools~.
+
 #+begin_src elisp
 ;; This will change the color of the annotation.
 (setq pdf-annot-default-markup-annotation-properties
