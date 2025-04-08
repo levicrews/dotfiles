@@ -118,6 +118,7 @@ bmon
 cookiecutter
 curl
 diatheke
+dwdiff
 emacs26
 fd-find
 font-manager
@@ -161,6 +162,7 @@ samba
 scrot
 silversearcher-ag
 shellcheck
+solaar
 sqlite3
 surfraw
 sword-text-kjv
@@ -203,6 +205,7 @@ A number of the tools I install are modern/faster/saner alternatives to common U
 *** [[https://github.com/johnkerl/miller][miller]]: like =awk=, =sed=, =cut=, =join=, and =sort= for name-indexed data such as CSV, TSV, and tabular JSON
 *** [[https://github.com/itchyny/mmv][mmv]]: rename multiple files using your default editor
 *** [[https://github.com/dylanaraps/neofetch][neofetch]]: a command line system information tool
+- see [[https://neil.computer/notes/neofetch/][this configuration]] from [[file:../../Dropbox/org/roam/refs/berkeley_graphics.org][Berkeley Graphics]]
 *** pdftk: command line tool to merge and split PDFs
 - used to compile class slides into one PDF for entry in BibTeX database
 - synatx :: ~pdftk <files> cat output <newfile>~
@@ -215,6 +218,7 @@ A number of the tools I install are modern/faster/saner alternatives to common U
 *** [[https://github.com/dreamer/scrot][scrot]]: command-line screenshot utility
 - called by ~rofi~
 *** [[https://github.com/ggreer/the_silver_searcher][silversearcher-ag]]: A code-searching tool similar to ack, but faster
+*** [[https://pwr-solaar.github.io/Solaar/][solaar]]: Linux manager for Logitech Unifying Receiver devices
 *** [[https://gitlab.com/surfraw/Surfraw][surfraw]]: CLI to popular web search engines
 *** sxhkd
 - hotkey manager used to specify ~rofi~ hotkeys
@@ -407,8 +411,17 @@ tldr
 *** [[https://github.com/carbon-app/carbon][carbon]] and [[https://github.com/mixn/carbon-now-cli][carbon-now-cli]]: Create and share beautiful images of your source code
 *** [[https://github.com/santinic/how2][how2]]: Stackoverflow from the terminal
 *** [[https://github.com/tldr-pages/tldr][tldr]]: Collaborative cheatsheets for console commands
+* gem.list
+** list
+#+begin_src :tangle "gem.list"
+gollum
+#+end_src
+** notes
+*** [[https://github.com/gollum/gollum][gollum]]: Git-powered wiki with Org mode support
 * custom bash scripts
+
 ** ~pdfsearch~: search all PDFs in current directory for string
+
 [[https://stackoverflow.com/a/4643518/11952647][This Stackoverflow answer]] suggests the =find ... -exec sh -c ...=
 framework that comprises the body of this short script. [[https://stackoverflow.com/a/4643518/11952647][This answer]]
 taught me how to pass the search query to the =-exec= command.
@@ -421,7 +434,9 @@ The =-m 1= flag for =grep= limits results to one per file.
 tosearch=$1
 find . -name '*.pdf' -exec sh -c 'pdftotext "{}" -q - | grep -m 1 --with-filename --label="{}" --color "$1"' sh "$tosearch" \;
 #+end_src
+
 ** [[https://github.com/cheat/cheat][cheat]]: create and view custom interactive cheatsheets on the command line
+
 - Cheatsheets are stored on "cheatpaths", which are directories that contain cheatsheets. Cheatpaths are specified in a YAML config file.
 - Can store personal cheatsheets *and* community cheatsheets
 - compare [[https://github.com/srsudar/eg][eg]] (in ~pip.list~) and [[https://github.com/tldr-pages/tldr][tldr]] (in ~npm.list~), which *only* provide stock examples
