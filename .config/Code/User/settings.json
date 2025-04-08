@@ -7,6 +7,8 @@
     "workbench.settings.useSplitJSON": true,
     "workbench.settings.openDefaultSettings": false,
     "window.restoreWindows": "none",
+    "window.titleBarStyle": "custom",
+    "window.menuBarVisibility": "hidden",
 
     // Editor
     "editor.rulers": [80],
@@ -36,10 +38,12 @@
     "latex-workshop.latex.autoBuild.run": "never",
     "latex-workshop.latex.autoClean.run": "onBuilt",
     "latex-workshop.view.pdf.viewer": "tab",
+    "latex-workshop.latex.clean.method": "glob",
     "latex-workshop.latex.clean.fileTypes": [
         "*.aux",
         "*.bbl",
         "*.blg",
+        "*.brf",
         "*.idx",
         "*.ind",
         "*.lof",
