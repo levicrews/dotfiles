@@ -66,3 +66,8 @@ alias r="radian"
 # fuzzy matching most-visited directories
 # https://blog.chaselambda.com/2014/11/07/hella-fast-command-line-navigation.html
 alias zc="new_loc=\$(cat ~/.local/share/autojump/autojump.txt | sort -n | grep -Po '^[^\s]+\s+(\K.*)' | fzf +s -e) && cd \"\$new_loc\""
+
+# GitHub Copilot CLI
+# https://docs.github.com/en/copilot/managing-copilot/configure-personal-settings/configuring-github-copilot-in-the-cli
+alias ghcs="gh copilot suggest"
+alias ghce="gh copilot explain"
