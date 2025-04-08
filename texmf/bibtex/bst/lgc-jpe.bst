@@ -976,8 +976,6 @@ FUNCTION {article}
     { format.journal.pages }
     { format.journal.eid }
   if$
-  new.block
-  format.note output
   fin.entry
 }
 FUNCTION {book}
@@ -1011,8 +1009,6 @@ FUNCTION {book}
     }
   if$
   format.edition output
-  new.block
-  format.note output
   fin.entry
 }
 FUNCTION {booklet}
@@ -1026,8 +1022,6 @@ FUNCTION {booklet}
   new.block
   howpublished "howpublished" bibinfo.check output
   address "address" bibinfo.check output
-  new.block
-  format.note output
   fin.entry
 }
 
@@ -1066,8 +1060,6 @@ FUNCTION {inbook}
   if$
   format.edition output
   format.pages "pages" output.check
-  new.block
-  format.note output
   fin.entry
 }
 
@@ -1093,8 +1085,6 @@ FUNCTION {incollection}
     }
   if$
   format.pages "pages" output.check
-  new.block
-  format.note output
   fin.entry
 }
 FUNCTION {inproceedings}
@@ -1121,8 +1111,6 @@ FUNCTION {inproceedings}
     }
   if$
   format.pages "pages" output.check
-  new.block
-  format.note output
   fin.entry
 }
 FUNCTION {conference} { inproceedings }
@@ -1138,8 +1126,6 @@ FUNCTION {manual}
   organization "organization" bibinfo.check output
   address "address" bibinfo.check output
   format.edition output
-  new.block
-  format.note output
   fin.entry
 }
 
@@ -1156,8 +1142,6 @@ FUNCTION {mastersthesis}
   bbl.mthesis format.thesis.type output.nonnull
   school "school" bibinfo.warn output
   address "address" bibinfo.check output
-  new.block
-  format.note output
   fin.entry
 }
 
@@ -1171,8 +1155,6 @@ FUNCTION {misc}
   format.title output
   new.block
   howpublished "howpublished" bibinfo.check output
-  new.block
-  format.note output
   fin.entry
 }
 FUNCTION {phdthesis}
@@ -1188,8 +1170,6 @@ FUNCTION {phdthesis}
   bbl.phdthesis format.thesis.type output.nonnull
   school "school" bibinfo.warn output
   address "address" bibinfo.check output
-  new.block
-  format.note output
   fin.entry
 }
 
@@ -1204,8 +1184,6 @@ FUNCTION {presentation}
   format.organization.address "organization and address" output.check
   month "month" output.check
   year "year" output.check
-  new.block
-  format.note output
   new.sentence
   type missing$ 'skip$
   {"(" type capitalize * ")" * output}
@@ -1230,8 +1208,6 @@ FUNCTION {proceedings}
       format.publisher.address output
     }
   if$
-  new.block
-  format.note output
   fin.entry
 }
 
