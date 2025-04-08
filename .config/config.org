@@ -32,13 +32,22 @@ operator) but you wish to stage them all at once, use the command
 
 My default across all customizable text interfaces (Emacs, VSCode,
 terminal) is Microsoft's [[https://github.com/microsoft/cascadia-code][Cascadia Code]]. Consider trying GitHub Next's
-[[https://monaspace.githubnext.com/][Monaspace]].
+[[https://monaspace.githubnext.com/][Monaspace]] or [[file:../Dropbox/org/roam/refs/berkeley_graphics.org][Berkeley Graphics]]'s Berkeley Mono.
+
+On the perfect programming font, see:
+
+** SPEC Shamin & Turner: [[https://evilmartians.com/chronicles/variable-fonts-in-real-life-how-to-use-and-love-them][How to use and love variable fonts]]
+
+** SPEC Shamin & Turner: [[https://evilmartians.com/chronicles/beyond-monospace-the-search-for-the-perfect-coding-font][The search for the perfect coding font]] (h/t [[https://irreal.org/blog/?p=12282][Irreal]])
+
+check out [[https://evilmartians.com/products/martian-grotesk][Martian Grotesk]] and [[https://evilmartians.com/products/martian-mono][Martian Mono]]
 
 * bash prompt
 
 [[https://github.com/starship/starship][Starship]] is the minimal, blazing-fast, and infinitely customizable prompt for any shell.
 
-** Installation
+** installation
+
 #+BEGIN_SRC
 curl -fsSL https://starship.rs/install.sh | bash
 #+END_SRC
@@ -47,6 +56,13 @@ Add the following to the end of =~/.bashrc=:
 eval "$(starship init bash)"
 #+END_SRC
 Store your configuration in =~/.config/starship.toml=
+
+** KNOW [[https://blog.meain.io/2022/my-shell-prompt/][meain]]: A useful shell prompt
+:LOGBOOK:
+- State "KNOW"       from "SPEC"       [2024-10-10 Thu 16:01]
+:END:
+
+I like the use of both the left and right margins
 
 * system keybindings
 ** key remapping
