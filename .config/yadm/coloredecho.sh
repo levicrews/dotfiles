@@ -1,4 +1,4 @@
-#! /usr/bin/env sh
+#! /usr/bin/env bash
 
 # Took these printing functions from https://github.com/Sajjadhosn/dotfiles
 coloredEcho() {
@@ -23,26 +23,9 @@ coloredEcho() {
     tput sgr0;
 }
 
-info() {
-    coloredEcho "$1" blue "========>"
-}
-
-success() {
-    coloredEcho "$1" green "========>"
-}
-
-error() {
-    coloredEcho "$1" red "========>"
-}
-
-substep_info() {
-    coloredEcho "$1" magenta "===="
-}
-
-substep_success() {
-    coloredEcho "$1" cyan "===="
-}
-
-substep_error() {
-    coloredEcho "$1" red "===="
-}
+info() { coloredEcho "$1" blue "========>"; }
+success() { coloredEcho "$1" green "========>"; }
+error() { coloredEcho "$1" red "========>"; }
+substep_info() { coloredEcho "$1" magenta "===="; }
+substep_success() { coloredEcho "$1" cyan "===="; }
+substep_error() { coloredEcho "$1" red "===="; }

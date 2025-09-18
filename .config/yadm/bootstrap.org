@@ -9,59 +9,59 @@
 
 Adapted from https://github.com/rkalis/dotfiles and associated blog posts.
 
-#+begin_src shell :tangle "bootstrap.sh"
-#! /usr/bin/env sh
+#+begin_src shell :tangle "bootstrap"
+#!/usr/bin/env bash
+set -euo pipefail
 
-DIR=$(dirname "$0")
-cd "$DIR" || exit
+# Run from the dotfiles dir (where the *.list files are)
+cd "$(dirname "$0")"
 
-source coloredecho.sh
-
-info "Prompting for sudo password..."
-if sudo -v; then
-    # Keep-alive: update existing `sudo` time stamp until `setup.sh` has finished
-    while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
-    success "Sudo credentials updated."
-else
-    error "Failed to obtain sudo credentials."
-fi
-
-COMMENT=\#*
-
+echo "[sudo] acquiring credentials..."
 sudo -v
-add-apt-repository ppa:kelleyk/emacs
-add-apt-repository ppa:inkscape.dev/stable
-apt update
 
-# install Rust & Cargo (its package manager)
-curl https://sh.rustup.rs -sSf | sh
+# Minimal prereqs, then PPAs, then update
+sudo apt-get update -y
+sudo apt-get install -y software-properties-common curl
+sudo add-apt-repository -y ppa:kelleyk/emacs
+sudo add-apt-repository -y ppa:inkscape.dev/stable
+sudo apt-get update -y
 
-find * -name "*.list" | while read fn; do
-    cmd="${fn%.*}" # Bash string operator
-    set -- $cmd
-    info "Installing $1 packages..."
-    while read package; do
-        if [[ $package == $COMMENT ]]; then continue; fi
-        if [[ $cmd == code ]]; then
-            substep_info "Installing VSCode extension $package..."
-            $cmd --install-extension $package
-        elif [[ $cmd == npm ]]; then
-            substep_info "Installing Node.js package $package..."
-            $cmd install -g $package
-        else
-            substep_info "Installing $package..."
-            $cmd install $package
-        fi
-    done < "$fn"
-    success "Finished installing $1 packages."
+# Rust (non-interactive) + PATH for this session
+if ! command -v cargo >/dev/null 2>&1; then
+  curl -fsSL https://sh.rustup.rs | sh -s -- -y
+fi
+export PATH="$HOME/.cargo/bin:$PATH"
+
+# Helper: stream non-empty, non-comment lines
+lines() { grep -vE '^\s*(#|$)' "$1" || true; }
+
+shopt -s nullglob
+for f in *.list; do
+  tool="${f%.*}"     # e.g. apt.list -> "apt"
+
+  echo "==> Installing $tool packages..."
+  while IFS= read -r pkg; do
+    case "$tool" in
+      apt|apt-get) sudo apt-get install -y $pkg ;;
+      snap)        sudo snap install $pkg ;;
+      npm)         sudo npm install -g $pkg ;;
+      pip|pip3)    python3 -m pip install --user $pkg ;;
+      cargo)       cargo install $pkg ;;
+      code)        command -v code >/dev/null && code --install-extension "$pkg" ;;
+    esac
+  done < <(lines "$f")
+  echo "<== Finished installing $tool packages."
 done
 
-chmod +x /usr/local/bin/pdfsearch
+# Optional: only if present
+[[ -e /usr/local/bin/pdfsearch ]] && sudo chmod +x /usr/local/bin/pdfsearch
+
+echo "Bootstrap complete."
 #+end_src
 * colored progress messages
-Taken again from https://github.com/rkalis/dotfiles and associated blog posts. Called in ~bootstrap.sh~ to give the user easy-to-read progress updates as the installation proceeds.
+Taken again from https://github.com/rkalis/dotfiles and associated blog posts. Called in ~bootstrap~ to give the user easy-to-read progress updates as the installation proceeds.
 #+begin_src shell :tangle "coloredecho.sh"
-#! /usr/bin/env sh
+#! /usr/bin/env bash
 
 # Took these printing functions from https://github.com/Sajjadhosn/dotfiles
 coloredEcho() {
@@ -86,29 +86,12 @@ coloredEcho() {
     tput sgr0;
 }
 
-info() {
-    coloredEcho "$1" blue "========>"
-}
-
-success() {
-    coloredEcho "$1" green "========>"
-}
-
-error() {
-    coloredEcho "$1" red "========>"
-}
-
-substep_info() {
-    coloredEcho "$1" magenta "===="
-}
-
-substep_success() {
-    coloredEcho "$1" cyan "===="
-}
-
-substep_error() {
-    coloredEcho "$1" red "===="
-}
+info() { coloredEcho "$1" blue "========>"; }
+success() { coloredEcho "$1" green "========>"; }
+error() { coloredEcho "$1" red "========>"; }
+substep_info() { coloredEcho "$1" magenta "===="; }
+substep_success() { coloredEcho "$1" cyan "===="; }
+substep_error() { coloredEcho "$1" red "===="; }
 #+end_src
 * apt.list
 ** list
@@ -116,9 +99,6 @@ substep_error() {
 autojump
 bat
 bmon
-cookiecutter
-curl
-diatheke
 dwdiff
 emacs26
 fd-find
@@ -128,7 +108,6 @@ fzf
 gdebi
 gdebi-core
 gh
-git
 golang-go
 gnome-sushi
 graphviz
@@ -145,13 +124,11 @@ mmv
 moreutils
 neofetch
 nodejs
-npm
 obs-studio
 pandoc
 pdfgrep
 pdftk
 pympress
-python3-pip
 python3-pyqt5
 qalc
 qpdfview
@@ -190,12 +167,10 @@ A number of the tools I install are modern/faster/saner alternatives to common U
 - aliased for =cat=
 *** [[https://github.com/tgraf/bmon][bmon]]: bandwidth monitor
 - called by ~rofi~
-*** [[https://github.com/cookiecutter/cookiecutter][cookiecutter]]: A command-line utility that creates projects from cookiecutters (project templates)
-*** diatheke: command line Bible reader
 *** [[https://github.com/junegunn/fzf][fzf]]: a command line fuzzy finder
 *** [[https://github.com/cli/cli][gh]]: GitHub CLI
 - supercedes HTTPS and SSH interactions with GitHub
-*** [[https://httpie.io/][httpie]]: a user-friendly command-line HTTP client for the API era
+*** [[https://httpie.io/][httpie]]: user-friendly command-line HTTP client for the API era
 - comes with JSON support, syntax highlighting, persistent sessions, wget-like downloads, plugins, ...
 - can replace =curl= and =wget=
 *** [[https://github.com/inkscape/inkscape][inkscape]]: free and open source vector drawing

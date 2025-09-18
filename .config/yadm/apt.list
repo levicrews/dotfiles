@@ -1,8 +1,6 @@
 autojump
 bat
 bmon
-cookiecutter
-curl
 diatheke
 dwdiff
 emacs26
@@ -30,13 +28,11 @@ mmv
 moreutils
 neofetch
 nodejs
-npm
 obs-studio
 pandoc
 pdfgrep
 pdftk
 pympress
-python3-pip
 python3-pyqt5
 qalc
 qpdfview
