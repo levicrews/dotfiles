@@ -6,13 +6,14 @@
 * TODO add description of this file
 * TODO replace =find= and =grep= in =pdfsearch= command to speed it up
 * bootstrap script
+
 Adapted from https://github.com/rkalis/dotfiles and associated blog posts.
 
 #+begin_src shell :tangle "bootstrap.sh"
 #! /usr/bin/env sh
 
 DIR=$(dirname "$0")
-cd "$DIR"
+cd "$DIR" || exit
 
 source coloredecho.sh
 
@@ -238,13 +239,9 @@ poppler-utils
 ** list
 #+begin_src :tangle "snap.list"
 --classic code
+slack --classic
 vlc
 jabref
-morgen
-slack --classic
-discord
-harsh
-bibletime
 #+end_src
 ** notes
 *** [[https://github.com/wakatara/harsh][harsh]]: A minimalist command line tool for tracking habits
