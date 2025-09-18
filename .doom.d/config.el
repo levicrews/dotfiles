@@ -124,7 +124,12 @@ _q_: quit this menu                         _r_: restart emacs
         org-agenda-include-deadlines t
         org-agenda-breadcrumbs-separator " ❱ "
         org-agenda-block-separator nil
-        org-agenda-compact-blocks t)
+        org-agenda-compact-blocks t
+        org-agenda-prefix-format
+        '((agenda . "  %-20:c%?-12t% s")
+          (todo . "  %-20:c")
+          (tags . "  %-20:c")
+          (search . "  %-20:c")))
   (setq org-agenda-custom-commands
         '(("c" "The Mill"
            ((agenda "" ((org-agenda-span 'day)
