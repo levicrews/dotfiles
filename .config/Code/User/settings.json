@@ -14,6 +14,7 @@
     "editor.rulers": [80],
     "editor.fontFamily": "'Cascadia Code PL', 'monospace', monospace",
     "editor.fontLigatures": false,
+    "editor.tabSize": 4,
     "editor.tabCompletion": "onlySnippets",
     "editor.snippetSuggestions": "top",
     "editor.multiCursorModifier": "ctrlCmd",
@@ -62,7 +63,8 @@
         "*.snm",
         "*.synctex(busy)",
         "*.synctex.gz",
-        "*.nav"
+        "*.nav",
+        "*.vrb"
     ],
     "latex-workshop.latex.recipes": [
         {
@@ -179,4 +181,7 @@
     "workbench.editor.tabActionCloseVisibility": false,
     "github.copilot.editor.enableAutoCompletions": true,
     "gitlens.launchpad.indicator.enabled": false,
+    "makefile.configureOnOpen": true,
+    "github.copilot.nextEditSuggestions.fixes": false,
+    "editor.renderWhitespace": "all",
 }
