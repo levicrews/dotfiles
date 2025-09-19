@@ -5,58 +5,198 @@ cd "$(dirname "$0")"
 echo "[sudo] acquiring credentials..."
 sudo -v
 
-# Prereqs + repos (once)
+# --- One-time repo setup (idempotent)
 sudo apt-get update -y
 sudo apt-get install -y software-properties-common curl wget gpg
-sudo add-apt-repository -y ppa:inkscape.dev/stable
-
-# Microsoft repo for VS Code (only add if missing)
-if [ ! -f /etc/apt/sources.list.d/vscode.list ]; then
-  echo "Adding Microsoft apt repo for VS Code..."
-  wget -qO- https://packages.microsoft.com/keys/microsoft.asc \
+sudo add-apt-repository -y ppa:inkscape.dev/stable || true
+wget -qO- https://packages.microsoft.com/keys/microsoft.asc \
     | sudo gpg --dearmor -o /usr/share/keyrings/packages.microsoft.gpg
-  echo "deb [arch=amd64 signed-by=/usr/share/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" \
+echo "deb [arch=amd64 signed-by=/usr/share/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" \
     | sudo tee /etc/apt/sources.list.d/vscode.list > /dev/null
-fi
 sudo apt-get update -y
 
-# Rust (non-interactive)
-if ! command -v cargo >/dev/null 2>&1; then
-  curl -fsSL https://sh.rustup.rs | sh -s -- -y
+# --- Rust only if needed (cargo.list present)
+if [[ -f cargo.list ]] && ! command -v cargo >/dev/null 2>&1; then
+    echo "Installing Rust toolchain (rustup) because cargo.list is present..."
+    curl -fsSL https://sh.rustup.rs | sh -s -- -y
 fi
 export PATH="$HOME/.cargo/bin:$PATH"
 
-# Read non-empty, non-comment lines
-lines() { grep -vE '^\s*(#|$)' "$1" || true; }
+# --- Helpers
+lines() { grep -vE '^\s*(#|$)' "$1" || true; }	# skip comments/blank lines
 
+apt_installed()   { dpkg-query -W -f='${Status}\n' "$1" 2>/dev/null | grep -q "install ok installed"; }
+snap_installed()  { snap list "$1" >/dev/null 2>&1; }
+npm_installed()   { npm list -g --depth=0 "$1" >/dev/null 2>&1; }
+pip_base_name()   { printf '%s' "$1" | sed 's/[\[=<>].*$//'; }	# strip extras/versions
+pip_installed()   { python3 -m pip show "$(pip_base_name "$1")" >/dev/null 2>&1; }
+cargo_installed() { cargo install --list 2>/dev/null | awk '{print $1}' | grep -xq "$1"; }
+code_installed()  { code --list-extensions 2>/dev/null | grep -xq "$1"; }
+
+ensure_tool() {
+    case "$1" in
+        code)
+            command -v code >/dev/null 2>&1 || sudo apt-get install -y code
+            ;;
+        npm)
+            command -v npm  >/dev/null 2>&1 || sudo apt-get install -y nodejs npm
+            ;;
+        pip|pip3)
+            command -v pip3 >/dev/null 2>&1 || sudo apt-get install -y python3 python3-pip
+            ;;
+    esac
+}
+
+install_pkg() {
+    local tool="$1" line="$2"
+    local name="${line%% *}"	# first token (handles flags like "--classic")
+
+    case "$tool" in
+        apt|apt-get)
+         apt_installed "$name" || sudo apt-get install -y $line
+            ;;
+        snap)
+            snap_installed "$name" || sudo snap install $line
+            ;;
+        npm)
+            npm_installed "$name" || sudo npm install -g $line
+            ;;
+        pip|pip3)
+            pip_installed "$line" || python3 -m pip install --user $line
+            ;;
+        cargo)
+            cargo_installed "$name" || cargo install $line
+            ;;
+        code)
+            code_installed "$line" || code --install-extension "$line"
+            ;;
+        *)
+            : ;;  # unknown tool: skip
+    esac
+}
+
+# --- Main loop
 shopt -s nullglob
 for f in *.list; do
-  tool="${f%.*}"   # e.g. apt.list -> apt
-  echo "==> Installing $tool packages..."
+    # skip Gogh theme list; handled in from-source block
+    [[ "$(basename "$f")" == "gogh.list" ]] && continue
 
-  # Auto-install the tool if the list requires it
-  if [[ "$tool" == "code" ]] && ! command -v code >/dev/null 2>&1; then
-    sudo apt-get install -y code
-  elif [[ "$tool" == "npm" ]] && ! command -v npm >/dev/null 2>&1; then
-    sudo apt-get install -y nodejs npm
-  elif [[ "$tool" =~ ^(pip|pip3)$ ]] && ! command -v pip3 >/dev/null 2>&1; then
-    sudo apt-get install -y python3 python3-pip
-  fi
+    tool="${f%.*}"	# e.g., apt.list -> apt
+    echo "==> Installing $tool packages..."
+    ensure_tool "$tool"
 
-  while IFS= read -r pkg; do
-    case "$tool" in
-      apt|apt-get) sudo apt-get install -y $pkg ;;
-      snap)        sudo snap install $pkg ;;
-      npm)         sudo npm install -g $pkg ;;
-      pip|pip3)    python3 -m pip install --user $pkg ;;
-      cargo)       cargo install $pkg ;;
-      code)        code --install-extension "$pkg" ;;
-      *)           : ;;  # unknown tool: silently skip
-    esac
-  done < <(lines "$f")
+    while IFS= read -r pkg; do
+        install_pkg "$tool" "$pkg"
+    done < <(lines "$f")
 
-  echo "<== Finished installing $tool packages."
+    echo "<== Finished installing $tool packages."
 done
+
+# --- From-source installs
+echo "==> Installing from-source packages..."
+
+# 1) Starship prompt (install only if missing)
+if ! command -v starship >/dev/null 2>&1; then
+    curl -sS https://starship.rs/install.sh | sh -s -- -y
+fi
+
+# 2) Gogh GNOME Terminal themes driven by gogh.list (install only if missing)
+if command -v gnome-terminal >/dev/null 2>&1 && command -v gsettings >/dev/null 2>&1; then
+    export TERMINAL=gnome-terminal
+
+    # does a GNOME Terminal profile with visible-name == $1 exist?
+    gnome_profile_exists() {
+        local want="$1"
+        local uuids
+        uuids="$(gsettings get org.gnome.Terminal.ProfilesList list 2>/dev/null | tr -d "[],'")" || return 1
+        for uuid in $uuids; do
+            local vis
+            vis="$(gsettings get "org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${uuid}/" visible-name 2>/dev/null || true)"
+            vis="${vis//\'}"
+            if [[ "$vis" == "$want" ]]; then return 0; fi
+        done
+        return 1
+    }
+
+    # ensure repo present/updated
+    mkdir -p "$HOME/src"
+    if [[ -d "$HOME/src/gogh/.git" ]]; then
+        git -C "$HOME/src/gogh" fetch --all -p >/dev/null 2>&1 || true
+        git -C "$HOME/src/gogh" pull --ff-only >/dev/null 2>&1 || true
+    else
+        git clone https://github.com/Gogh-Co/Gogh.git "$HOME/src/gogh"
+    fi
+
+    # permanently normalize default profile name (Gogh expects "Default")
+    default_uuid="$(gsettings get org.gnome.Terminal.ProfilesList default | tr -d "'")"
+    curr_name="$(gsettings get "org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${default_uuid}/" visible-name | tr -d "'")"
+    if [[ "$curr_name" != "Default" ]]; then
+        gsettings set "org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${default_uuid}/" visible-name "Default"
+    fi
+
+    # read themes from gogh.list (one per line, .sh optional); else default to "atom dracula"
+    if [[ -f gogh.list ]]; then
+        themes="$(grep -vE '^\s*(#|$)' gogh.list | tr '\n' ' ')"
+    fi
+
+    pushd "$HOME/src/gogh/installs" >/dev/null
+    for script in $themes; do
+        slug="${script%.sh}"
+        theme_name="${slug^}"	# "atom" -> "Atom"
+        if ! gnome_profile_exists "$theme_name"; then
+            "./${slug}.sh" || true	# don’t abort entire bootstrap if a single theme fails
+        fi
+    done
+    popd >/dev/null
+fi
+
+echo "<== Finished installing from-source packages."
+
+# --- Fonts (group-level logging; idempotent)
+echo "==> Installing fonts..."
+
+# 1) Cascadia Code (prefer apt; skip if installed)
+if ! fc-list | grep -qi 'Cascadia Code'; then
+    # Try Ubuntu package first (fast and clean)
+    if ! sudo apt-get install -y fonts-cascadia-code; then
+        # Fallback: download latest TTF zip from GitHub and install to user fonts
+        tmp="$(mktemp -d)"
+        if curl -fsSL -o "$tmp/cc.zip" "https://github.com/microsoft/cascadia-code/releases/latest/download/CascadiaCode-ttf.zip"; then
+            mkdir -p "$HOME/.local/share/fonts/CascadiaCode"
+            unzip -o "$tmp/cc.zip" -d "$tmp/cc" >/dev/null
+            find "$tmp/cc" -type f -name "*.ttf" -exec cp -f {} "$HOME/.local/share/fonts/CascadiaCode/" \;
+            fc-cache -f >/dev/null
+        else
+            echo "	(warn) could not fetch Cascadia Code from GitHub; skipping"
+        fi
+        rm -rf "$tmp"
+    fi
+fi
+
+# 2) Monaspace (clone repo once; copy fonts if missing)
+if ! fc-list | grep -qi 'Monaspace'; then
+    mkdir -p "$HOME/src" "$HOME/.local/share/fonts/Monaspace"
+    if [[ -d "$HOME/src/monaspace/.git" ]]; then
+        git -C "$HOME/src/monaspace" pull --ff-only >/dev/null 2>&1 || true
+    else
+        git clone https://github.com/githubnext/monaspace "$HOME/src/monaspace"
+    fi
+    # copy any OTF/TTF from repo (covers variable/static)
+    find "$HOME/src/monaspace" -type f \( -name "*.otf" -o -name "*.ttf" \) -exec cp -u {} "$HOME/.local/share/fonts/Monaspace/" \;
+    fc-cache -f >/dev/null
+fi
+
+echo "<== Finished installing fonts."
+
+# --- Runtimes (Julia)
+echo "==> Installing runtimes..."
+
+# Julia via juliaup (idempotent)
+if ! command -v juliaup >/dev/null 2>&1; then
+	curl -fsSL https://install.julialang.org | sh -s -- -y
+fi
+
+echo "<== Finished installing runtimes."
 
 # Optional: only if present
 [[ -e /usr/local/bin/pdfsearch ]] && sudo chmod +x /usr/local/bin/pdfsearch

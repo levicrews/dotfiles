@@ -9,97 +9,253 @@
 
 Adapted from https://github.com/rkalis/dotfiles and associated blog posts.
 
-#+begin_src shell :tangle "bootstrap"
+** setup
+
+#+begin_src bash :tangle "bootstrap"
 #!/usr/bin/env bash
 set -euo pipefail
-
-# Run from the dotfiles dir (where the *.list files are)
 cd "$(dirname "$0")"
 
 echo "[sudo] acquiring credentials..."
 sudo -v
 
-# Minimal prereqs, then PPAs, then update
+# --- One-time repo setup (idempotent)
 sudo apt-get update -y
-sudo apt-get install -y software-properties-common curl
-sudo add-apt-repository -y ppa:inkscape.dev/stable
+sudo apt-get install -y software-properties-common curl wget gpg
+sudo add-apt-repository -y ppa:inkscape.dev/stable || true
+wget -qO- https://packages.microsoft.com/keys/microsoft.asc \
+    | sudo gpg --dearmor -o /usr/share/keyrings/packages.microsoft.gpg
+echo "deb [arch=amd64 signed-by=/usr/share/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" \
+    | sudo tee /etc/apt/sources.list.d/vscode.list > /dev/null
 sudo apt-get update -y
 
-# Rust (non-interactive) + PATH for this session
-if ! command -v cargo >/dev/null 2>&1; then
-  curl -fsSL https://sh.rustup.rs | sh -s -- -y
+# --- Rust only if needed (cargo.list present)
+if [[ -f cargo.list ]] && ! command -v cargo >/dev/null 2>&1; then
+    echo "Installing Rust toolchain (rustup) because cargo.list is present..."
+    curl -fsSL https://sh.rustup.rs | sh -s -- -y
 fi
 export PATH="$HOME/.cargo/bin:$PATH"
 
-# Helper: stream non-empty, non-comment lines
-lines() { grep -vE '^\s*(#|$)' "$1" || true; }
+#+end_src
 
+** install packages from managers
+
+#+begin_src bash :tangle "bootstrap"
+# --- Helpers
+lines() { grep -vE '^\s*(#|$)' "$1" || true; }	# skip comments/blank lines
+
+apt_installed()   { dpkg-query -W -f='${Status}\n' "$1" 2>/dev/null | grep -q "install ok installed"; }
+snap_installed()  { snap list "$1" >/dev/null 2>&1; }
+npm_installed()   { npm list -g --depth=0 "$1" >/dev/null 2>&1; }
+pip_base_name()   { printf '%s' "$1" | sed 's/[\[=<>].*$//'; }	# strip extras/versions
+pip_installed()   { python3 -m pip show "$(pip_base_name "$1")" >/dev/null 2>&1; }
+cargo_installed() { cargo install --list 2>/dev/null | awk '{print $1}' | grep -xq "$1"; }
+code_installed()  { code --list-extensions 2>/dev/null | grep -xq "$1"; }
+
+ensure_tool() {
+    case "$1" in
+        code)
+            command -v code >/dev/null 2>&1 || sudo apt-get install -y code
+            ;;
+        npm)
+            command -v npm  >/dev/null 2>&1 || sudo apt-get install -y nodejs npm
+            ;;
+        pip|pip3)
+            command -v pip3 >/dev/null 2>&1 || sudo apt-get install -y python3 python3-pip
+            ;;
+    esac
+}
+
+install_pkg() {
+    local tool="$1" line="$2"
+    local name="${line%% *}"	# first token (handles flags like "--classic")
+
+    case "$tool" in
+        apt|apt-get)
+            apt_installed "$name" || sudo apt-get install -y $line
+            ;;
+        snap)
+            snap_installed "$name" || sudo snap install $line
+            ;;
+        npm)
+            npm_installed "$name" || sudo npm install -g $line
+            ;;
+        pip|pip3)
+            pip_installed "$line" || python3 -m pip install --user $line
+            ;;
+        cargo)
+            cargo_installed "$name" || cargo install $line
+            ;;
+        code)
+            code_installed "$line" || code --install-extension "$line"
+            ;;
+        ,*)
+            : ;;  # unknown tool: skip
+    esac
+}
+
+# --- Main loop
 shopt -s nullglob
 for f in *.list; do
-  tool="${f%.*}"     # e.g. apt.list -> "apt"
+    # skip Gogh theme list; handled in from-source block
+    [[ "$(basename "$f")" == "gogh.list" ]] && continue
 
-  echo "==> Installing $tool packages..."
-  while IFS= read -r pkg; do
-    case "$tool" in
-      apt|apt-get) sudo apt-get install -y $pkg ;;
-      snap)        sudo snap install $pkg ;;
-      npm)         sudo npm install -g $pkg ;;
-      pip|pip3)    python3 -m pip install --user $pkg ;;
-      cargo)       cargo install $pkg ;;
-      code)        command -v code >/dev/null && code --install-extension "$pkg" ;;
-    esac
-  done < <(lines "$f")
-  echo "<== Finished installing $tool packages."
+    tool="${f%.*}"	# e.g., apt.list -> apt
+    echo "==> Installing $tool packages..."
+    ensure_tool "$tool"
+
+    while IFS= read -r pkg; do
+        install_pkg "$tool" "$pkg"
+    done < <(lines "$f")
+
+    echo "<== Finished installing $tool packages."
 done
 
+#+end_src
+
+** install packages from source
+
+#+begin_src bash :tangle "bootstrap"
+# --- From-source installs
+echo "==> Installing from-source packages..."
+
+# 1) Starship prompt (install only if missing)
+if ! command -v starship >/dev/null 2>&1; then
+    curl -sS https://starship.rs/install.sh | sh -s -- -y
+fi
+
+# 2) Gogh GNOME Terminal themes driven by gogh.list (install only if missing)
+if command -v gnome-terminal >/dev/null 2>&1 && command -v gsettings >/dev/null 2>&1; then
+    export TERMINAL=gnome-terminal
+
+    # does a GNOME Terminal profile with visible-name == $1 exist?
+    gnome_profile_exists() {
+        local want="$1"
+        local uuids
+        uuids="$(gsettings get org.gnome.Terminal.ProfilesList list 2>/dev/null | tr -d "[],'")" || return 1
+        for uuid in $uuids; do
+            local vis
+            vis="$(gsettings get "org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${uuid}/" visible-name 2>/dev/null || true)"
+            vis="${vis//\'}"
+            if [[ "$vis" == "$want" ]]; then return 0; fi
+        done
+        return 1
+    }
+
+    # ensure repo present/updated
+    mkdir -p "$HOME/src"
+    if [[ -d "$HOME/src/gogh/.git" ]]; then
+        git -C "$HOME/src/gogh" fetch --all -p >/dev/null 2>&1 || true
+        git -C "$HOME/src/gogh" pull --ff-only >/dev/null 2>&1 || true
+    else
+        git clone https://github.com/Gogh-Co/Gogh.git "$HOME/src/gogh"
+    fi
+
+    # permanently normalize default profile name (Gogh expects "Default")
+    default_uuid="$(gsettings get org.gnome.Terminal.ProfilesList default | tr -d "'")"
+    curr_name="$(gsettings get "org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${default_uuid}/" visible-name | tr -d "'")"
+    if [[ "$curr_name" != "Default" ]]; then
+        gsettings set "org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${default_uuid}/" visible-name "Default"
+    fi
+
+    # read themes from gogh.list (one per line, .sh optional); else default to "atom dracula"
+    if [[ -f gogh.list ]]; then
+        themes="$(grep -vE '^\s*(#|$)' gogh.list | tr '\n' ' ')"
+    fi
+
+    pushd "$HOME/src/gogh/installs" >/dev/null
+    for script in $themes; do
+        slug="${script%.sh}"
+        theme_name="${slug^}"	# "atom" -> "Atom"
+        if ! gnome_profile_exists "$theme_name"; then
+            "./${slug}.sh" || true	# don’t abort entire bootstrap if a single theme fails
+        fi
+    done
+    popd >/dev/null
+fi
+
+echo "<== Finished installing from-source packages."
+
+#+end_src
+
+*** [[https://github.com/starship/starship][Starship]]: the minimal, blazing-fast, and infinitely customizable prompt for any shell
+
+- installed with ~curl~ above
+- ~eval~'ed in =~/.bashrc=
+- configuration in =~/.config/starship.toml=
+- cf. [[https://blog.meain.io/2022/my-shell-prompt/][meain]] :: I like its use of both the left and right margins
+
+*** [[https://github.com/Gogh-Co/Gogh][Gogh]]: color schemes for Gnome Terminal
+
+prerequisites (in =apt.list=): ~dconf-cli~, ~uuid-runtime~
+
+** install fonts
+
+Microsoft [[https://github.com/microsoft/cascadia-code][Cascadia Code]] + GitHub [[https://github.com/githubnext/monaspace][Monaspace]]
+
+#+begin_src bash :tangle "bootstrap"
+# --- Fonts (group-level logging; idempotent) ---------------------------------
+echo "==> Installing fonts..."
+
+# 1) Cascadia Code (prefer apt; skip if installed)
+if ! fc-list | grep -qi 'Cascadia Code'; then
+	# Try Ubuntu package first (fast and clean)
+	if ! sudo apt-get install -y fonts-cascadia-code; then
+		# Fallback: download latest TTF zip from GitHub and install to user fonts
+		tmp="$(mktemp -d)"
+		if curl -fsSL -o "$tmp/cc.zip" "https://github.com/microsoft/cascadia-code/releases/latest/download/CascadiaCode-ttf.zip"; then
+			mkdir -p "$HOME/.local/share/fonts/CascadiaCode"
+			unzip -o "$tmp/cc.zip" -d "$tmp/cc" >/dev/null
+			find "$tmp/cc" -type f -name "*.ttf" -exec cp -f {} "$HOME/.local/share/fonts/CascadiaCode/" \;
+			fc-cache -f >/dev/null
+		else
+			echo "	(warn) could not fetch Cascadia Code from GitHub; skipping"
+		fi
+		rm -rf "$tmp"
+	fi
+fi
+
+# 2) Monaspace (clone repo once; copy fonts if missing)
+if ! fc-list | grep -qi 'Monaspace'; then
+	mkdir -p "$HOME/src" "$HOME/.local/share/fonts/Monaspace"
+	if [[ -d "$HOME/src/monaspace/.git" ]]; then
+		git -C "$HOME/src/monaspace" pull --ff-only >/dev/null 2>&1 || true
+	else
+		git clone https://github.com/githubnext/monaspace "$HOME/src/monaspace"
+	fi
+	# copy any OTF/TTF from repo (covers variable/static)
+	find "$HOME/src/monaspace" -type f \( -name "*.otf" -o -name "*.ttf" \) -exec cp -u {} "$HOME/.local/share/fonts/Monaspace/" \;
+	fc-cache -f >/dev/null
+fi
+
+echo "<== Finished installing fonts."
+
+#+end_src
+
+** make custom scripts executable
+
+#+begin_src bash :tangle "bootstrap"
 # Optional: only if present
 [[ -e /usr/local/bin/pdfsearch ]] && sudo chmod +x /usr/local/bin/pdfsearch
 
+#+end_src
+
+** end
+
+#+begin_src bash :tangle "bootstrap"
 echo "Bootstrap complete."
 #+end_src
-* colored progress messages
-Taken again from https://github.com/rkalis/dotfiles and associated blog posts. Called in ~bootstrap~ to give the user easy-to-read progress updates as the installation proceeds.
-#+begin_src shell :tangle "coloredecho.sh"
-#! /usr/bin/env bash
 
-# Took these printing functions from https://github.com/Sajjadhosn/dotfiles
-coloredEcho() {
-    local exp="$1";
-    local color="$2";
-    local arrow="$3";
-    if ! [[ $color =~ '^[0-9]$' ]] ; then
-       case $(echo $color | tr '[:upper:]' '[:lower:]') in
-        black) color=0 ;;
-        red) color=1 ;;
-        green) color=2 ;;
-        yellow) color=3 ;;
-        blue) color=4 ;;
-        magenta) color=5 ;;
-        cyan) color=6 ;;
-        white|*) color=7 ;; # white or invalid color
-       esac
-    fi
-    tput bold;
-    tput setaf "$color";
-    echo "$arrow $exp";
-    tput sgr0;
-}
-
-info() { coloredEcho "$1" blue "========>"; }
-success() { coloredEcho "$1" green "========>"; }
-error() { coloredEcho "$1" red "========>"; }
-substep_info() { coloredEcho "$1" magenta "===="; }
-substep_success() { coloredEcho "$1" cyan "===="; }
-substep_error() { coloredEcho "$1" red "===="; }
-#+end_src
-* apt.list
-** list
+* lists
+** apt.list
+*** list
 #+begin_src :tangle "apt.list"
 autojump
 bat
 bmon
+dconf-cli
 dwdiff
-emacs26
+emacs
 fd-find
 font-manager
 fonts-powerline
@@ -134,74 +290,74 @@ qpdfview
 r-base
 ripgrep
 rofi
-rstudio
 samba
 scrot
 silversearcher-ag
 shellcheck
 solaar
 sqlite3
+starship
 surfraw
 sword-text-kjv
 sxhkd
 texlive
 latexmk
+uuid-runtime
 viewnior
 visidata
 w3m
 wordnet
 xclip
 yadm
-youtube-dl
 zathura
 zoxide
 #+end_src
-** notes
+*** notes
 
 A number of the tools I install are modern/faster/saner alternatives to common Unix commands. A collection of such tools is maintained in the [[https://github.com/ibraheemdev/modern-unix][modern-unix]] repo on GitHub. See also [[https://jvns.ca/blog/2022/04/12/a-list-of-new-ish--command-line-tools/][Julia Evans's list]].
 
-*** [[https://github.com/wting/autojump][autojump]]: A =cd= command that learns (Python)
-*** [[https://github.com/ajeetdsouza/zoxide][zoxide]]: a smarter =cd= command (Rust)
-*** [[https://github.com/sharkdp/bat][bat]]: =cat= clone with syntax highlighting and Git integration
+**** [[https://github.com/wting/autojump][autojump]]: A =cd= command that learns (Python)
+**** [[https://github.com/ajeetdsouza/zoxide][zoxide]]: a smarter =cd= command (Rust)
+**** [[https://github.com/sharkdp/bat][bat]]: =cat= clone with syntax highlighting and Git integration
 - aliased for =cat=
-*** [[https://github.com/tgraf/bmon][bmon]]: bandwidth monitor
+**** [[https://github.com/tgraf/bmon][bmon]]: bandwidth monitor
 - called by ~rofi~
-*** [[https://github.com/junegunn/fzf][fzf]]: a command line fuzzy finder
-*** [[https://github.com/cli/cli][gh]]: GitHub CLI
+**** [[https://github.com/junegunn/fzf][fzf]]: a command line fuzzy finder
+**** [[https://github.com/cli/cli][gh]]: GitHub CLI
 - supercedes HTTPS and SSH interactions with GitHub
-*** [[https://httpie.io/][httpie]]: user-friendly command-line HTTP client for the API era
+**** [[https://httpie.io/][httpie]]: user-friendly command-line HTTP client for the API era
 - comes with JSON support, syntax highlighting, persistent sessions, wget-like downloads, plugins, ...
 - can replace =curl= and =wget=
-*** [[https://github.com/inkscape/inkscape][inkscape]]: free and open source vector drawing
+**** [[https://github.com/inkscape/inkscape][inkscape]]: free and open source vector drawing
 - Castel: [[https://castel.dev/post/lecture-notes-2/][How I draw figures for my math notes using Inkscape]]
-*** [[https://github.com/casey/just][just]]: just a command runner
-*** [[https://stedolan.github.io/jq/tutorial/][jq]]: a lightweight and flexible command-line JSON processor
-*** [[https://github.com/visit1985/mdp][mdp]]: command-line based Markdown presentation tool
-*** [[https://github.com/johnkerl/miller][miller]]: like =awk=, =sed=, =cut=, =join=, and =sort= for name-indexed data such as CSV, TSV, and tabular JSON
-*** [[https://github.com/itchyny/mmv][mmv]]: rename multiple files using your default editor
-*** [[https://github.com/dylanaraps/neofetch][neofetch]]: a command line system information tool
+**** [[https://github.com/casey/just][just]]: just a command runner
+**** [[https://stedolan.github.io/jq/tutorial/][jq]]: a lightweight and flexible command-line JSON processor
+**** [[https://github.com/visit1985/mdp][mdp]]: command-line based Markdown presentation tool
+**** [[https://github.com/johnkerl/miller][miller]]: like =awk=, =sed=, =cut=, =join=, and =sort= for name-indexed data such as CSV, TSV, and tabular JSON
+**** [[https://github.com/itchyny/mmv][mmv]]: rename multiple files using your default editor
+**** [[https://github.com/dylanaraps/neofetch][neofetch]]: a command line system information tool
 - see [[https://neil.computer/notes/neofetch/][this configuration]] from [[file:../../Dropbox/org/roam/refs/berkeley_graphics.org][Berkeley Graphics]]
-*** pdftk: command line tool to merge and split PDFs
+**** pdftk: command line tool to merge and split PDFs
 - used to compile class slides into one PDF for entry in BibTeX database
 - synatx :: ~pdftk <files> cat output <newfile>~
-*** qalc: powerful and easy to use command line calculator
+**** qalc: powerful and easy to use command line calculator
 - called by ~rofi~ launcher
-*** pdf viewers: qpdfview & zathura
-*** [[https://github.com/BurntSushi/ripgrep][ripgrep]]: =grep=, but better
-*** rofi
+**** pdf viewers: qpdfview & zathura
+**** [[https://github.com/BurntSushi/ripgrep][ripgrep]]: =grep=, but better
+**** rofi
 - explained in detail elsewhere
-*** [[https://github.com/dreamer/scrot][scrot]]: command-line screenshot utility
+**** [[https://github.com/dreamer/scrot][scrot]]: command-line screenshot utility
 - called by ~rofi~
-*** [[https://github.com/ggreer/the_silver_searcher][silversearcher-ag]]: A code-searching tool similar to ack, but faster
-*** [[https://pwr-solaar.github.io/Solaar/][solaar]]: Linux manager for Logitech Unifying Receiver devices
-*** [[https://gitlab.com/surfraw/Surfraw][surfraw]]: CLI to popular web search engines
-*** sxhkd
+**** [[https://github.com/ggreer/the_silver_searcher][silversearcher-ag]]: A code-searching tool similar to ack, but faster
+**** [[https://pwr-solaar.github.io/Solaar/][solaar]]: Linux manager for Logitech Unifying Receiver devices
+**** [[https://gitlab.com/surfraw/Surfraw][surfraw]]: CLI to popular web search engines
+**** sxhkd
 - hotkey manager used to specify ~rofi~ hotkeys
 - explained in detail elsewhere
-*** [[https://www.visidata.org/][visidata]]: interactive multitool for tabular data
-*** [[https://github.com/ytdl-org/youtube-dl/][youtube-dl]]
+**** [[https://www.visidata.org/][visidata]]: interactive multitool for tabular data
+**** [[https://github.com/ytdl-org/youtube-dl/][youtube-dl]]
 - download YouTube videos
-** dependencies for =diff-pdf=
+*** dependencies for =diff-pdf=
 #+begin_src
 automake
 g++
@@ -209,20 +365,20 @@ libpoppler-glib-dev
 libwxgtk3.0-dev
 poppler-utils
 #+end_src
-* snap.list
-** list
+** snap.list
+*** list
 #+begin_src :tangle "snap.list"
 --classic code
 slack --classic
 vlc
 jabref
 #+end_src
-** notes
-*** [[https://github.com/wakatara/harsh][harsh]]: A minimalist command line tool for tracking habits
+*** notes
+**** [[https://github.com/wakatara/harsh][harsh]]: A minimalist command line tool for tracking habits
 - use Org mode instead, but I like the plots this makes better than Org's
-*** [[https://github.com/bibletime/bibletime][bibletime]]: A powerful cross platform Bible study tool
-* pip.list
-** list
+**** [[https://github.com/bibletime/bibletime][bibletime]]: A powerful cross platform Bible study tool
+** pip.list
+*** list
 #+begin_src :tangle "pip.list"
 bokeh
 dask
@@ -248,49 +404,49 @@ tldr
 tqdm
 wrds
 #+end_src
-** notes
-*** [[https://github.com/bokeh/bokeh][bokeh]]: interactive visualization library for modern web browsers
+*** notes
+**** [[https://github.com/bokeh/bokeh][bokeh]]: interactive visualization library for modern web browsers
 It provides elegant, concise construction of versatile graphics, and affords high-performance interactivity over large or streaming datasets. Bokeh can help anyone who would like to quickly and easily make interactive plots, dashboards, and data applications.
-*** [[https://dask.org/][dask]]: scaling and parallelizing Pandas
-*** [[https://github.com/sfu-db/dataprep][dataprep]]: The easiest way to prepare data in Python
-*** [[https://pypi.org/project/docutils/][docutils]]: convert reStructuredText to HTML and LaTeX
-*** [[http://www.danielmsullivan.com/econtools/][econtools]]: package with tools for econometrics and data munging
-*** [[https://github.com/srsudar/eg][eg]]: useful examples at the command line
-*** [[https://github.com/wkentaro/gdown][gdown]]: Download a large file from Google Drive
+**** [[https://dask.org/][dask]]: scaling and parallelizing Pandas
+**** [[https://github.com/sfu-db/dataprep][dataprep]]: The easiest way to prepare data in Python
+**** [[https://pypi.org/project/docutils/][docutils]]: convert reStructuredText to HTML and LaTeX
+**** [[http://www.danielmsullivan.com/econtools/][econtools]]: package with tools for econometrics and data munging
+**** [[https://github.com/srsudar/eg][eg]]: useful examples at the command line
+**** [[https://github.com/wkentaro/gdown][gdown]]: Download a large file from Google Drive
 ~curl~ and ~wget~ fail because Google gives a security notice that they can't bypass automatically.
-*** [[https://www.usitc.gov/data/gravity/gme.htm][gme]]: Python module for USITC Gravity Modeling Environment
-*** [[https://github.com/joeyespo/grip][grip]]: Preview GitHub READMEs locally
-*** [[https://github.com/jeffkaufman/icdiff][icdiff]]: improved colored diff
-*** [[https://github.com/medialab/minet][minet]]: webmining command line tool
+**** [[https://www.usitc.gov/data/gravity/gme.htm][gme]]: Python module for USITC Gravity Modeling Environment
+**** [[https://github.com/joeyespo/grip][grip]]: Preview GitHub READMEs locally
+**** [[https://github.com/jeffkaufman/icdiff][icdiff]]: improved colored diff
+**** [[https://github.com/medialab/minet][minet]]: webmining command line tool
 - can be used to collect and extract data from a large variety of web sources such as raw webpages, Facebook, YouTube, Twitter, etc.
-*** [[https://pydata.github.io/pandas-datareader/index.html][pandas-datareader]]: remote data access for pandas
-*** [[https://github.com/pandas-profiling/pandas-profiling][pandas-profiling]]: Create HTML profiling reports from pandas DataFrame objects
-*** [[https://github.com/pypa/pipenv][pipenv]]: automatically creates/manages a virtualenv for projects
-*** [[https://github.com/pyjanitor-devs/pyjanitor][pyjanitor]]: Clean APIs for data cleaning (Python implementation of R package Janitor)
-*** [[http://www.pyomo.org/about][pyomo]]: modeling language with a diverse set of optimization capabilities
-*** [[https://github.com/ofajardo/pyreadr][pyreadr]]: Python package to read/write R data files
-*** [[https://github.com/randy3k/radian][radian]]: A 21st-century R console
-*** [[https://github.com/tldr-pages/tldr][tldr]]: Community-sourced command-line cheatsheets
-*** [[https://github.com/tqdm/tqdm][tqdm]]: a fast, extensible progress bar for Python and CLI
-*** [[https://github.com/wharton/wrds][wrds]]: extract [[file:../../Dropbox/org/roam/refs/wrds.org][WRDS]] data into Pandas
-* cargo.list
-** list
+**** [[https://pydata.github.io/pandas-datareader/index.html][pandas-datareader]]: remote data access for pandas
+**** [[https://github.com/pandas-profiling/pandas-profiling][pandas-profiling]]: Create HTML profiling reports from pandas DataFrame objects
+**** [[https://github.com/pypa/pipenv][pipenv]]: automatically creates/manages a virtualenv for projects
+**** [[https://github.com/pyjanitor-devs/pyjanitor][pyjanitor]]: Clean APIs for data cleaning (Python implementation of R package Janitor)
+**** [[http://www.pyomo.org/about][pyomo]]: modeling language with a diverse set of optimization capabilities
+**** [[https://github.com/ofajardo/pyreadr][pyreadr]]: Python package to read/write R data files
+**** [[https://github.com/randy3k/radian][radian]]: A 21st-century R console
+**** [[https://github.com/tldr-pages/tldr][tldr]]: Community-sourced command-line cheatsheets
+**** [[https://github.com/tqdm/tqdm][tqdm]]: a fast, extensible progress bar for Python and CLI
+**** [[https://github.com/wharton/wrds][wrds]]: extract [[file:../../Dropbox/org/roam/refs/wrds.org][WRDS]] data into Pandas
+** cargo.list
+*** list
 #+begin_src :tangle "cargo.list"
 broot
 du-dust
 exa
 sd
 #+end_src
-** notes
-*** [[https://github.com/Canop/broot][broot]]: a new way to see and navigate directory trees
-*** [[https://github.com/bootandy/dust][dust]]: a more intuitive version of =du= (disk usage) in rust
-*** [[https://github.com/ogham/exa][exa]]: a modern replacement for =ls=
-*** [[https://github.com/chmln/sd][sd]]: intuitive find & replace CLI (=sed= alternative)
-* code.list
+*** notes
+**** [[https://github.com/Canop/broot][broot]]: a new way to see and navigate directory trees
+**** [[https://github.com/bootandy/dust][dust]]: a more intuitive version of =du= (disk usage) in rust
+**** [[https://github.com/ogham/exa][exa]]: a modern replacement for =ls=
+**** [[https://github.com/chmln/sd][sd]]: intuitive find & replace CLI (=sed= alternative)
+** code.list
 Check for updates to this list with ~code --list-extensions~
 #+begin_src :tangle "code.list"
 aaron-bond.better-comments
-AffenWiesel.matlab-formatter
+affenwiesel.matlab-formatter
 akamud.vscode-theme-onedark
 albert.tabout
 alefragnani.numbered-bookmarks
@@ -298,63 +454,84 @@ alefragnani.project-manager
 alefragnani.rtf
 arcticicestudio.nord-visual-studio-code
 axetroy.vscode-changelog-generator
-BazelBuild.vscode-bazel
+bazelbuild.vscode-bazel
 bierner.emojisense
 bierner.markdown-checkbox
 brunnerh.insert-unicode
-bungcip.better-toml
-CoenraadS.bracket-pair-colorizer-2
-DavidAnson.vscode-markdownlint
+chouzz.vscode-better-align
+codespaces-contrib.codeswing
+davidanson.vscode-markdownlint
+dlasagno.rasi
+docker.docker
 eamodio.gitlens
 ericadamski.carbon-now-sh
 formulahendry.code-runner
 geddski.macros
-Gimly81.matlab
-GitHub.vscode-pull-request-github
-GrapeCity.gc-excelviewer
-GuidoTapia2.unicode-math-vscode
-Ikuyadeu.r
+gimly81.matlab
+github.copilot
+github.copilot-chat
+github.remotehub
+github.vscode-pull-request-github
+grapecity.gc-excelviewer
+guidotapia2.unicode-math-vscode
 imjacobclark.vscode-lisp-formatter
-James-Yu.latex-workshop
+james-yu.latex-workshop
 julialang.language-julia
-KevinRose.vsc-python-indent
+kevinrose.vsc-python-indent
 kokakiwi.vscode-just
 kylebarron.stata-enhanced
 matklad.pale-fire
-mattn.Lisp
+mattn.lisp
 mechatroner.rainbow-csv
 mikestead.dotenv
+ms-azuretools.vscode-containers
 ms-azuretools.vscode-docker
+ms-python.debugpy
+ms-python.isort
 ms-python.python
 ms-python.vscode-pylance
+ms-python.vscode-python-envs
 ms-toolsai.datawrangler
 ms-toolsai.jupyter
 ms-toolsai.jupyter-keymap
 ms-toolsai.jupyter-renderers
+ms-toolsai.vscode-jupyter-cell-tags
+ms-toolsai.vscode-jupyter-slideshow
 ms-vscode-remote.remote-containers
 ms-vscode-remote.remote-ssh
 ms-vscode-remote.remote-ssh-edit
+ms-vscode.azure-repos
+ms-vscode.cmake-tools
+ms-vscode.cpptools
+ms-vscode.cpptools-extension-pack
+ms-vscode.cpptools-themes
+ms-vscode.makefile-tools
+ms-vscode.remote-explorer
+ms-vscode.remote-repositories
 ms-vscode.vscode-github-issue-notebooks
 ms-vsliveshare.vsliveshare
-ms-vsliveshare.vsliveshare-audio
 ms-vsliveshare.vsliveshare-pack
 mxschmitt.postscript
 oijaz.unicode-latex
-OrangeX4.latex-sympy-calculator
+orangex4.latex-sympy-calculator
 patbenatar.advanced-new-file
 phr0s.bib
-PKief.material-icon-theme
+pkief.material-icon-theme
 quicktype.quicktype
-RandomFractalsInc.geo-data-viewer
+randomfractalsinc.geo-data-viewer
 redhat.vscode-yaml
+reditorsupport.r
+reditorsupport.r-syntax
 shd101wyy.markdown-preview-enhanced
 sidneys1.gitconfig
 sleistner.vscode-fileutils
 stkb.rewrap
+tamasfe.even-better-toml
 tecosaur.latex-utilities
-Tyriar.vscode-terminal-here
-VisualStudioExptTeam.intellicode-api-usage-examples
-VisualStudioExptTeam.vscodeintellicode
+tomoki1207.pdf
+tyriar.vscode-terminal-here
+visualstudioexptteam.intellicode-api-usage-examples
+visualstudioexptteam.vscodeintellicode
 vivaxy.vscode-conventional-commits
 vmsynkov.colonize
 vscode-icons-team.vscode-icons
@@ -363,32 +540,45 @@ vsls-contrib.codetour
 vsls-contrib.gistfs
 wmaurer.change-case
 wmaurer.vscode-jumpy
-wwm.better-align
 xshrim.txt-syntax
-Yeaoh.stataRun
+yeaoh.statarun
 yzane.markdown-pdf
 yzhang.markdown-all-in-one
 #+end_src
-* npm.list
-** list
+** npm.list
+*** list
 #+begin_src :tangle "npm.list"
 @bazel/bazelisk
 carbon-now-cli
 how-2
 tldr
 #+end_src
-** notes
-*** [[file:~/Dropbox/org/roam/refs/bazel.org][bazel]]: Build and test software of any size, quickly and reliably
-*** [[https://github.com/carbon-app/carbon][carbon]] and [[https://github.com/mixn/carbon-now-cli][carbon-now-cli]]: Create and share beautiful images of your source code
-*** [[https://github.com/santinic/how2][how2]]: Stackoverflow from the terminal
-*** [[https://github.com/tldr-pages/tldr][tldr]]: Collaborative cheatsheets for console commands
-* gem.list
-** list
+*** notes
+**** [[file:~/Dropbox/org/roam/refs/bazel.org][bazel]]: Build and test software of any size, quickly and reliably
+**** [[https://github.com/carbon-app/carbon][carbon]] and [[https://github.com/mixn/carbon-now-cli][carbon-now-cli]]: Create and share beautiful images of your source code
+**** [[https://github.com/santinic/how2][how2]]: Stackoverflow from the terminal
+**** [[https://github.com/tldr-pages/tldr][tldr]]: Collaborative cheatsheets for console commands
+** gem.list
+*** list
 #+begin_src :tangle "gem.list"
 gollum
 #+end_src
-** notes
-*** [[https://github.com/gollum/gollum][gollum]]: Git-powered wiki with Org mode support
+*** notes
+**** [[https://github.com/gollum/gollum][gollum]]: Git-powered wiki with Org mode support
+** gogh.list
+*** list
+#+begin_src :tangle "gogh.list"
+afterglow
+arthur
+chalk
+github-dark
+liquidcarbon
+neutron
+nord
+seashells
+spacedust zenburn
+#+end_src
+*** notes
 * custom bash scripts
 
 ** ~pdfsearch~: search all PDFs in current directory for string
