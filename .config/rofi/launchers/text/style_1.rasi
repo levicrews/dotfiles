@@ -33,7 +33,7 @@ configuration {
     display-drun: 					"";
     display-combi: 					"";
     display-filebrowser:            "";
-    file-browser-directory:          "~/Dropbox/crewsbib/pdf";
+    file-browser-dir:               "~/Dropbox/crewsbib/pdf";
 }
 
 @import "styles/colors.rasi"

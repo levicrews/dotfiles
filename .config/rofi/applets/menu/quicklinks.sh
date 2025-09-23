@@ -26,9 +26,9 @@ else
 fi
 
 # Logos: glyphs from https://www.nerdfonts.com/cheat-sheet
-mail="" #Hex: f6ef
+mail="󰇰" #Hex: f01f0
 calendar="" #Hex: f073
-brainfm="" #Hex: f7ca
+brainfm="󰋋" #Hex: f02cb
 monarch="" #Hex: f1a0
 twitter="" #Hex: f099
 feedly="" #Hex: e27b
