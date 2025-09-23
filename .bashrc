@@ -45,59 +45,10 @@ fi
 
 #################################### PROMPT ####################################
 
-# set a fancy prompt (non-color, unless we know we "want" color)
-case "$TERM" in
-    xterm-color|*-256color) color_prompt=yes;;
-esac
-
-# uncomment for a colored prompt, if the terminal has the capability; turned
-# off by default to not distract the user: the focus in a terminal window
-# should be on the output of commands, not on the prompt
-#force_color_prompt=yes
-
-if [ -n "$force_color_prompt" ]; then
-    if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
-	# We have color support; assume it's compliant with Ecma-48
-	# (ISO/IEC-6429). (Lack of such support is extremely rare, and such
-	# a case would tend to support setf rather than setaf.)
-	color_prompt=yes
-    else
-	color_prompt=
-    fi
-fi
-
-# If this is an xterm set the title to user@host:dir
-case "$TERM" in
-xterm*|rxvt*)
-    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
-    ;;
-*)
-    ;;
-esac
-
-# limit how many directories up from pwd to show in prompt
-PROMPT_DIRTRIM=2
-
-# define prompt
-if [ "$color_prompt" = yes ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
-else
-    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
-fi
-unset color_prompt force_color_prompt
-
-# overwrite with Powerline prompt: see https://github.com/justjanne/powerline-go#customization
-# need to ensure that you're using a Nerd Font for glyphs to render correctly
-# GOPATH=$HOME/go
-# function _update_ps1() {
-#     PS1="$($GOPATH/bin/powerline-go -cwd-max-depth 4 -modules "user,ssh,cwd" -condensed -east-asian-width $?)"
-# }
-# if [ "$TERM" != "linux" ] && [ -f "$GOPATH/bin/powerline-go" ]; then
-#     PROMPT_COMMAND="_update_ps1; $PROMPT_COMMAND"
-# fi
-
 # Use starship prompt: https://starship.rs/guide/
-eval "$(starship init bash)"
+if command -v starship >/dev/null 2>&1; then
+    eval "$(starship init bash)"
+fi
 
 ################################### ALIASES ####################################
 
@@ -127,25 +78,72 @@ if ! shopt -oq posix; then
   fi
 fi
 
-#################################### CONDA #####################################
+####################### SOURCE USER SCRIPTS & FUNCTIONS ########################
 
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/home/levic/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
-else
-    if [ -f "/home/levic/anaconda3/etc/profile.d/conda.sh" ]; then
-        . "/home/levic/anaconda3/etc/profile.d/conda.sh"
-    else
-        export PATH="/home/levic/anaconda3/bin:$PATH"
-    fi
-fi
-unset __conda_setup
-# <<< conda initialize <<<
-
-############################# SOURCE USER SCRIPTS ##############################
-
-# source ~/Documents/auto-init/.auto_init_commands.sh
-. "$HOME/.cargo/env"
 . /usr/share/autojump/autojump.sh
+
+# Search for text within PDFs in directory
+# usage: pdfsearch "charpattern" ~/Dropbox/crewsbib/pdf)
+pdfsearch() {
+    # usage: pdfsearch PATTERN [PATH...]
+    command -v pdfgrep >/dev/null 2>&1 || { echo "pdfgrep not installed"; return 127; }
+    [ -n "${1-}" ] || { echo "usage: pdfsearch PATTERN [PATH...]"; return 2; }
+    local pat="$1"; shift
+    [ "$#" -gt 0 ] || set -- .
+    pdfgrep -R -nH -m1 --color=auto -- "$pat" "$@"
+}
+
+# Fuzzy jump to a git repo under ~/Documents
+gitgo() {
+    local base="${REPO_BASE:-$HOME/Documents}"
+    local q="$*" sel
+
+    # Build the list each time: any dir containing a ".git" (depth 1–2).
+    # Works whether your repos are ~/Documents/<repo> or ~/Documents/.../<repo>.
+    mapfile -t _repos < <(find "$base" -mindepth 1 -maxdepth 2 -type d -name .git -printf '%h\n' 2>/dev/null)
+
+    # Pick with fzf (pre-filter with your query). Auto-enter if exactly one match.
+    sel="$(printf '%s\n' "${_repos[@]}" \
+        | fzf --query="$q" --select-1 --exit-0 --height=40% --reverse \
+              --prompt='repo> ' \
+              --preview='
+                  printf "%s\n\n" {}
+                  git -C {} rev-parse --abbrev-ref HEAD 2>/dev/null
+                  git -C {} --no-pager -c color.status=always status -sb 2>/dev/null | sed -n "1,20p"
+              ' --preview-window=right,60%)"
+
+    # Go to repo (or fall back to base if nothing selected).
+    if [[ -n "$sel" ]]; then
+        cd "$sel" || return
+    else
+        cd "$base" || return
+    fi
+}
+
+# Run a command across all git repos under $HOME/Documents (or $REPO_BASE).
+# usage: gitbulk git pull --ff-only (default: git status)
+gitbulk() {
+    local base="${REPO_BASE:-$HOME/Documents}"
+    local -a repos cmd
+    local rc=0
+
+    # collect repos (handles spaces/newlines)
+    readarray -d '' repos < <(find "$base" -mindepth 1 -maxdepth 2 \
+        -type d -name .git -printf '%h\0' 2>/dev/null)
+
+    (( ${#repos[@]} )) || { echo "gitbulk: no git repos under $base"; return 1; }
+
+    # default to `git status`
+    if (( $# == 0 )); then
+        cmd=(git status)
+    else
+        cmd=("$@")
+    fi
+
+    for d in "${repos[@]}"; do
+        printf '==> %s\n' "$(basename "$d")"
+        ( cd "$d" && "${cmd[@]}" ) || rc=1
+        echo
+    done
+    return $rc
+}

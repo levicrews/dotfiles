@@ -27,14 +27,17 @@ if [ -d "$HOME/.local/bin" ] ; then
 fi
 
 # set PATH so it includes manually installed binaries
-export PATH=/usr/local/texlive/2020/bin/x86_64-linux:$PATH
-export MANPATH=/usr/local/texlive/2020/texmf-dist/doc/man:$MANPATH
-export INFOPATH=/usr/local/texlive/2020/texmf-dist/doc/info:$INFOPATH
-export PATH=/usr/local/stata16:$PATH
-export PATH=~/.emacs.d/bin:$PATH
-export PATH=/opt/gurobi/bin:$PATH
-export PATH=~/.config/rofi/bin:$PATH
+function addToPATH {
+  case ":$PATH:" in
+    *":$1:"*) :;; # already there
+    *) PATH="$1:$PATH";; # or PATH="$PATH:$1"
+  esac
+}
 
-# set Gurobi license
-export GRB_LICENSE_FILE=/opt/gurobi/gurobi.lic
+addToPATH $HOME/.config/rofi/bin
+addToPATH $HOME/.emacs.d/bin
+addToPATH $HOME/.juliaup/bin
+addToPATH /usr/local/stata16
+
+# source Rust packages
 . "$HOME/.cargo/env"

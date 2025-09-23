@@ -12,7 +12,7 @@ if [ -x /usr/bin/dircolors ]; then
 fi
 
 # cat with syntax highlighting and Git integration
-alias cat='bat'
+alias cat='batcat'
 
 # ls aliases
 alias ll='ls -alF'
