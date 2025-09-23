@@ -5,33 +5,41 @@ cd "$(dirname "$0")"
 echo "[sudo] acquiring credentials..."
 sudo -v
 
-# --- One-time repo setup (idempotent)
+# --- One-time repo setup (idempotent) --- #
 sudo apt-get update -y
 sudo apt-get install -y software-properties-common curl wget gpg
 sudo add-apt-repository -y ppa:inkscape.dev/stable || true
-wget -qO- https://packages.microsoft.com/keys/microsoft.asc \
-    | sudo gpg --dearmor -o /usr/share/keyrings/packages.microsoft.gpg
-echo "deb [arch=amd64 signed-by=/usr/share/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" \
-    | sudo tee /etc/apt/sources.list.d/vscode.list > /dev/null
+# Microsoft VS Code apt repo (minimal + idempotent)
+if ! grep -qr 'https://packages.microsoft.com/repos/code' /etc/apt/sources.list* /etc/apt/sources.list.d 2>/dev/null; then
+    sudo install -d -m 755 /usr/share/keyrings
+    wget -qO- https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor --yes -o /usr/share/keyrings/packages.microsoft.gpg
+    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" \
+        | sudo tee /etc/apt/sources.list.d/vscode.list >/dev/null
+    sudo apt-get update -y
+fi
 sudo apt-get update -y
 
-# --- Rust only if needed (cargo.list present)
+# --- Rust only if needed (cargo.list present) --- #
 if [[ -f cargo.list ]] && ! command -v cargo >/dev/null 2>&1; then
     echo "Installing Rust toolchain (rustup) because cargo.list is present..."
     curl -fsSL https://sh.rustup.rs | sh -s -- -y
 fi
 export PATH="$HOME/.cargo/bin:$PATH"
 
-# --- Helpers
+# --- Helpers --- #
 lines() { grep -vE '^\s*(#|$)' "$1" || true; }	# skip comments/blank lines
 
 apt_installed()   { dpkg-query -W -f='${Status}\n' "$1" 2>/dev/null | grep -q "install ok installed"; }
 snap_installed()  { snap list "$1" >/dev/null 2>&1; }
 npm_installed()   { npm list -g --depth=0 "$1" >/dev/null 2>&1; }
-pip_base_name()   { printf '%s' "$1" | sed 's/[\[=<>].*$//'; }	# strip extras/versions
-pip_installed()   { python3 -m pip show "$(pip_base_name "$1")" >/dev/null 2>&1; }
 cargo_installed() { cargo install --list 2>/dev/null | awk '{print $1}' | grep -xq "$1"; }
-code_installed()  { code --list-extensions 2>/dev/null | grep -xq "$1"; }
+
+# VS Code extension helpers: normalize ID and check installed
+code_id() { printf '%s' "$1" | sed -E 's/^[[:space:]]+|[[:space:]]+$//g;s/[[:space:]]+//g' | awk -F'@' '{print tolower($1)}'; }
+code_installed() {
+    local id; id="$(code_id "$1")"
+    code --list-extensions 2>/dev/null | tr '[:upper:]' '[:lower:]' | grep -xq "$id"
+}
 
 ensure_tool() {
     case "$1" in
@@ -41,8 +49,10 @@ ensure_tool() {
         npm)
             command -v npm  >/dev/null 2>&1 || sudo apt-get install -y nodejs npm
             ;;
-        pip|pip3)
-            command -v pip3 >/dev/null 2>&1 || sudo apt-get install -y python3 python3-pip
+        uvtool|uv)
+            # We use uv for Python CLIs; make sure prerequisites are there.
+            command -v python3 >/dev/null 2>&1 || sudo apt-get install -y python3 python3-venv
+            command -v uv >/dev/null 2>&1 || curl -LsSf https://astral.sh/uv/install.sh | sh
             ;;
     esac
 }
@@ -53,7 +63,7 @@ install_pkg() {
 
     case "$tool" in
         apt|apt-get)
-         apt_installed "$name" || sudo apt-get install -y $line
+            apt_installed "$name" || sudo apt-get install -y $line
             ;;
         snap)
             snap_installed "$name" || sudo snap install $line
@@ -61,39 +71,50 @@ install_pkg() {
         npm)
             npm_installed "$name" || sudo npm install -g $line
             ;;
-        pip|pip3)
-            pip_installed "$line" || python3 -m pip install --user $line
-            ;;
+        uvtool|uv)
+            # uv is idempotent; re-running is safe & quiet if already installed.
+			uv tool install "$line" || echo "(warn) uv failed to install: $line"
+			;;
         cargo)
             cargo_installed "$name" || cargo install $line
             ;;
         code)
-            code_installed "$line" || code --install-extension "$line"
+            # Idempotent: skip if already installed (tolerates @version / whitespace)
+            if ! code_installed "$line"; then
+                # Try exactly as listed first (allows @version), then fall back to bare ID
+                code --install-extension "$line" \
+                || code --install-extension "$(code_id "$line")" \
+                || echo "	(warn) failed to install VS Code extension: $line"
+            fi
             ;;
         *)
             : ;;  # unknown tool: skip
     esac
 }
 
-# --- Main loop
+# --- Main loop --- #
 shopt -s nullglob
 for f in *.list; do
-    # skip Gogh theme list; handled in from-source block
-    [[ "$(basename "$f")" == "gogh.list" ]] && continue
+    case "$(basename -- "$f")" in
+        gogh.list|pylib.list) continue ;;
+    esac
 
     tool="${f%.*}"	# e.g., apt.list -> apt
     echo "==> Installing $tool packages..."
     ensure_tool "$tool"
 
     while IFS= read -r pkg; do
+        # trim whitespace; skip empty after trimming
+        pkg="$(printf '%s' "$pkg" | sed -E 's/^[[:space:]]+|[[:space:]]+$//g')"
+        [[ -z "$pkg" ]] && continue
         install_pkg "$tool" "$pkg"
     done < <(lines "$f")
 
     echo "<== Finished installing $tool packages."
 done
 
-# --- From-source installs
-echo "==> Installing from-source packages..."
+# --- Install from source --- #
+echo "==> Installing packages from source..."
 
 # 1) Starship prompt (install only if missing)
 if ! command -v starship >/dev/null 2>&1; then
@@ -119,12 +140,11 @@ if command -v gnome-terminal >/dev/null 2>&1 && command -v gsettings >/dev/null 
     }
 
     # ensure repo present/updated
-    mkdir -p "$HOME/src"
-    if [[ -d "$HOME/src/gogh/.git" ]]; then
-        git -C "$HOME/src/gogh" fetch --all -p >/dev/null 2>&1 || true
-        git -C "$HOME/src/gogh" pull --ff-only >/dev/null 2>&1 || true
+    if [[ -d "$HOME/util/gogh/.git" ]]; then
+        git -C "$HOME/util/gogh" fetch --all -p >/dev/null 2>&1 || true
+        git -C "$HOME/util/gogh" pull --ff-only >/dev/null 2>&1 || true
     else
-        git clone https://github.com/Gogh-Co/Gogh.git "$HOME/src/gogh"
+        git clone https://github.com/levicrews/Gogh.git "$HOME/util/gogh" # use my fork with extra themes
     fi
 
     # permanently normalize default profile name (Gogh expects "Default")
@@ -139,27 +159,35 @@ if command -v gnome-terminal >/dev/null 2>&1 && command -v gsettings >/dev/null 
         themes="$(grep -vE '^\s*(#|$)' gogh.list | tr '\n' ' ')"
     fi
 
-    pushd "$HOME/src/gogh/installs" >/dev/null
+    pushd "$HOME/util/gogh/installs" >/dev/null
     for script in $themes; do
         slug="${script%.sh}"
         theme_name="${slug^}"	# "atom" -> "Atom"
         if ! gnome_profile_exists "$theme_name"; then
-            "./${slug}.sh" || true	# don’t abort entire bootstrap if a single theme fails
+            "./${slug}.sh" || true	# don't abort entire bootstrap if a single theme fails
         fi
     done
     popd >/dev/null
 fi
 
-echo "<== Finished installing from-source packages."
+# 3) Sparklines in terminal (install only if missing)
+if ! command -v spark >/dev/null 2>&1; then
+    sudo sh -c "curl https://raw.githubusercontent.com/holman/spark/master/spark -o /usr/local/bin/spark && chmod +x /usr/local/bin/spark"
+fi
 
-# --- Fonts (group-level logging; idempotent)
+# 4) cheat.sh client
+if ! command -v cht.sh >/dev/null 2>&1; then
+    curl -s https://cht.sh/:cht.sh | sudo tee /usr/local/bin/cht.sh && sudo chmod +x /usr/local/bin/cht.sh
+fi
+
+echo "<== Finished installing packages from source."
+
+# --- Install fonts --- #
 echo "==> Installing fonts..."
 
 # 1) Cascadia Code (prefer apt; skip if installed)
 if ! fc-list | grep -qi 'Cascadia Code'; then
-    # Try Ubuntu package first (fast and clean)
     if ! sudo apt-get install -y fonts-cascadia-code; then
-        # Fallback: download latest TTF zip from GitHub and install to user fonts
         tmp="$(mktemp -d)"
         if curl -fsSL -o "$tmp/cc.zip" "https://github.com/microsoft/cascadia-code/releases/latest/download/CascadiaCode-ttf.zip"; then
             mkdir -p "$HOME/.local/share/fonts/CascadiaCode"
@@ -175,30 +203,49 @@ fi
 
 # 2) Monaspace (clone repo once; copy fonts if missing)
 if ! fc-list | grep -qi 'Monaspace'; then
-    mkdir -p "$HOME/src" "$HOME/.local/share/fonts/Monaspace"
-    if [[ -d "$HOME/src/monaspace/.git" ]]; then
-        git -C "$HOME/src/monaspace" pull --ff-only >/dev/null 2>&1 || true
+    mkdir -p "$HOME/.local/share/fonts/Monaspace"
+    if [[ -d "$HOME/util/monaspace/.git" ]]; then
+        git -C "$HOME/util/monaspace" pull --ff-only >/dev/null 2>&1 || true
     else
-        git clone https://github.com/githubnext/monaspace "$HOME/src/monaspace"
+        git clone https://github.com/githubnext/monaspace "$HOME/util/monaspace"
     fi
-    # copy any OTF/TTF from repo (covers variable/static)
-    find "$HOME/src/monaspace" -type f \( -name "*.otf" -o -name "*.ttf" \) -exec cp -u {} "$HOME/.local/share/fonts/Monaspace/" \;
+    find "$HOME/util/monaspace" -type f \( -name "*.otf" -o -name "*.ttf" \) -exec cp -u {} "$HOME/.local/share/fonts/Monaspace/" \;
     fc-cache -f >/dev/null
 fi
 
 echo "<== Finished installing fonts."
 
-# --- Runtimes (Julia)
+# --- Runtimes (Julia via juliaup) --- #
 echo "==> Installing runtimes..."
-
-# Julia via juliaup (idempotent)
 if ! command -v juliaup >/dev/null 2>&1; then
-	curl -fsSL https://install.julialang.org | sh -s -- -y
+    curl -fsSL https://install.julialang.org | sh -s -- -y
 fi
-
 echo "<== Finished installing runtimes."
 
-# Optional: only if present
-[[ -e /usr/local/bin/pdfsearch ]] && sudo chmod +x /usr/local/bin/pdfsearch
+# --- Remap Caps Lock to Ctrl --- #
+echo "==> Remapping keys..."
+gsettings set org.gnome.desktop.input-sources xkb-options "['caps:ctrl_modifier']"
+echo "<== Finished remapping keys."
 
+# --- Initialize Git (globals, LFS, Delta diffs) --- #
+echo "==> Initializing Git..."
+git config --global fetch.prune true
+git config --global status.short true   # like: git status -s
+git config --global status.branch true  # add branch/upstream line (like -b)
+
+if command -v git-lfs >/dev/null 2>&1; then
+    git lfs install --skip-repo >/dev/null 2>&1 || git lfs install >/dev/null 2>&1
+fi
+
+# Set delta as Git pager only if delta exists AND no pager is configured yet
+if command -v delta >/dev/null 2>&1 && ! git config --global --get core.pager >/dev/null 2>&1; then
+    git config --global core.pager delta
+    git config --global delta.side-by-side true
+    git config --global interactive.diffFilter 'delta --color-only'
+    git config --global delta.navigate true # use n and N to move between diff sections
+    git config --global merge.conflictStyle zdiff3
+fi
+echo "<== Finished initializing Git."
+
+# --- END --- #
 echo "Bootstrap complete."

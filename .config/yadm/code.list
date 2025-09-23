@@ -37,6 +37,7 @@ matklad.pale-fire
 mattn.lisp
 mechatroner.rainbow-csv
 mikestead.dotenv
+mosbasik.sxhkdrc-syntax
 ms-azuretools.vscode-containers
 ms-azuretools.vscode-docker
 ms-python.debugpy
@@ -63,7 +64,6 @@ ms-vscode.remote-explorer
 ms-vscode.remote-repositories
 ms-vscode.vscode-github-issue-notebooks
 ms-vsliveshare.vsliveshare
-ms-vsliveshare.vsliveshare-pack
 mxschmitt.postscript
 oijaz.unicode-latex
 orangex4.latex-sympy-calculator
@@ -82,6 +82,7 @@ stkb.rewrap
 tamasfe.even-better-toml
 tecosaur.latex-utilities
 tomoki1207.pdf
+tootone.org-mode
 tyriar.vscode-terminal-here
 visualstudioexptteam.intellicode-api-usage-examples
 visualstudioexptteam.vscodeintellicode

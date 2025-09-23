@@ -1,0 +1,16 @@
+bokeh
+dask
+dataprep
+docutils
+econtools
+gme
+lux-api
+minet
+pandas-datareader
+pandas-profiling[notebook]
+pyjanitor
+pyomo
+pyreadr
+quantecon
+tqdm
+wrds
