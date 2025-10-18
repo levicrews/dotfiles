@@ -1,10 +1,10 @@
-#+TITLE: Bootstrap
-#+AUTHOR: Levi Crews
-#+EMAIL: levigcrews@gmail.com
+#+title: Bootstrap
+#+author: Levi Crews
+#+email: levigcrews@gmail.com
 
 * TODO add file-local-var to automatically tangle this doc
 * TODO add description of this file
-* TODO replace =find= and =grep= in =pdfsearch= command to speed it up
+
 * bootstrap script
 
 Adapted from https://github.com/rkalis/dotfiles and associated blog posts.
@@ -19,17 +19,21 @@ cd "$(dirname "$0")"
 echo "[sudo] acquiring credentials..."
 sudo -v
 
-# --- One-time repo setup (idempotent)
+# --- One-time repo setup (idempotent) --- #
 sudo apt-get update -y
 sudo apt-get install -y software-properties-common curl wget gpg
 sudo add-apt-repository -y ppa:inkscape.dev/stable || true
-wget -qO- https://packages.microsoft.com/keys/microsoft.asc \
-    | sudo gpg --dearmor -o /usr/share/keyrings/packages.microsoft.gpg
-echo "deb [arch=amd64 signed-by=/usr/share/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" \
-    | sudo tee /etc/apt/sources.list.d/vscode.list > /dev/null
+# Microsoft VS Code apt repo (minimal + idempotent)
+if ! grep -qr 'https://packages.microsoft.com/repos/code' /etc/apt/sources.list* /etc/apt/sources.list.d 2>/dev/null; then
+    sudo install -d -m 755 /usr/share/keyrings
+    wget -qO- https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor --yes -o /usr/share/keyrings/packages.microsoft.gpg
+    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" \
+        | sudo tee /etc/apt/sources.list.d/vscode.list >/dev/null
+    sudo apt-get update -y
+fi
 sudo apt-get update -y
 
-# --- Rust only if needed (cargo.list present)
+# --- Rust only if needed (cargo.list present) --- #
 if [[ -f cargo.list ]] && ! command -v cargo >/dev/null 2>&1; then
     echo "Installing Rust toolchain (rustup) because cargo.list is present..."
     curl -fsSL https://sh.rustup.rs | sh -s -- -y
@@ -41,16 +45,20 @@ export PATH="$HOME/.cargo/bin:$PATH"
 ** install packages from managers
 
 #+begin_src bash :tangle "bootstrap"
-# --- Helpers
+# --- Helpers --- #
 lines() { grep -vE '^\s*(#|$)' "$1" || true; }	# skip comments/blank lines
 
 apt_installed()   { dpkg-query -W -f='${Status}\n' "$1" 2>/dev/null | grep -q "install ok installed"; }
 snap_installed()  { snap list "$1" >/dev/null 2>&1; }
 npm_installed()   { npm list -g --depth=0 "$1" >/dev/null 2>&1; }
-pip_base_name()   { printf '%s' "$1" | sed 's/[\[=<>].*$//'; }	# strip extras/versions
-pip_installed()   { python3 -m pip show "$(pip_base_name "$1")" >/dev/null 2>&1; }
 cargo_installed() { cargo install --list 2>/dev/null | awk '{print $1}' | grep -xq "$1"; }
-code_installed()  { code --list-extensions 2>/dev/null | grep -xq "$1"; }
+
+# VS Code extension helpers: normalize ID and check installed
+code_id() { printf '%s' "$1" | sed -E 's/^[[:space:]]+|[[:space:]]+$//g;s/[[:space:]]+//g' | awk -F'@' '{print tolower($1)}'; }
+code_installed() {
+    local id; id="$(code_id "$1")"
+    code --list-extensions 2>/dev/null | tr '[:upper:]' '[:lower:]' | grep -xq "$id"
+}
 
 ensure_tool() {
     case "$1" in
@@ -60,8 +68,10 @@ ensure_tool() {
         npm)
             command -v npm  >/dev/null 2>&1 || sudo apt-get install -y nodejs npm
             ;;
-        pip|pip3)
-            command -v pip3 >/dev/null 2>&1 || sudo apt-get install -y python3 python3-pip
+        uvtool|uv)
+            # We use uv for Python CLIs; make sure prerequisites are there.
+            command -v python3 >/dev/null 2>&1 || sudo apt-get install -y python3 python3-venv
+            command -v uv >/dev/null 2>&1 || curl -LsSf https://astral.sh/uv/install.sh | sh
             ;;
     esac
 }
@@ -80,31 +90,42 @@ install_pkg() {
         npm)
             npm_installed "$name" || sudo npm install -g $line
             ;;
-        pip|pip3)
-            pip_installed "$line" || python3 -m pip install --user $line
-            ;;
+        uvtool|uv)
+            # uv is idempotent; re-running is safe & quiet if already installed.
+			uv tool install "$line" || echo "(warn) uv failed to install: $line"
+			;;
         cargo)
             cargo_installed "$name" || cargo install $line
             ;;
         code)
-            code_installed "$line" || code --install-extension "$line"
+            # Idempotent: skip if already installed (tolerates @version / whitespace)
+            if ! code_installed "$line"; then
+                # Try exactly as listed first (allows @version), then fall back to bare ID
+                code --install-extension "$line" \
+                || code --install-extension "$(code_id "$line")" \
+                || echo "	(warn) failed to install VS Code extension: $line"
+            fi
             ;;
-        ,*)
+        *)
             : ;;  # unknown tool: skip
     esac
 }
 
-# --- Main loop
+# --- Main loop --- #
 shopt -s nullglob
 for f in *.list; do
-    # skip Gogh theme list; handled in from-source block
-    [[ "$(basename "$f")" == "gogh.list" ]] && continue
+    case "$(basename -- "$f")" in
+        gogh.list|pylib.list) continue ;;
+    esac
 
     tool="${f%.*}"	# e.g., apt.list -> apt
     echo "==> Installing $tool packages..."
     ensure_tool "$tool"
 
     while IFS= read -r pkg; do
+        # trim whitespace; skip empty after trimming
+        pkg="$(printf '%s' "$pkg" | sed -E 's/^[[:space:]]+|[[:space:]]+$//g')"
+        [[ -z "$pkg" ]] && continue
         install_pkg "$tool" "$pkg"
     done < <(lines "$f")
 
@@ -116,8 +137,8 @@ done
 ** install packages from source
 
 #+begin_src bash :tangle "bootstrap"
-# --- From-source installs
-echo "==> Installing from-source packages..."
+# --- Install from source --- #
+echo "==> Installing packages from source..."
 
 # 1) Starship prompt (install only if missing)
 if ! command -v starship >/dev/null 2>&1; then
@@ -143,12 +164,11 @@ if command -v gnome-terminal >/dev/null 2>&1 && command -v gsettings >/dev/null 
     }
 
     # ensure repo present/updated
-    mkdir -p "$HOME/src"
-    if [[ -d "$HOME/src/gogh/.git" ]]; then
-        git -C "$HOME/src/gogh" fetch --all -p >/dev/null 2>&1 || true
-        git -C "$HOME/src/gogh" pull --ff-only >/dev/null 2>&1 || true
+    if [[ -d "$HOME/util/gogh/.git" ]]; then
+        git -C "$HOME/util/gogh" fetch --all -p >/dev/null 2>&1 || true
+        git -C "$HOME/util/gogh" pull --ff-only >/dev/null 2>&1 || true
     else
-        git clone https://github.com/Gogh-Co/Gogh.git "$HOME/src/gogh"
+        git clone https://github.com/levicrews/Gogh.git "$HOME/util/gogh" # use my fork with extra themes
     fi
 
     # permanently normalize default profile name (Gogh expects "Default")
@@ -163,18 +183,28 @@ if command -v gnome-terminal >/dev/null 2>&1 && command -v gsettings >/dev/null 
         themes="$(grep -vE '^\s*(#|$)' gogh.list | tr '\n' ' ')"
     fi
 
-    pushd "$HOME/src/gogh/installs" >/dev/null
+    pushd "$HOME/util/gogh/installs" >/dev/null
     for script in $themes; do
         slug="${script%.sh}"
         theme_name="${slug^}"	# "atom" -> "Atom"
         if ! gnome_profile_exists "$theme_name"; then
-            "./${slug}.sh" || true	# don’t abort entire bootstrap if a single theme fails
+            "./${slug}.sh" || true	# don't abort entire bootstrap if a single theme fails
         fi
     done
     popd >/dev/null
 fi
 
-echo "<== Finished installing from-source packages."
+# 3) Sparklines in terminal (install only if missing)
+if ! command -v spark >/dev/null 2>&1; then
+    sudo sh -c "curl https://raw.githubusercontent.com/holman/spark/master/spark -o /usr/local/bin/spark && chmod +x /usr/local/bin/spark"
+fi
+
+# 4) cheat.sh client
+if ! command -v cht.sh >/dev/null 2>&1; then
+    curl -s https://cht.sh/:cht.sh | sudo tee /usr/local/bin/cht.sh && sudo chmod +x /usr/local/bin/cht.sh
+fi
+
+echo "<== Finished installing packages from source."
 
 #+end_src
 
@@ -194,55 +224,92 @@ prerequisites (in =apt.list=): ~dconf-cli~, ~uuid-runtime~
 Microsoft [[https://github.com/microsoft/cascadia-code][Cascadia Code]] + GitHub [[https://github.com/githubnext/monaspace][Monaspace]]
 
 #+begin_src bash :tangle "bootstrap"
-# --- Fonts (group-level logging; idempotent) ---------------------------------
+# --- Install fonts --- #
 echo "==> Installing fonts..."
 
 # 1) Cascadia Code (prefer apt; skip if installed)
 if ! fc-list | grep -qi 'Cascadia Code'; then
-	# Try Ubuntu package first (fast and clean)
-	if ! sudo apt-get install -y fonts-cascadia-code; then
-		# Fallback: download latest TTF zip from GitHub and install to user fonts
-		tmp="$(mktemp -d)"
-		if curl -fsSL -o "$tmp/cc.zip" "https://github.com/microsoft/cascadia-code/releases/latest/download/CascadiaCode-ttf.zip"; then
-			mkdir -p "$HOME/.local/share/fonts/CascadiaCode"
-			unzip -o "$tmp/cc.zip" -d "$tmp/cc" >/dev/null
-			find "$tmp/cc" -type f -name "*.ttf" -exec cp -f {} "$HOME/.local/share/fonts/CascadiaCode/" \;
-			fc-cache -f >/dev/null
-		else
-			echo "	(warn) could not fetch Cascadia Code from GitHub; skipping"
-		fi
-		rm -rf "$tmp"
-	fi
+    if ! sudo apt-get install -y fonts-cascadia-code; then
+        tmp="$(mktemp -d)"
+        if curl -fsSL -o "$tmp/cc.zip" "https://github.com/microsoft/cascadia-code/releases/latest/download/CascadiaCode-ttf.zip"; then
+            mkdir -p "$HOME/.local/share/fonts/CascadiaCode"
+            unzip -o "$tmp/cc.zip" -d "$tmp/cc" >/dev/null
+            find "$tmp/cc" -type f -name "*.ttf" -exec cp -f {} "$HOME/.local/share/fonts/CascadiaCode/" \;
+            fc-cache -f >/dev/null
+        else
+            echo "	(warn) could not fetch Cascadia Code from GitHub; skipping"
+        fi
+        rm -rf "$tmp"
+    fi
 fi
 
 # 2) Monaspace (clone repo once; copy fonts if missing)
 if ! fc-list | grep -qi 'Monaspace'; then
-	mkdir -p "$HOME/src" "$HOME/.local/share/fonts/Monaspace"
-	if [[ -d "$HOME/src/monaspace/.git" ]]; then
-		git -C "$HOME/src/monaspace" pull --ff-only >/dev/null 2>&1 || true
-	else
-		git clone https://github.com/githubnext/monaspace "$HOME/src/monaspace"
-	fi
-	# copy any OTF/TTF from repo (covers variable/static)
-	find "$HOME/src/monaspace" -type f \( -name "*.otf" -o -name "*.ttf" \) -exec cp -u {} "$HOME/.local/share/fonts/Monaspace/" \;
-	fc-cache -f >/dev/null
+    mkdir -p "$HOME/.local/share/fonts/Monaspace"
+    if [[ -d "$HOME/util/monaspace/.git" ]]; then
+        git -C "$HOME/util/monaspace" pull --ff-only >/dev/null 2>&1 || true
+    else
+        git clone https://github.com/githubnext/monaspace "$HOME/util/monaspace"
+    fi
+    find "$HOME/util/monaspace" -type f \( -name "*.otf" -o -name "*.ttf" \) -exec cp -u {} "$HOME/.local/share/fonts/Monaspace/" \;
+    fc-cache -f >/dev/null
 fi
 
 echo "<== Finished installing fonts."
 
 #+end_src
 
-** make custom scripts executable
+** install runtimes
 
 #+begin_src bash :tangle "bootstrap"
-# Optional: only if present
-[[ -e /usr/local/bin/pdfsearch ]] && sudo chmod +x /usr/local/bin/pdfsearch
+# --- Runtimes (Julia via juliaup) --- #
+echo "==> Installing runtimes..."
+if ! command -v juliaup >/dev/null 2>&1; then
+    curl -fsSL https://install.julialang.org | sh -s -- -y
+fi
+echo "<== Finished installing runtimes."
+
+#+end_src
+
+** remap keys
+
+#+begin_src bash :tangle "bootstrap"
+# --- Remap Caps Lock to Ctrl --- #
+echo "==> Remapping keys..."
+gsettings set org.gnome.desktop.input-sources xkb-options "['caps:ctrl_modifier']"
+echo "<== Finished remapping keys."
+
+#+end_src
+
+** initialize Git globals
+
+#+begin_src bash :tangle "bootstrap"
+# --- Initialize Git (globals, LFS, Delta diffs) --- #
+echo "==> Initializing Git..."
+git config --global fetch.prune true
+git config --global status.short true   # like: git status -s
+git config --global status.branch true  # add branch/upstream line (like -b)
+
+if command -v git-lfs >/dev/null 2>&1; then
+    git lfs install --skip-repo >/dev/null 2>&1 || git lfs install >/dev/null 2>&1
+fi
+
+# Set delta as Git pager only if delta exists AND no pager is configured yet
+if command -v delta >/dev/null 2>&1 && ! git config --global --get core.pager >/dev/null 2>&1; then
+    git config --global core.pager delta
+    git config --global delta.side-by-side true
+    git config --global interactive.diffFilter 'delta --color-only'
+    git config --global delta.navigate true # use n and N to move between diff sections
+    git config --global merge.conflictStyle zdiff3
+fi
+echo "<== Finished initializing Git."
 
 #+end_src
 
 ** end
 
 #+begin_src bash :tangle "bootstrap"
+# --- END --- #
 echo "Bootstrap complete."
 #+end_src
 
@@ -251,8 +318,9 @@ echo "Bootstrap complete."
 *** list
 #+begin_src :tangle "apt.list"
 autojump
-bat
+batcat
 bmon
+cmake
 dconf-cli
 dwdiff
 emacs
@@ -263,12 +331,16 @@ fzf
 gdebi
 gdebi-core
 gh
+git-delta
+git-lfs
+gnome-shell-extension-prefs
 golang-go
 gnome-sushi
 graphviz
 htop
 httpie
 hugo
+icdiff
 inkscape
 jq
 just
@@ -281,14 +353,17 @@ neofetch
 nodejs
 obs-studio
 pandoc
+papirus-icon-theme
 pdfgrep
-pdftk
+pdftk-java
+poppler-utils
 pympress
 python3-pyqt5
 qalc
 qpdfview
 r-base
 ripgrep
+rlwrap
 rofi
 samba
 scrot
@@ -296,7 +371,6 @@ silversearcher-ag
 shellcheck
 solaar
 sqlite3
-starship
 surfraw
 sword-text-kjv
 sxhkd
@@ -373,35 +447,46 @@ slack --classic
 vlc
 jabref
 #+end_src
-*** notes
-**** [[https://github.com/wakatara/harsh][harsh]]: A minimalist command line tool for tracking habits
-- use Org mode instead, but I like the plots this makes better than Org's
-**** [[https://github.com/bibletime/bibletime][bibletime]]: A powerful cross platform Bible study tool
-** pip.list
+** uvtool.list
 *** list
-#+begin_src :tangle "pip.list"
+#+begin_src :tangle "uvtool.list"
+eg
+gdown
+grip
+radian
+ruff
+tldr
+pyomo
+#+end_src
+*** notes
+**** [[https://github.com/srsudar/eg][eg]]: useful examples at the command line
+**** [[https://github.com/wkentaro/gdown][gdown]]: Download a large file from Google Drive
+~curl~ and ~wget~ fail because Google gives a security notice that they can't bypass automatically.
+**** [[https://github.com/joeyespo/grip][grip]]: Preview GitHub READMEs locally
+**** [[http://www.pyomo.org/about][pyomo]]: modeling language with a diverse set of optimization capabilities
+**** [[https://github.com/randy3k/radian][radian]]: A 21st-century R console
+**** [[https://github.com/astral-sh/ruff][ruff]]: An extremely fast Python linter, written in Rust
+**** [[https://github.com/tldr-pages/tldr][tldr]]: Community-sourced command-line cheatsheets
+**** [[https://github.com/tqdm/tqdm][tqdm]]: a fast, extensible progress bar for Python and CLI
+** pylib.list
+
+The script does not automatically install these libraries. This list is for my reference when setting up Python environments.
+
+*** list
+#+begin_src :tangle "pylib.list"
 bokeh
 dask
 dataprep
 docutils
 econtools
-eg
-gdown
 gme
-grip
-icdiff
 lux-api
 minet
 pandas-datareader
 pandas-profiling[notebook]
-pipenv
 pyjanitor
-pyomo
 pyreadr
 quantecon
-radian
-tldr
-tqdm
 wrds
 #+end_src
 *** notes
@@ -411,36 +496,26 @@ It provides elegant, concise construction of versatile graphics, and affords hig
 **** [[https://github.com/sfu-db/dataprep][dataprep]]: The easiest way to prepare data in Python
 **** [[https://pypi.org/project/docutils/][docutils]]: convert reStructuredText to HTML and LaTeX
 **** [[http://www.danielmsullivan.com/econtools/][econtools]]: package with tools for econometrics and data munging
-**** [[https://github.com/srsudar/eg][eg]]: useful examples at the command line
-**** [[https://github.com/wkentaro/gdown][gdown]]: Download a large file from Google Drive
-~curl~ and ~wget~ fail because Google gives a security notice that they can't bypass automatically.
 **** [[https://www.usitc.gov/data/gravity/gme.htm][gme]]: Python module for USITC Gravity Modeling Environment
-**** [[https://github.com/joeyespo/grip][grip]]: Preview GitHub READMEs locally
-**** [[https://github.com/jeffkaufman/icdiff][icdiff]]: improved colored diff
 **** [[https://github.com/medialab/minet][minet]]: webmining command line tool
 - can be used to collect and extract data from a large variety of web sources such as raw webpages, Facebook, YouTube, Twitter, etc.
 **** [[https://pydata.github.io/pandas-datareader/index.html][pandas-datareader]]: remote data access for pandas
 **** [[https://github.com/pandas-profiling/pandas-profiling][pandas-profiling]]: Create HTML profiling reports from pandas DataFrame objects
-**** [[https://github.com/pypa/pipenv][pipenv]]: automatically creates/manages a virtualenv for projects
 **** [[https://github.com/pyjanitor-devs/pyjanitor][pyjanitor]]: Clean APIs for data cleaning (Python implementation of R package Janitor)
-**** [[http://www.pyomo.org/about][pyomo]]: modeling language with a diverse set of optimization capabilities
 **** [[https://github.com/ofajardo/pyreadr][pyreadr]]: Python package to read/write R data files
-**** [[https://github.com/randy3k/radian][radian]]: A 21st-century R console
-**** [[https://github.com/tldr-pages/tldr][tldr]]: Community-sourced command-line cheatsheets
-**** [[https://github.com/tqdm/tqdm][tqdm]]: a fast, extensible progress bar for Python and CLI
 **** [[https://github.com/wharton/wrds][wrds]]: extract [[file:../../Dropbox/org/roam/refs/wrds.org][WRDS]] data into Pandas
 ** cargo.list
 *** list
 #+begin_src :tangle "cargo.list"
 broot
 du-dust
-exa
+eza
 sd
 #+end_src
 *** notes
 **** [[https://github.com/Canop/broot][broot]]: a new way to see and navigate directory trees
 **** [[https://github.com/bootandy/dust][dust]]: a more intuitive version of =du= (disk usage) in rust
-**** [[https://github.com/ogham/exa][exa]]: a modern replacement for =ls=
+**** [[https://github.com/eza-community/eza][eza]]: a modern replacement for =ls=
 **** [[https://github.com/chmln/sd][sd]]: intuitive find & replace CLI (=sed= alternative)
 ** code.list
 Check for updates to this list with ~code --list-extensions~
@@ -458,6 +533,7 @@ bazelbuild.vscode-bazel
 bierner.emojisense
 bierner.markdown-checkbox
 brunnerh.insert-unicode
+charliermarsh.ruff
 chouzz.vscode-better-align
 codespaces-contrib.codeswing
 davidanson.vscode-markdownlint
@@ -484,6 +560,7 @@ matklad.pale-fire
 mattn.lisp
 mechatroner.rainbow-csv
 mikestead.dotenv
+mosbasik.sxhkdrc-syntax
 ms-azuretools.vscode-containers
 ms-azuretools.vscode-docker
 ms-python.debugpy
@@ -510,7 +587,6 @@ ms-vscode.remote-explorer
 ms-vscode.remote-repositories
 ms-vscode.vscode-github-issue-notebooks
 ms-vsliveshare.vsliveshare
-ms-vsliveshare.vsliveshare-pack
 mxschmitt.postscript
 oijaz.unicode-latex
 orangex4.latex-sympy-calculator
@@ -529,6 +605,7 @@ stkb.rewrap
 tamasfe.even-better-toml
 tecosaur.latex-utilities
 tomoki1207.pdf
+tootone.org-mode
 tyriar.vscode-terminal-here
 visualstudioexptteam.intellicode-api-usage-examples
 visualstudioexptteam.vscodeintellicode
@@ -558,25 +635,22 @@ tldr
 **** [[https://github.com/carbon-app/carbon][carbon]] and [[https://github.com/mixn/carbon-now-cli][carbon-now-cli]]: Create and share beautiful images of your source code
 **** [[https://github.com/santinic/how2][how2]]: Stackoverflow from the terminal
 **** [[https://github.com/tldr-pages/tldr][tldr]]: Collaborative cheatsheets for console commands
-** gem.list
-*** list
-#+begin_src :tangle "gem.list"
-gollum
-#+end_src
-*** notes
-**** [[https://github.com/gollum/gollum][gollum]]: Git-powered wiki with Org mode support
 ** gogh.list
 *** list
 #+begin_src :tangle "gogh.list"
 afterglow
+andromeda
 arthur
 chalk
+dot-gov
 github-dark
-liquidcarbon
+lab-fox
+liquid-carbon
 neutron
 nord
-seashells
-spacedust zenburn
+sea-shells
+spacedust
+zenburn
 #+end_src
 *** notes
 * custom bash scripts

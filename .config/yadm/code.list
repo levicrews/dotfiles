@@ -11,6 +11,7 @@ bazelbuild.vscode-bazel
 bierner.emojisense
 bierner.markdown-checkbox
 brunnerh.insert-unicode
+charliermarsh.ruff
 chouzz.vscode-better-align
 codespaces-contrib.codeswing
 davidanson.vscode-markdownlint
