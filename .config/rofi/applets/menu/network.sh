@@ -23,25 +23,25 @@ urgent=""
 if (ping -c 1 archlinux.org || ping -c 1 google.com || ping -c 1 bitbucket.org || ping -c 1 github.com || ping -c 1 sourceforge.net) &>/dev/null; then
 	if [[ $STATUS == *"enable"* ]]; then
         if [[ $IFACE == e* ]]; then
-            connected="直"
+            connected="󰖪" #Hex f05aa
         else
-            connected="直"
+            connected="󰖩" #Hex f05a9
         fi
 	active="-a 0"
-	SSID="﬉ $(iwgetid -r)"
+	SSID="󰖩 $(iwgetid -r)" #Hex f05a9
 	PIP="$(wget --timeout=30 http://ipinfo.io/ip -qO -)"
 	fi
 else
     urgent="-u 0"
     SSID="Disconnected"
     PIP="Not Available"
-    connected="睊"
+    connected="󰖪" #Hex f05aa
 fi
 
 ## Icons
-bmon="" # tachometer, because checking bandwidth (Hex: f0e4)
-launch_cli=""
-launch=""
+bmon=""        # tachometer, because checking bandwidth (Hex: f0e4)
+launch_cli=""  #Hex f489
+launch="󰍜"      #Hex f035c
 
 options="$connected\n$bmon\n$launch_cli\n$launch"
 

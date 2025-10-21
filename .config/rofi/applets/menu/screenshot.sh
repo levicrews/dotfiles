@@ -16,9 +16,9 @@ msg() {
 }
 
 # Options
-screen=""
-area=""
-window=""
+screen="󰹑" #Hex f0e51
+area="󰆞"   #Hex f019e
+window="󱂬" #Hex f10ac
 
 # Variable passed to rofi
 options="$screen\n$area\n$window"
@@ -47,4 +47,3 @@ case $chosen in
 		fi
         ;;
 esac
-

@@ -8,7 +8,7 @@
  */
 
 configuration {
-	font:                      		"Cascadia Code PL 14";
+	font:                      		"Cascadia Code NF 14";
     disable-history:                false;
     fullscreen:                     false;
 	hide-scrollbar: 				true;
@@ -87,7 +87,7 @@ element {
 }
 
 element-text {
-	font:							"Cascadia Code PL 32";
+	font:							"Cascadia Code NF 42";
     expand:                         true;
     horizontal-align:               0.5;
     vertical-align:                 0;

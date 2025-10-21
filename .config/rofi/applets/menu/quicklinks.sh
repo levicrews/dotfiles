@@ -26,17 +26,16 @@ else
 fi
 
 # Logos: glyphs from https://www.nerdfonts.com/cheat-sheet
-mail="󰇰" #Hex: f01f0
-calendar="" #Hex: f073
-brainfm="󰋋" #Hex: f02cb
-monarch="" #Hex: f1a0
-twitter="" #Hex: f099
-feedly="" #Hex: e27b
-github="" #Hex: f09b
-asana="⛬" #file-icons U+26EC (technically Julia)
-website="" #Hex: f007
-# overleaf="" #FontAwesome: U+F1C9
-overleaf="" #FontAwesome: f12c
+mail="󰇰"     #Nerd Font Hex: f01f0
+calendar="" #Nerd Font Hex: f073
+brainfm="󰋋"  #Nerd Font Hex: f02cb
+monarch=""  #Nerd Font Hex: f1a0
+twitter=""  #Nerd Font Hex: f099
+feedly=""   #Nerd Font Hex: e27b
+github=""   #Nerd Font Hex: f09b
+asana=""    #Nerd Font Hex: e624
+website=""  #Nerd Font Hex: f007
+overleaf="" #FontAwesome: U+E69B
 
 # Variable passed to rofi
 options="$mail\n$brainfm\n$calendar\n$feedly\n$github\n$twitter\n$asana\n$website\n$overleaf\n$monarch"

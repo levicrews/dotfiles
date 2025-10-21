@@ -227,23 +227,35 @@ Microsoft [[https://github.com/microsoft/cascadia-code][Cascadia Code]] + GitHub
 # --- Install fonts --- #
 echo "==> Installing fonts..."
 
-# 1) Cascadia Code (prefer apt; skip if installed)
+# 1) Base Cascadia Code via apt (skip if any Cascadia Code already installed)
 if ! fc-list | grep -qi 'Cascadia Code'; then
     if ! sudo apt-get install -y fonts-cascadia-code; then
-        tmp="$(mktemp -d)"
-        if curl -fsSL -o "$tmp/cc.zip" "https://github.com/microsoft/cascadia-code/releases/latest/download/CascadiaCode-ttf.zip"; then
-            mkdir -p "$HOME/.local/share/fonts/CascadiaCode"
-            unzip -o "$tmp/cc.zip" -d "$tmp/cc" >/dev/null
-            find "$tmp/cc" -type f -name "*.ttf" -exec cp -f {} "$HOME/.local/share/fonts/CascadiaCode/" \;
-            fc-cache -f >/dev/null
-        else
-            echo "	(warn) could not fetch Cascadia Code from GitHub; skipping"
-        fi
-        rm -rf "$tmp"
+        echo "  (info) apt package not available/succeeded; will rely on upstream zip"
     fi
 fi
 
-# 2) Monaspace (clone repo once; copy fonts if missing)
+# 2) Ensure Nerd Font–patched variants (incl. italics) are installed
+#    Look for Microsoft's NF naming (e.g., “Cascadia Code NF”, “Cascadia Mono NF”).
+if ! fc-list | grep -qiE 'Cascadia.*Nerd|Nerd Font.*Cascadia|Cascadia .* NF'; then
+    tmp="$(mktemp -d)"
+    zip_url="https://github.com/microsoft/cascadia-code/releases/latest/download/CascadiaCode-ttf.zip"
+    echo "  (info) Nerd Font variants not found; fetching from upstream…"
+    if curl -fsSL -o "$tmp/cc.zip" "$zip_url"; then
+        mkdir -p "$HOME/.local/share/fonts/CascadiaCode"
+        unzip -qo "$tmp/cc.zip" -d "$tmp/cc" >/dev/null
+        # Copy *all* TTFs from the release (covers Code/Mono, italics, PL, NF)
+        find "$tmp/cc" -type f -iname "*.ttf" -exec cp -f {} "$HOME/.local/share/fonts/CascadiaCode/" \;
+        fc-cache -f >/dev/null
+        echo "  (ok) Installed Cascadia Code (including Nerd Font & italics) into ~/.local/share/fonts/CascadiaCode"
+    else
+        echo "  (warn) could not fetch Cascadia Code from GitHub; skipping NF install"
+    fi
+    rm -rf "$tmp"
+else
+    echo "  (ok) Cascadia Nerd Font variants already present"
+fi
+
+# 3) Monaspace (clone repo once; copy fonts if missing)
 if ! fc-list | grep -qi 'Monaspace'; then
     mkdir -p "$HOME/.local/share/fonts/Monaspace"
     if [[ -d "$HOME/util/monaspace/.git" ]]; then
@@ -271,13 +283,18 @@ echo "<== Finished installing runtimes."
 
 #+end_src
 
-** remap keys
+** GNOME settings
 
 #+begin_src bash :tangle "bootstrap"
 # --- Remap Caps Lock to Ctrl --- #
 echo "==> Remapping keys..."
 gsettings set org.gnome.desktop.input-sources xkb-options "['caps:ctrl_modifier']"
 echo "<== Finished remapping keys."
+
+# --- Set dark system theme --- #
+echo "==> Setting dark system theme..."
+gsettings set org.gnome.desktop.interface gtk-theme 'Yaru-dark'
+echo "<== Finished setting dark system theme."
 
 #+end_src
 
