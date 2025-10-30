@@ -35,7 +35,7 @@ function addToPATH {
 }
 
 addToPATH $HOME/.config/rofi/bin
-addToPATH $HOME/.emacs.d/bin
+addToPATH $HOME/.config/emacs/bin
 addToPATH $HOME/.juliaup/bin
 addToPATH /usr/local/stata16
 

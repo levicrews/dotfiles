@@ -1,41 +1,15 @@
-#+TITLE: config
-#+DESCRIPTION: My private Doom Emacs configuration
+#+title: Doom Emacs configuration
 
 #+BEGIN_SRC elisp
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
+(remove-hook 'org-mode-hook #'+literate-enable-recompile-h) ;; don't tangle on save
 #+END_SRC
 
-* Getting help
+* how to configure Doom Emacs
 
-You can always read the [[https://github.com/hlissner/doom-emacs/blob/develop/docs/index.org][documentation]] or the [[https://github.com/hlissner/doom-emacs/blob/develop/docs/faq.org][FAQ]], but with Emacs'
-built-in help system, documentation is actually just a keystroke
-away:
-- for functions :: =C-h f=
-- for variables :: =C-h v=
-- for a keybind :: =C-h k=
-- to search available keybinds :: =C-h b b=
-
-* Compiled lists to work your way through
-** [[https://github.com/emacs-tw/awesome-emacs][Awesome Emacs]]: A community driven list of useful Emacs packages, utilities, libraries, and tutorials
-
-Many of the packages listed in Awesome Emacs are either (i)
-already included here or (ii) are rendered redundant by this
-configuration. That said, there's still plenty to be discovered by
-looking through the list, especially if your needs differ from
-mine. If you're interested in a pre-built Emacs distribution but
-you don't like this one, give a careful look to the *Starter Kit*
-heading of the list.
-
-** [[https://github.com/thinkhuman/writingwithemacs][Writing with Emacs]]: Tips, examples, and resources for writing with Emacs
-
-Most writers are not hackers, too, but many have turned to Emacs
-nonetheless as their writing tool of choice.
-
-* How to configure Doom Emacs
-
-/Remember/: you do not need to run =doom sync= after modifying this
-file! It is sufficient to reload Doom with =M-x doom/reload= or
-=C-h r r=. In practice, though, I've found that =doom sync= is the only
++/Remember/: you do not need to run =doom sync= after modifying this
+file!+ +It is sufficient to reload Doom with =M-x doom/reload= or
+=C-h r r=.+ In practice, though, I've found that =doom sync= is the only
 fool-proof way for your changes to take effect.
 
 Here are some additional functions/macros that could help you
@@ -46,17 +20,42 @@ configure Doom:
 - =add-load-path!= for adding directories to the =load-path=, relative to
   this file. Emacs searches the =load-path= when you load packages with
   =require= or =use-package=.
-- =map!= for binding new keys
+- =map!= for binding new keys (Discourse: [[https://discourse.doomemacs.org/t/how-to-re-bind-keys/56][How to rebind keys]])
 
 To get information about any of these functions/macros, move the
-cursor over the highlighted symbol and press =C-c c k= (evil users
-must press just =K=). This will open documentation for it, including
-demos of how they are used.
+cursor over the highlighted symbol and press =C-c c k=. This will
+open documentation for it, including demos of how they are used.
 
-You can also try =gd= (or =C-c c d=) to jump to their definition and see
-how they are implemented.
+You can also try =C-c c d= to jump to their definition and see how
+they are implemented.
 
-* User info
+** getting help
+
+You can always read the [[https://github.com/hlissner/doom-emacs/blob/develop/docs/index.org][documentation]] or the [[https://github.com/hlissner/doom-emacs/blob/develop/docs/faq.org][FAQ]], but with Emacs'
+built-in help system, documentation is actually just a keystroke
+away:
+- for functions :: =C-h f=
+- for variables :: =C-h v=
+- for a keybind :: =C-h k=
+- to search available keybinds :: =C-h b b=
+
+Want to check the value of a particular variable? Run =M-: <varname>=.
+
+** silence warnings
+
+The warning ~Package cl is deprecated~ is [[https://discourse.doomemacs.org/t/warning-at-startup-package-cl-is-deprecated/60][well known]]. Just ignore it.
+
+#+begin_src elisp
+(defadvice! fixed-do-after-load-evaluation (abs-file)
+  :override #'do-after-load-evaluation
+  (dolist (a-l-element after-load-alist)
+    (when (and (stringp (car a-l-element))
+               (string-match-p (car a-l-element) abs-file))
+      (mapc #'funcall (cdr a-l-element))))
+  (run-hook-with-args 'after-load-functions abs-file))
+#+end_src
+
+* user info
 
 Some functionality uses this to identify you, e.g. GPG
 configuration, email clients, file templates and snippets.
@@ -66,23 +65,52 @@ configuration, email clients, file templates and snippets.
       user-mail-address "levigcrews@gmail.com")
 #+END_SRC
 
-* Don't tangle this config on save
-#+begin_src elisp
-(remove-hook 'org-mode-hook #'+literate-enable-recompile-h)
-#+end_src
-* Syncing
+* syncing
 
 Following this [[https://www.nicklanasa.com/posts/emacs-syncing-dropbox-beorg][post]] from Nick Lanasa, the following block ensures
 that your local Emacs and Beorg always stay in sync via Dropbox.
 - ~auto-save-mode~ is used to save files in the background when you don't save them explicitly. This propagates changes from local Emacs to Beorg.
 - ~auto-revert-mode~ is used to propagate changes from Beorg automagically back to your local Emacs.
+
 #+begin_src elisp
 (setq auto-save-visited-mode t
-      auto-revert-mode t)
+      auto-revert-mode t
+      auto-save-default nil
+      make-backup-files nil)
 #+end_src
 
-* Editor
-** Fonts
+* theme
+
+There are two ways to load a theme. Both assume the theme is
+installed and available. You can either set =doom-theme= or manually
+load a theme with the =load-theme= function.
+
+See this [[https://github.com/hlissner/emacs-doom-themes/issues/216][issue]] for instructions on overriding particular colors. See
+[[https://github.com/hlissner/emacs-doom-themes/blob/89a22c954e4989e3bc0abe4dd9cf8b7e95826140/doom-themes.el][doom-themes.el]] for the definition of =doom-lighten=. The color ~fg-1~ is
+defined [[https://github.com/hlissner/emacs-doom-themes/pull/447/commits/c44bfee1d9e2e1732ca5b36fbc13e0149f846a6a][here]]. See [[https://github.com/tkf/org-mode/blob/master/lisp/org-faces.el][org-faces.el]] for the list of faces you can set in
+Org mode.
+
+#+begin_src elisp
+(setq doom-themes-enable-italic t)
+(load-theme 'doom-zenburn t)
+(custom-theme-set-faces! 'doom-zenburn
+  `(org-document-info-keyword :foreground ,(doom-lighten 'fg-1 0.2))
+  `(org-done :foreground ,(doom-lighten 'fg-1 0.05))
+  `(org-ellipsis :foreground ,(doom-lighten 'fg-1 0.2)))
+#+end_src
+
+* editor
+** frame size
+
+Make pixel sizes exact and prefer big frames.
+
+#+BEGIN_SRC elisp
+(setq frame-resize-pixelwise t)
+(add-to-list 'initial-frame-alist '(fullscreen . maximized))
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
+#+END_SRC
+
+** fonts
 
 Doom exposes five (optional) variables for controlling fonts in
 Doom. Here are the three important ones:
@@ -97,7 +125,7 @@ or xlfd font string. You generally only need these two:
       doom-big-font (font-spec :family "Cascadia Mono PL" :size 20 :weight 'bold))
 #+END_SRC
 
-** Line numbers
+** line numbers
 
 This determines the style of line numbers in effect. If set to
 =nil=, line numbers are disabled. For relative line numbers, set
@@ -106,20 +134,29 @@ this to =relative=.
 (setq display-line-numbers-type t)
 #+END_SRC
 
-** Linewrapping
+** linewrapping
+
 #+begin_src elisp
 (setq global-visual-line-mode t)
 #+end_src
+
 If you want ~auto-fill~ mode on in all major modes, do this:
 #+begin_src elisp :tangle no
 (setq-default auto-fill-function 'do-auto-fill
               fill-column 80)
 #+end_src
-** [[https://github.com/abo-abo/hydra][Hydra]]
-*** Quick UI adjustments for screen sharing from Sullivan: [[https://eamonnsullivan.co.uk/posts-output/2020-04-25-remote-first-emacs/][Pair programming and Emacs]]
 
-I've been getting the message "Eager macro-expansion failure:
-(void-variable hydra-ivy/params)". Seems related to [[https://github.com/abo-abo/hydra/issues/9][this issue]].
+** text manipulation
+
+#+begin_src elisp
+(delete-selection-mode 1)                               ; Replace selection when inserting text
+(global-subword-mode 1)                                 ; Iterate through CamelCase words
+(global-set-key (kbd "C-c d") 'define-word-at-point)
+(global-set-key (kbd "C-c D") 'define-word)
+#+end_src
+
+** [[https://github.com/abo-abo/hydra][hydra]]
+*** quick UI adjustments for screen sharing from Sullivan: [[https://eamonnsullivan.co.uk/posts-output/2020-04-25-remote-first-emacs/][Pair programming and Emacs]]
 
 #+begin_src elisp
 (global-set-key
@@ -143,42 +180,11 @@ _q_: quit this menu                         _r_: restart emacs
    ("q" nil)))
 #+end_src
 
-** Other
-#+begin_src elisp
-(setq auto-save-default nil
-      make-backup-files nil)
-(delete-selection-mode 1)                       ; Replace selection when inserting text
-(global-subword-mode 1)                         ; Iterate through CamelCase words
-#+end_src
-
-* Theme
-
-There are two ways to load a theme. Both assume the theme is
-installed and available. You can either set =doom-theme= or manually
-load a theme with the =load-theme= function.
-
-See this [[https://github.com/hlissner/emacs-doom-themes/issues/216][issue]] for instructions on overriding particular colors. See
-[[https://github.com/hlissner/emacs-doom-themes/blob/89a22c954e4989e3bc0abe4dd9cf8b7e95826140/doom-themes.el][doom-themes.el]] for the definition of =doom-lighten=. The color ~fg-1~ is
-defined [[https://github.com/hlissner/emacs-doom-themes/pull/447/commits/c44bfee1d9e2e1732ca5b36fbc13e0149f846a6a][here]]. See [[https://github.com/tkf/org-mode/blob/master/lisp/org-faces.el][org-faces.el]] for the list of faces you can set in
-Org mode.
-
-#+begin_src elisp
-(load-theme 'doom-zenburn t)
-(custom-theme-set-faces! 'doom-zenburn
-  `(org-document-info-keyword :foreground ,(doom-lighten 'fg-1 0.2))
-  `(org-done :foreground ,(doom-lighten 'fg-1 0.05))
-  `(org-ellipsis :foreground ,(doom-lighten 'fg-1 0.2)))
-#+end_src
-
-* Generic text editing
-#+begin_src elisp
-(global-set-key (kbd "C-c d") 'define-word-at-point)
-(global-set-key (kbd "C-c D") 'define-word)
-#+end_src
 * Org mode
 ** set directories
 
-If you use =org= and don't want your org files in the default location below, change =org-directory=. It must be set before org loads!
+If you use =org= and don't want your org files in the default location
+below, change =org-directory=. It must be set before org loads!
 #+BEGIN_SRC elisp
 (setq org-dir (concat (getenv "HOME") "/Dropbox/org/")
       crewsbib-dir (concat (getenv "HOME") "/Dropbox/crewsbib/")
@@ -191,14 +197,24 @@ If you use =org= and don't want your org files in the default location below, ch
 #+END_SRC
 
 ** global keybindings
+
 #+begin_src elisp
+(defun lgc/insert-right-arrow ()
+  "Insert → (U+2192)."
+  (interactive)
+  (insert ?\u2192))
+
 (after! org
   (global-set-key (kbd "C-c l") 'org-store-link)
   (global-set-key (kbd "C-c a") 'org-agenda)
-  (global-set-key (kbd "C-c c") 'org-capture))
+  (global-set-key (kbd "C-c c") 'org-capture)
+  (global-set-key (kbd "C-c i r") #'lgc/insert-right-arrow)
+  ;; Use Org’s S-<arrow> actions (don’t do shift-selection in Org buffers)
+  (setq org-support-shift-select nil))
 #+end_src
 
 ** formatting
+
 #+begin_src elisp
 (after! org
   (setq org-ellipsis " ▼" ;; …, ↴, ⬎
@@ -231,7 +247,26 @@ If you use =org= and don't want your org files in the default location below, ch
   ;; (add-hook 'org-mode-hook 'org-ref-prettify-mode))
 #+end_src
 
+Render internal links (~file:~, ~id:~) in the same color as citations.
+Render external links in the default color.
+
+#+begin_src elisp
+(defface lgc/org-link-internal
+  '((t :inherit org-link))
+  "Internal Org links keep org-link styling but in citation color.")
+
+(with-eval-after-load 'org
+  (dolist (type '("file" "id"))
+    (org-link-set-parameters type :face 'lgc/org-link-internal)))
+
+(with-eval-after-load 'org-ref
+  (let ((c (face-foreground 'org-ref-cite-face nil 'default)))
+    (when c (set-face-attribute 'lgc/org-link-internal nil :foreground c))))
+
+#+end_src
+
 ** logging
+
 #+begin_src elisp
 (after! org
   (setq org-log-done t
@@ -239,9 +274,9 @@ If you use =org= and don't want your org files in the default location below, ch
         org-clock-into-drawer t))
 #+end_src
 
-The following snippet from [[https://org-roam.discourse.group/t/update-a-field-last-modified-at-save/321/20][Jethro]] updates the "last_modified"
-field of my org-roam notes with the current org inactive timestamp
-upon saving.
+The following snippet from [[https://org-roam.discourse.group/t/update-a-field-last-modified-at-save/321/20][Jethro]] updates the "last_modified" field
+of my org-roam notes with the current org inactive timestamp upon
+saving.
 
 #+begin_src elisp
 (add-hook 'org-mode-hook
@@ -252,7 +287,31 @@ upon saving.
                         time-stamp-format "\[%Y-%02m-%02d %3a %02H:%02M\]")
             (add-hook 'before-save-hook 'time-stamp nil 'local)))
 #+end_src
-** set todo keywords
+
+*** TODO does that ~last_modified~ hook still work?
+
+suggestion from org-roam v2 users (see [[https://github.com/org-roam/org-roam/wiki/User-contributed-Tricks][here]]):
+#+begin_src elisp :tangle no
+(require 'time-stamp)
+(add-hook 'write-file-functions 'time-stamp) ; update when saving
+#+end_src
+then change template to include: ~:head "#+TITLE: ${title}\nTime-stamp: <>\n"~
+
+*** TODO install [[https://github.com/ArneBab/emacs-org-clock-daytime/tree/f10c7b92a5b2a25f2300b885c2c70526ada50d9c][emacs-org-clock-daytime]]
+- display the time clocked today in the modeline
+*** TODO (optional) log the date a task is created
+
+#+begin_src elisp :tangle no
+(defun add-property-with-date-captured ()
+  "Add CREATED property to the current item."
+  (interactive)
+  (org-set-property "CREATED" (format-time-string "%F")))
+
+(add-hook 'org-capture-before-finalize-hook 'add-property-with-date-captured)
+#+end_src
+
+** set TODO keywords
+
 - ideally each would be only four letters (hence KILL for CANCELLED)
 - reading TODO sequence implements the three stages of reading from cite:AdlervanDoren1972
   + mark state change between stages
@@ -262,6 +321,8 @@ upon saving.
 - writing TODO sequence denotes how to grow a stub in the writing inbox:
   + FILL :: flesh out the idea
   + LINK :: create the corresponding permanent note and add links
+- Remember: SCHEDULED is the "do" date, not the "due" date
+
 #+begin_src elisp
 (after! org
   (setq org-todo-keywords
@@ -269,9 +330,8 @@ upon saving.
     (sequence "SPEC(i)" "KNOW(u!)" "EVAL(e!)" "|" "READ(r)")
     (sequence "FILL(f)" "LINK(l)" "|" "DONE(d)"))))
 #+end_src
-- Remember: SCHEDULED is the "do" date, not the "due" date
 
-** org-super agenda + reviews
+** ~org-super-agenda~ + calendar
 
 The package [[https://github.com/alphapapa/org-super-agenda][org-super-agenda]] lets you "supercharge" your Org daily
 or weekly agenda. The idea is to group items into sections, rather
@@ -280,7 +340,7 @@ than having them all in one big list.
 This package filters the results from =org-agenda-finalize-entries=,
 which runs just before items are inserted into agenda views. The
 filtered groups are then inserted into the agenda buffer, and any
-remaining items are inserted at the end. Empty groups are not displayed.
+remaining items are inserted at the end. Empty groups are not shown.
 
 The end result is your standard daily/weekly agenda, but arranged
 into groups defined by you. You might put items with certain tags
@@ -300,25 +360,8 @@ views. So if your Agenda command or =org-ql= query does not collect
 certain items, they will not be displayed, regardless of what
 =org-super-agenda= groups you configure.
 
-The following custom agenda view combines two =org-super-agenda= filters into a [[https://orgmode.org/manual/Block-agenda.html][block agenda]].
-
-*** TODO what custom views do I want?
-**** proposed groups
-- [X] the schedule for today (DOs and DUEs + clocked time)
-- [X] habits (show up in clocked )
-- SYSTEM (reading, gardening, maintenance, etc.)
-- [X] research projects (publication pipeline)
-  + NEXT or ONGO
-  + any reading headlines (SPEC, KNOW, EVAL)
-- [X] teaching + service: NEXT or ONGO
-- upcoming seminars?
-- home: NEXT or ONGO
-- all other NEXT or ONGO
-**** potential add-ons
-- will tags or categories play a role?
-  + categories are (by default) just the filename in which the TODO is stored
-- effort estimates?
-- show clocked tasks in the clock-view?
+The following custom agenda view combines two =org-super-agenda=
+filters into a [[https://orgmode.org/manual/Block-agenda.html][block agenda]].
 
 *** org-super-agenda config
 #+begin_src elisp
@@ -332,9 +375,11 @@ The following custom agenda view combines two =org-super-agenda= filters into a 
         org-agenda-skip-scheduled-if-done t
         org-agenda-skip-deadline-if-done t
         org-agenda-include-deadlines t
+        org-agenda-skip-deadline-prewarning-if-scheduled 'pre-scheduled
         org-agenda-breadcrumbs-separator " ❱ "
         org-agenda-block-separator nil
         org-agenda-compact-blocks t
+        org-agenda-remove-tags t
         org-agenda-prefix-format
         '((agenda . "  %-20:c%?-12t% s")
           (todo . "  %-20:c")
@@ -382,91 +427,98 @@ The following custom agenda view combines two =org-super-agenda= filters into a 
   (org-super-agenda-mode))
 #+end_src
 *** helper functions for reviews
+
 #+begin_src elisp
 (defun research-pipelines ()
     (append (file-expand-wildcards "~/Dropbox/org/p-*")
             (file-expand-wildcards "~/Dropbox/org/roam/projects/*")))
 #+end_src
-** org-noter + org-pdftools
+*** notes + TODOs
+**** TODO find more UI examples (e.g. NANO agenda)
+**** DONE fix filename spacing for better column alignment
+CLOSED: [2025-08-29 Fri 20:09]
+- [[https://emacs.stackexchange.com/questions/17831/org-agenda-view-how-to-turn-of-visibility-of-category-filename][StackExchange]]
+- [[http://doc.endlessparentheses.com/Var/org-agenda-prefix-format.html][blog post]]
+- [[https://www.reddit.com/r/DoomEmacs/comments/1en2emn/fix_better_orgagenda_custom_view_if_youre_using/][Reddit]]
+**** TODO how best to show reading lists
+**** TODO more contrast in agenda colors
+**** TODO [[https://whhone.com/posts/org-agenda-repeated-tasks/][distinguish repeated tasks]]
+**** KNOW [[https://youtu.be/a_WNtuefREM?si=1-yl-Hqd-gYObq14][making org agenda look beautiful]]
+:LOGBOOK:
+- State "KNOW"       from "SPEC"       [2024-01-30 Tue 19:26]
+:END:
+**** TODO replace default habits viz w/ sparklines from [[https://github.com/wakatara/harsh][harsh]]
+**** TODO add [[https://melpa.org/#/org-clock-agenda-daytime-mode][org-clock-agenda-daytime-mode]]
+**** TODO calendar enhancements
+***** Nic Rougier's NANO Emacs agenda + calendar
+- reddit: [[https://www.reddit.com/media?url=https%3A%2F%2Fi.redd.it%2F489n6g4104cb1.png][early mock-up]]
+- SE: [[https://emacs.stackexchange.com/questions/58634/color-calendar-day-according-to-number-of-event-in-org-agenda/58647#58647][early attempt]]
+- early [[https://github.com/rougier/calendar-heatmap][heatmap]]
+- official [[https://github.com/rougier/nano-emacs][NANO]] repository
+- updated NANO agenda [[https://gist.github.com/rougier/d901759f87bbc44527f2660aa776f081][gist]]
+- separate agenda [[https://github.com/rougier/agenda/tree/master][repo]] (Python)
+- updated Python agenda [[https://gist.github.com/rougier/d559fbd766da14540e8eb47435a5782d][gist]]
+- Sachua Chua [[https://sachachua.com/blog/2023/01/display-a-calendar-heat-map-using-emacs-lisp/][visualizes]] different types of events
+- NANO agenda [[https://github.com/rougier/nano-agenda/tree/rewrite][rewrite]] ([[https://www.reddit.com/media?url=https%3A%2F%2Fi.redd.it%2Fnano-agenda-rewrite-wip-v0-dqxx467z8h9c1.png%3Fs%3Dcc0219b94c5f88425f9e8facd3aed5ae8e864577][mockup]])
+***** [[https://github.com/Elilif/org-heatmap][org-heatmap]]: like GitHub contributions, but for Org data
+***** [[https://github.com/kiwanami/emacs-calfw][calfw]]: a calendar framework for Emacs
+- [[https://github.com/ml729/calfw-blocks][calfw-blocks]] :: add visual time blocks
+- [[https://github.com/dmitrym0/org-hyperscheduler][org-hyperscheduler]] :: by its own developer's admission, may be dominated by ~calfw~
+***** [[https://github.com/ichernyshovvv/org-timeblock][org-timeblock]]
+***** [[https://develop.spacemacs.org/layers/+emacs/org/README.html#agenda-recommendations][show holidays and birthdays in org agenda]]
 
-The package [[https://github.com/weirdNox/org-noter][org-noter]] has elsewhere been loaded in this Doom
-config through the ~+ noter~ flag in ~init.el~, but Doom doesn't add
-any code to configure it by default. The code to configure
-[[https://github.com/fuxialexander/org-pdftools][org-pdftools]] below is taken directly from its README.
+Emacs comes with its own diary package included. It is recommended not to use the diary directly. Instead of [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Format-of-Diary-File.html][creating a diary file]], create a =diary.org= file and set the ~diary-file~ variable to point to that file. To make the holidays, birthdays etc. from the diary show up in the agenda, add the diary-style expression entries to your =diary.org= file as shown in the code block of the Calendar/Diary integration section [[https://orgmode.org/manual/Weekly_002fdaily-agenda.html][here]].
 
-[2021-07-20 Tue 09:22] I'm having [[https://github.com/politza/pdf-tools/issues/600][this issue]] in which my
-highlights show up in incorrect regions. It appears that ~pdf-tools~
-is orphaned, so it was forked [[https://github.com/vedang/pdf-tools][here]]. Unclear if my issue was fixed
-on the fork. Either way, I should update my pin of ~pdf-tools~.
+***** sync with Google Calendar
 
-[2022-04-02 Sat 09:20] There's now a [[https://pdftools.wiki/][wiki]] for the fork of
-~pdf-tools~.
+Probably rendered obsolete by mobile beorg and my duplication of appointments in raw Org...
 
-See cite:Limanowski2017 and cite:Gomez2018 for discussions of
-~org-noter~.
+****** [[https://github.com/myuhe/org-gcal.el][org-gcal]]
+****** [[https://github.com/mhkc/google-calendar-layer][google-calendar-layer]]: for Spacemacs
+****** [[https://github.com/dengste/org-caldav][org-caldav]]
+should work, but you need to register an application with the Google Developer Console for OAuth2 authentication because Google explicitly forbids to put client id/secrets into open source software
+****** SPEC Lafon: [[https://200ok.ch/posts/2022-02-13_integrating_org_mode_agenda_into_other_calendar_apps.html][Integrating Org mode Agenda into other calendar apps]]
 
-[2024-01-28 Sun]: DistroTube made a [[https://youtu.be/v2-m7_X3uy8?si=GwHpfRusINmzrvIE][video]] walking through his configuration of ~pdf-tools~.
+** ~org-noter~ + ~org-pdftools~
+
+The packages [[https://github.com/weirdNox/org-noter][org-noter]] and [[https://github.com/fuxialexander/org-pdftools][org-pdftools]] have elsewhere been loaded
+in this Doom config through the ~:lang org +noter~ and ~:tools pdf~
+flags in ~init.el~. See cite:Limanowski2017 and cite:Gomez2018 for
+discussions of ~org-noter~.
+
+[2024-01-28 Sun]: DistroTube [[https://youtu.be/v2-m7_X3uy8?si=GwHpfRusINmzrvIE][video]] explaining his config of ~pdf-tools~.
 
 #+begin_src elisp
-;; This will change the color of the annotation.
-(setq pdf-annot-default-markup-annotation-properties
-      '((color . "orange")))
+;; Set preferred highlight color for PDF annotations
+(after! pdf-tools
+  (setq pdf-annot-default-markup-annotation-properties '((color . "orange"))))
 
-(use-package! org-noter
-  :config
+;; Make Org links to PDFs open in pdf-tools
+(after! org
+  (add-hook 'org-mode-hook #'org-pdftools-setup-link))
+
+;; org-noter integration with pdf-tools
+(after! org-noter
   (require 'org-noter-pdftools)
-  (setq org-noter-hide-other nil))
-
-(use-package! org-pdftools
-  :hook (org-mode . org-pdftools-setup-link))
-
-(use-package! org-noter-pdftools
-  :after org-noter
-  :config
-  ;; Add a function to ensure precise note is inserted
-  (defun org-noter-pdftools-insert-precise-note (&optional toggle-no-questions)
-    (interactive "P")
-    (org-noter--with-valid-session
-     (let ((org-noter-insert-note-no-questions (if toggle-no-questions
-                                                   (not org-noter-insert-note-no-questions)
-                                                 org-noter-insert-note-no-questions))
-           (org-pdftools-use-isearch-link t)
-           (org-pdftools-use-freestyle-annot t))
-       (org-noter-insert-note (org-noter--get-precise-info)))))
-
-  ;; fix https://github.com/weirdNox/org-noter/pull/93/commits/f8349ae7575e599f375de1be6be2d0d5de4e6cbf
-  (defun org-noter-set-start-location (&optional arg)
-    "When opening a session with this document, go to the current location.
-    With a prefix ARG, remove start location."
-    (interactive "P")
-    (org-noter--with-valid-session
-     (let ((inhibit-read-only t)
-           (ast (org-noter--parse-root))
-           (location (org-noter--doc-approx-location (when (called-interactively-p 'any) 'interactive))))
-       (with-current-buffer (org-noter--session-notes-buffer session)
-         (org-with-wide-buffer
-          (goto-char (org-element-property :begin ast))
-          (if arg
-              (org-entry-delete nil org-noter-property-note-location)
-            (org-entry-put nil org-noter-property-note-location
-                           (org-noter--pretty-print-location location))))))))
+  (setq org-noter-hide-other nil)
+  ;; When you activate an annotation in a PDF, jump to its note
   (with-eval-after-load 'pdf-annot
-    (add-hook 'pdf-annot-activate-handler-functions #'org-noter-pdftools-jump-to-note)))
+    (add-hook 'pdf-annot-activate-handler-functions
+              #'org-noter-pdftools-jump-to-note)))
 #+end_src
 
-** org-ref
+** FILL reference management
 
-The package [[https://github.com/jkitchin/org-ref][org-ref]] provides modules for citations,
-cross-references, and bibliographies. It's developed by John
-Kitchin, who also develops [[https://github.com/jkitchin/scimax][scimax]], the Emacs starterkit for
-scientists and engineers.
-
-The code below shows how I integrate ~org-ref~ with ~helm-bibtex~
+The code below shows how I integrate ~org-ref~ with ~ivy-bibtex~
 and ~org-roam-bibtex~ to build my bibliographic database. This
 [[https://org-roam.discourse.group/t/org-ref-code-in-doom-emacs-init-file/1483][Discourse thread]] was quite helpful.
 
 Note: the ivy-backend for ~org-ref~ is [[https://github.com/jkitchin/org-ref/issues/793][not actually]] ~ivy-bibtex~.
-Some of the code below may be redundant, but it works!
+
+[2021-07-20 Tue 09:25]: The package [[https://github.com/bdarcus/bibtex-actions][BibTeX Actions]] provides similar
+functionality through [[https://github.com/raxod502/selectrum][selectrum]], [[https://github.com/oantolin/embark/][embark]], and [[https://github.com/minad/marginalia][marginalia]]. Org mode
+now has native support for citations with ~org-cite~. The BibTeX
+Actions README shows how to set it up.
 
 [2021-07-20 Tue 09:30]: Org mode now has native support for
 citations with ~org-cite~. See the README of [[https://github.com/bdarcus/bibtex-actions][BibTeX Actions]] for an
@@ -476,308 +528,373 @@ alternative workflow that uses this native support. According to
 
 [2021-08-05 Thu 06:39]: The new ~org-cite~ feature is described [[https://blog.tecosaur.com/tmio/2021-07-31-citations.html][here]].
 
-#+begin_src elisp
-(use-package! org-ref
-    :after org
-    :defer t
-    :init
-    (setq org-ref-completion-library 'org-ref-ivy-cite)
-    (let ((cache-dir (concat doom-cache-dir "org-ref")))
-    (unless (file-exists-p cache-dir)
-      (make-directory cache-dir t))
-    (setq orhc-bibtex-cache-file (concat cache-dir "/orhc-bibtex-cache")))
-    :config
-    (setq org-ref-default-bibliography (list crewsbib)
-          org-ref-default-citation-link "cite"
-          org-ref-notes-directory (concat org-roam-directory "refs/")
-          org-ref-notes-function 'orb-edit-notes
-          org-ref-pdf-directory (concat crewsbib-dir "pdf/")
-          org-ref-get-pdf-filename-function 'org-ref-get-pdf-filename-helm-bibtex))
-#+end_src
-
-** helm-bibtex
+*** ~bibtex-completion~ + ~ivy-bibtex~
 
 The package [[https://github.com/tmalsburg/helm-bibtex][helm-bibtex]] provides a clean search interface for your
 bibliographic database. You can use either Helm or Ivy as your
 front-end completion framework. Consistent with the rest of my
 config, I use Ivy.
 
-[2021-06-30 Wed 13:17]: It takes >30sec to parse my bib with 2000
-entries. See [[https://github.com/tmalsburg/helm-bibtex/issues/159][this issue]] on slow parsing for potential fixes.
+[2021-06-30 Wed 13:17]: See [[https://github.com/tmalsburg/helm-bibtex/issues/159][this issue]] on slow parsing.
 
-[2021-10-29 Fri 07:01]: It now takes a few minutes to parse my bib
-with over 4000 entries. Per the advice in the previous thread, I
-set ~bibtex-completion-pdf-field~ to ~nil~ for now.
+[2024-01-30 Tue 19:04]: If slow, toggling ~org-roam-bibtex-mode~ off
+before saving =.bib= file can help.
 
-[2021-07-20 Tue 09:25]: The package [[https://github.com/bdarcus/bibtex-actions][BibTeX Actions]] provides similar
-functionality through [[https://github.com/raxod502/selectrum][selectrum]], [[https://github.com/oantolin/embark/][embark]], and [[https://github.com/minad/marginalia][marginalia]]. Org mode
-now has native support for citations with ~org-cite~. The BibTeX
-Actions README shows how to set it up.
-
-*** features
-- use either Helm or Ivy
-- Quick access to your bibliography from within Emacs
-- Powerful search capabilities
-- Provides instant search results as you type
-- Tightly integrated with LaTeX authoring, emails, Org mode, etc.
-- Open the PDFs, URLs, or DOIs associated with an entry
-- Insert LaTeX cite commands, Ebib links, or Pandoc citations, BibTeX entries, or plain text references at point, attach PDFs to emails
-- Support for note taking
-- Quick access to online bibliographic databases such as Pubmed, arXiv, Google Scholar, Library of Congress, etc.
-- Import BibTeX entries from CrossRef and other sources
-*** bibtex-completion config
 #+begin_src elisp
 (use-package! bibtex-completion
-  :defer t
-  :config
-  (setq bibtex-completion-bibliography crewsbib
-        bibtex-completion-library-path (concat crewsbib-dir "pdf/")
-        bibtex-completion-pdf-field nil ;; "file" ;; pulls PDF path from "File" field of JabRef
-        bibtex-completion-find-additional-pdfs nil ;; t ;; will match all <citekey>-appendix.pdf
-        bibtex-completion-notes-path (concat org-roam-directory "refs") ;; one note file per reference
-        bibtex-completion-additional-search-fields '(keywords journal booktitle)
-        bibtex-completion-display-formats
-        '((article       . "${=has-pdf=:2}${=has-note=:2} ${=type=:4} ${year:4} ${author:36} ${title:*} ${journal:20}")
-          (book          . "${=has-pdf=:2}${=has-note=:2} ${=type=:4} ${year:4} ${author:36} ${title:*}")
-          (inbook        . "${=has-pdf=:2}${=has-note=:2} ${=type=:4} ${year:4} ${author:36} ${title:*} Chapter ${chapter:30}")
-          (incollection  . "${=has-pdf=:2}${=has-note=:2} ${=type=:4} ${year:4} ${author:36} ${title:*} ${booktitle:30}")
-          (inproceedings . "${=has-pdf=:2}${=has-note=:2} ${=type=:4} ${year:4} ${author:36} ${title:*} ${booktitle:30}")
-          (t             . "${=has-pdf=:2}${=has-note=:2} ${=type=:4} ${year:4} ${author:36} ${title:*}"))
-        bibtex-completion-pdf-symbol ""
-        bibtex-completion-notes-symbol ""
-        bibtex-completion-format-citation-functions
-            '((org-mode      . bibtex-completion-format-citation-org-title-link-to-PDF)
-              (latex-mode    . bibtex-completion-format-citation-cite)
-              (markdown-mode . bibtex-completion-format-citation-pandoc-citeproc)
-              (default       . bibtex-completion-format-citation-default))
+    :defer t
+    :init
+    (setq bibtex-completion-bibliography crewsbib
+          bibtex-completion-library-path (concat crewsbib-dir "pdf/")
+          bibtex-completion-pdf-field nil
+          bibtex-completion-find-additional-pdfs nil
+          bibtex-completion-notes-path (concat org-roam-directory "refs/")
+          bibtex-completion-notes-extension ".org"
+          bibtex-completion-cache-file (expand-file-name "bibtex-completion-cache" doom-cache-dir)
+          bibtex-completion-pdf-symbol "■";; "󰈦" Hex #f0226
+          bibtex-completion-notes-symbol "✎";;"󰏫" Hex #f03eb
+          bibtex-completion-display-formats
+          '((article       . "${=has-pdf=:1} ${=has-note=:1} ${=type=:4} ${year:4} ${author:36} ${title:*} ${journal:24}")
+          (inproceedings . "${=has-pdf=:1} ${=has-note=:1} ${=type=:4} ${year:4} ${author:36} ${title:*} ${booktitle:24}")
+          (book          . "${=has-pdf=:1} ${=has-note=:1} ${=type=:4} ${year:4} ${author:36} ${title:*}")
+          (t             . "${=has-pdf=:1} ${=has-note=:1} ${=type=:4} ${year:4} ${author:36} ${title:*}"))
+          ))
+
+(use-package! ivy-bibtex
+    :when (featurep! :completion ivy)
+    :config
+    (global-set-key (kbd "C-c n b") #'ivy-bibtex)
+    (add-to-list 'ivy-re-builders-alist '(ivy-bibtex . ivy--regex-plus))
+    (setq ivy-bibtex-default-action #'ivy-bibtex-edit-notes))
+#+end_src
+
+*** ~org-ref~
+
+The package [[https://github.com/jkitchin/org-ref][org-ref]] provides modules for citations,
+cross-references, and bibliographies. It's developed by John
+Kitchin, who also develops [[https://github.com/jkitchin/scimax][scimax]], the Emacs starterkit for
+scientists and engineers.
+
+In ~org-ref v3~, the default formatting switched from ~cite:<key>~ to
+~cite:&<key>~ to highlight the contrast with native ~org-cite~'s
+format ~cite:@<key>~ (see [[https://org-roam.discourse.group/t/what-do-you-think-about-org-ref-v3/2133][here]] and [[https://github.com/jkitchin/org-ref/issues/892][here]]). I have 5+ years of notes
+with the plain formatting, though, so I included a function to
+strip the leading ampersand.
+
+#+begin_src elisp
+(use-package! org-ref
+    :defer t
+    :init
+    (setq org-ref-completion-library 'org-ref-ivy-cite)
+    :config
+    (setq org-ref-default-bibliography (list crewsbib)
+          org-ref-notes-function 'orb-edit-notes
+          org-ref-pdf-directory (concat crewsbib-dir "pdf/")))
+
+(after! org-ref
+  (defun lgc/org-ref--strip-leading-&-when-single ()
+    "If cite link at point has a single key like `cite:&KEY`, drop the `&`."
+    (when (derived-mode-p 'org-mode)
+      (let ((el (org-element-context)))
+        (when (eq (org-element-type el) 'link)
+          (let* ((type (org-element-property :type el)))
+            (when (and type (string-prefix-p "cite" type))
+              (let* ((beg (org-element-property :begin el))
+                     (end (org-element-property :end el))
+                     (txt (and beg end (buffer-substring-no-properties beg end))))
+                ;; Only fix if it doesn't contain the multi-key separator ";&"
+                (when (and txt (not (string-match-p ";&" txt))
+                           (string-match-p "cite:&" txt))
+                  (save-excursion
+                    (goto-char beg)
+                    (when (re-search-forward "cite:&" end t)
+                      (replace-match "cite:" nil nil)))))))))))
+
+  (defun lgc/advice-org-ref-insert-cite-link (orig &rest args)
+    (apply orig args)
+    (lgc/org-ref--strip-leading-&-when-single))
+
+  (advice-add 'org-ref-insert-cite-link :around
+              #'lgc/advice-org-ref-insert-cite-link))
+
+;; insert a cite:<refkey> link via org-ref
+(after! org
+  (map! :map org-mode-map
+        :desc "Insert citation (org-ref)"
+        "C-c ) i" #'org-ref-insert-cite-link))
+#+end_src
+
+** FILL org-roam
+
+[[https://github.com/org-roam/org-roam][Org-roam]] is a plain-text knowledge management system.
+See the manual [[https://www.orgroam.com/manual.html][here]]. Browse the [[https://org-roam.discourse.group/][Discourse]] channels.
+
+~org-roam~ has a sister package called [[https://github.com/org-roam/org-roam-bibtex][org-roam-bibtex]] for managing
+reference notes. ~org-roam-bibtex~ plays well with ~org-ref~,
+~helm-bibtex~, ~org-noter~, and ~org-pdftools~. See the manual [[https://github.com/org-roam/org-roam-bibtex/blob/main/doc/orb-manual.org][here]].
+
+*** org-roam config
+
+#+begin_src elisp
+(after! org-roam
+  (org-roam-db-autosync-mode 1) ;; keep the DB in sync automatically
+  (setq org-roam-tag-sources '(prop last-directory) ;; tag if in subdirectory
+        org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+
+  ;; ---- Roam buffer ----
+  (setq org-roam-mode-section-functions
+      (list #'org-roam-backlinks-section
+            #'org-roam-reflinks-section
+            ;;#'org-roam-unlinked-references-section
+            ))
+
+  ;; ---- Capture templates ----
+  (setq org-roam-capture-templates
+        '(("n" "note" plain "* %?"
+           :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+                              ":PROPERTIES:\n:ROAM_ALIASES: %^{aliases}\n:END:\n#+title: ${title}\n#+created: %U\n#+last_modified: %U\n#+filetags:\n\n")
+           :immediate-finish t
+           :unnarrowed t)
+          ("d" "data" plain "* %?"
+           :if-new (file+head "refs/${slug}.org"
+                              ":PROPERTIES:\n:ROAM_REFS: %^{url}\n:ROAM_ALIASES: %^{aliases}\n:END:\n#+title: ${title}\n#+created: %U\n#+last_modified: %U\n#+filetags: :data:refs:\n\n* overview\n* specifications\n* construction\n* access\n")
+           :immediate-finish t
+           :unnarrowed t)
+          ("r" "resource" plain "* %?"
+           :if-new (file+head "refs/${slug}.org"
+                              ":PROPERTIES:\n:ROAM_REFS: %^{url}\n:ROAM_ALIASES: %^{aliases}\n:END:\n#+title: ${title}\n#+created: %U\n#+last_modified: %U\n#+filetags: :refs:\n\n")
+           :immediate-finish t
+           :unnarrowed t)
+          ))
+
+  ;; ---- Dailies with custom templates ----
+  (setq org-roam-dailies-directory "journal/"
+        org-roam-dailies-capture-templates
+        '(("t" "today" plain
+           (file "~/Dropbox/org/templates/daily.template")
+           :if-new (file+head "%<%Y-%m-%d>.org"
+                              "#+title: %<%d-%B-%Y>\n"))
+          ("w" "weekly review" plain
+           (file "~/Dropbox/org/templates/review-week.template")
+           :if-new (file+head "%<%Y-%m-%d>.org"
+                              "#+title: %<%d-%B-%Y>\n"))
+          ))
+
+  ;; ---- Better capture from the browser ----
+  (require 'org-roam-protocol)
+
+  ;; ---- Better export support ----
+  (require 'org-roam-export)
+
+  ;; ---- Restore v1 keybindings ----
+  (map! :map org-mode-map
+        "C-c n r r" #'org-roam-buffer-toggle     ; show backlinks
+        "C-c n r f" #'org-roam-node-find
+        "C-c n r i" #'org-roam-node-insert
+        "C-c n r d" #'org-roam-dailies-capture-today
+        "C-c n r a" #'org-roam-alias-add
+        "C-c n r g" #'org-roam-graph
         ))
 #+end_src
 
-*** ivy-bibtex config
-#+begin_src elisp
-(use-package! ivy-bibtex
-  :when (featurep! :completion ivy)
-  :config
-  (global-set-key (kbd "C-c n b") 'ivy-bibtex)
-  (add-to-list 'ivy-re-builders-alist '(ivy-bibtex . ivy--regex-plus))
-  (setq ivy-bibtex-default-action 'ivy-bibtex-edit-notes)
-  ;;(ivy-set-display-transformer 'org-ref-ivy-insert-cite-link 'ivy-bibtex-display-transformer)
+*** org-roam notes + TODOs
+**** migrating from v1 to v2
 
-  (defun lgc/bibtex-random-ref (&optional arg local-bib)
-  "Find a random BibTeX entry using ivy.
-   With a prefix ARG the cache is invalidated and the bibliography
-   reread. If LOCAL-BIB is non-nil, display that the BibTeX entries are read
-   from the local bibliography.  This is set internally by `ivy-bibtex-with-local-bibliography'."
-   (interactive "P")
-   (when arg
-     (bibtex-completion-clear-cache))
-   (bibtex-completion-init)
-   (let* ((candidates (bibtex-completion-candidates))
-          (key (bibtex-completion-key-at-point))
-          (preselect (and key
-                         (cl-position-if (lambda (cand)
-                                           (member (cons "=key=" key)
-                                                   (cdr cand)))
-                                         candidates)))) ;; ~candidates~ is a list
+1. Add ~id:~ to all existing notes. These are located in top-level property drawers (Although note that in v2, not all files need to have IDs).
+2. Update the Org-roam database to conform to the new schema.
+3. Replace ~#+ROAM_KEY~ into the ~ROAM_REFS~ property
+4. Replace ~#+ROAM_ALIAS~ into the ~ROAM_ALIASES~ property
+5. Move ~#+ROAM_TAGS~ into the ~#+FILETAGS~ property for file-level nodes, and the ~ROAM_TAGS~ property for headline nodes.
+6. Replace existing file links with ~id:~ links.
 
-      (ivy-read (format "random BibTeX entry: " (if local-bib " (local)" ""))
-                (list (nth (random (length candidates)) candidates)
-                      (nth (random (length candidates)) candidates)
-                      (nth (random (length candidates)) candidates))
-                :preselect preselect
-                :caller 'lgc/bibtex-random-ref
-                ;;:history 'ivy-bibtex-history
-                :action ivy-bibtex-default-action)))
+**** the org-roam buffer
 
-  (global-set-key (kbd "C-c n p") 'lgc/bibtex-random-ref))
+The org-roam buffer has three sections:
+- Backlinks :: (preview of) nodes that link to this node
+- Reference links :: nodes that reference this node
+- Unlinked references :: nodes that contain text that match the nodes title/alias but are not linked (may be /slow/ to compile)
+
+The org-roam buffer uses ~magit-section~, so those keybindings apply:
+- ~M-{N}~ :: ~magit-section-show-level-{N}-all~
+- ~n~ :: ~magit-section-forward~
+- ~<TAB>~ :: ~magit-section-toggle~
+- ~<RET>~ :: ~org-roam-buffer-visit-thing~
+
+For each section function, you can pass args along to modify its
+behavior. For example, if you want to render unique sources for
+backlinks (and also keep rendering reference links)...
+#+begin_src elisp :tangle no
+(setq org-roam-mode-sections
+      '((org-roam-backlinks-section :unique t)
+        org-roam-reflinks-section))
 #+end_src
+
+The backlinks section ~org-roam-backlinks-section~ also supports a
+predicate to filter backlinks, ~:show-backlink-p~:
+#+begin_src elisp :tangle no
+(defun lgc/org-roam-show-backlink-p (backlink)
+  (not (member "journal" (org-roam-node-tags (org-roam-backlink-source-node backlink)))))
+
+(setq org-roam-mode-sections
+      '((org-roam-backlinks-section :unique t :show-backlink-p lgc/org-roam-show-backlink-p)
+        org-roam-reflinks-section))
+#+end_src
+
+**** advanced customization
+
+Org-roam is, at its core, a database abstraction layer over a
+corpus of [[id:201ee2a3-2112-4134-8510-67b8e051082a][plain text]] notes endowed with metadata. This allows
+for fast SQL-like queries on headlines and their associated Org
+properties (TODO state, priority, tags, timestamps, ...). See
+§17 of the manual for guidance on writing custom queries and
+extensions. [Related: [[id:6dff8c31-d4a7-40c9-a6d9-e4ddd90088cf][org-ql]]]
+
+**** DONE implement time cards
+CLOSED: [2021-09-09 Thu 10:19]
+
+I put a clock report template (inspired by cite:Lees-Miller2016) in
+my [[file:~/Dropbox/org/templates/daily.template][org-roam daily note template]]. It shows clocked time across all
+tasks in all org files for which there was non-zero time recorded
+that day. It also shows tags (namely, "deep" vs. "shallow").
+
+**** TODO [#A] fix templates
+***** TODO set ~:ROAM_REFS~ to URL for relevant references ([[https://www.orgroam.com/manual.html#Refs-1][per this]])
+**** TODO filter out nodes by tag, esp. in =projects/= (h/t [[https://oleksii.shmalko.com/migrating-to-org-roam-v2/][Shmalko]])
+
+#+begin_src elisp :tangle no
+(setq org-roam-db-node-include-function
+      (defun lgc/org-roam-include ()
+        ;; exclude headlines from org-roam with tag "omit", for example
+        (not (member "omit" (org-get-tags)))))
+#+end_src
+
+OR just set ~:ROAM_EXCLUDE~ property to ~t~ on those headlines
+**** TODO restore v1 directory-based tagging? (h/t [[https://oleksii.shmalko.com/migrating-to-org-roam-v2/][Shmalko]])
+#+begin_src elisp :tangle no
+(cl-defmethod org-roam-node-filetitle ((node org-roam-node))
+  "Return the file TITLE for the node."
+  (org-roam-get-keyword "TITLE" (org-roam-node-file node)))
+
+(cl-defmethod org-roam-node-hierarchy ((node org-roam-node))
+  "Return the hierarchy for the node."
+  (let ((title (org-roam-node-title node))
+        (olp (org-roam-node-olp node))
+        (level (org-roam-node-level node))
+        (directories (org-roam-node-directories node))
+        (filetitle (org-roam-node-filetitle node)))
+    (concat
+     (if directories (format "(%s) " directories))
+     (if (> level 0) (concat filetitle " > "))
+     (if (> level 1) (concat (string-join olp " > ") " > "))
+     title)))
+
+(cl-defmethod org-roam-node-directories ((node org-roam-node))
+  (if-let ((dirs (file-name-directory (file-relative-name (org-roam-node-file node) org-roam-directory))))
+      (string-join (f-split dirs) "/")
+    nil))
+
+(setq org-roam-node-display-template "${hierarchy:*} ${tags:10}")
+#+end_src
+**** TODO process and incorporate [[https://github.com/org-roam/org-roam/wiki/User-contributed-Tricks][user-contributed tricks]]
+- [ ] show modification time in ~org-roam-node-find~
+- [ ] hide the properties drawer
+  + [[https://org-roam.discourse.group/t/turn-off-the-bright-meta/2174][Discourse thread 1]]
+  + [[https://org-roam.discourse.group/t/solved-could-all-properties-and-all-nodes-be-folded-by-default-when-opening-a-file/1798][Discourse thread 2]]
+  + [[https://github.com/jxq0/org-tidy][org-tidy]]
+- [ ] show the number of backlinks for each node in ~org-roam-node-find~
+  + see also [[https://ag91.github.io/blog/2022/05/08/how-to-rank-your-backlinks-notes-with-org-roam/][How to rank your backlinks]]
+- [ ] show node hierarchy (overlaps w/ Shmalko above)
+- [ ] filter by subdirectory (overlaps w/ Shmalko above)
+- [ ] and more...
+**** TODO add epistemic status to notes
+- [[https://maggieappleton.com/epistemic-disclosure]], points to Scott Alexander (Slate Star Codex) and [[file:roam/refs/gwern_net.org][Gwern.net]]
+- Devon Zuegel does this, too
+- is this different from Maggie's metadata on stage of development? Can something simultaneously be "done" and "crackpot" in my system?
+
+**** TODO set up [[https://www.orgroam.com/manual.html#org_002droam_002dprotocol-1][org-roam-protocol]]
+**** TODO set up [[https://github.com/org-roam/org-roam-ui][org-roam-ui]]
+- see also [[https://github.com/aatmunbaxi/orgroamtools][orgroamtools]] (Python)
+*** org-roam-bibtex config
+
+#+begin_src elisp
+(use-package! org-roam-bibtex
+  :after (org-roam bibtex-completion)
+  :config
+  (org-roam-bibtex-mode +1)
+
+  (setq orb-autokey-format "%A[5]%y"
+        orb-preformat-keywords
+        '("citekey" "title" "url" "doi" "year" "journal" "author-or-editor" "keywords" "file")
+        orb-process-file-keyword t
+        orb-file-field-extensions '("pdf")
+        orb-insert-interface 'ivy-bibtex
+        orb-note-actions-interface 'ivy
+        orb-roam-ref-format 'org-ref-v2
+        orb-insert-link-description 'citation)
+
+  (setq org-roam-capture-templates
+        (append org-roam-capture-templates
+        `(("p" "ref + physical" plain
+           "\n\n* summary :physical:\n%?"
+           :target (file+head "refs/${citekey}.org"
+                              "#+title: ${author-or-editor} (${year}). ${title}.\n#+created: %U\n#+last_modified: %U\n#+filetags: ${keywords}\n")
+           :unnarrowed t)
+          ("a" "ref + annotate" plain
+           "\n\n* annotations :noter:\n:PROPERTIES:\n:noter_document: %^{file}\n:noter_page:\n:author: %^{author-or-editor}\n:journal: %^{journal}\n:year: %^{year}\n:doi: %^{doi}\n:END:\n* RAP+M\n** Position\n** Research question\n** Method\n*** data\n*** model\n** Answer\n* lit fit + tidbits\n* picking nits\n%?"
+           :target (file+head "refs/${citekey}.org"
+                              "#+title: ${author-or-editor} (${year}). ${title}.\n#+created: %U\n#+last_modified: %U\n#+filetags: ${keywords}\n")
+           :unnarrowed t)
+          ("u" "ref + url" plain
+           "\n\n* summary\n:PROPERTIES:\n:author: %^{author-or-editor}\n:year: %^{year}\n:url: %^{url}\n:END:\n\n%?"
+           :target (file+head "refs/${citekey}.org"
+                              "#+title: ${author-or-editor} (${year}). ${title}.\n#+created: %U\n#+last_modified: %U\n#+filetags: ${keywords}\n")
+           :unnarrowed t)
+          )))
+  )
+#+end_src
+
+*** org-roam-bibtex notes + TODOs
+**** TODO add status to ~orb~ notes for reading keywords (inspected, understood, evaluated)
 
 ** deft
 
 [[https://github.com/jrblevin/deft][Deft]] is an Emacs mode for quickly browsing, filtering, and editing
 directories of plain text notes, inspired by Notational Velocity.
 
-I use ~deft~ to search through my ~org-roam~ files. Most of the code
-below is redundant because I never use ~deft~ to create notes (that's
-handled by ~org-roam~). The only important setting is turning on
-~deft-recursive~ to search subdirectories.
+I use ~deft~ to search through my ~org-roam~ files with a quicky fuzzy
+find. I never use ~deft~ to create notes---that's handled by ~org-roam~.
+What ~deft~ affords is *full-text search*, not just title search, for my
+notes.
 
 Reminder: Use =C-c C-q= to quit ~deft~.
 
 #+begin_src elisp
-(use-package! deft
-  :after org
-  :init
-  (setq deft-file-naming-rules
-      '((noslash . "-")
-        (nospace . "-")
-        (case-fn . downcase)))
-  :custom
-  (deft-recursive t)
-  (deft-use-filename-as-title nil)
-  (deft-use-filter-string-for-filename t)
-  (deft-extensions '("tex" "org"))
-  (deft-default-extension "org"))
-#+end_src
+(after! deft
 
-** org-roam
+  (defun lgc/deft-parse-title (file contents)
+    "Parse the given FILE and CONTENTS and determine the title.
+     If `deft-use-filename-as-title' is nil, the title is taken to
+     be the first non-empty line of the FILE.  Else the base name of the FILE is
+     used as title."
+      (let ((begin (string-match "^#\\+[tT][iI][tT][lL][eE]: .*$" contents)))
+	(if begin
+	    (string-trim (substring contents begin (match-end 0)) "#\\+[tT][iI][tT][lL][eE]: *" "[\n\t ]+")
+	  (deft-base-filename file))))
 
-[[https://github.com/org-roam/org-roam][Org-roam]] is a plain-text knowledge management system.
-See the manual [[https://www.orgroam.com/manual.html][here]].
+  (advice-add 'deft-parse-title :override #'lgc/deft-parse-title)
 
-~org-roam~ has a sister package called [[https://github.com/org-roam/org-roam-bibtex][org-roam-bibtex]] for managing
-reference notes. ~org-roam-bibtex~ plays well with ~org-ref~,
-~helm-bibtex~, ~org-noter~, and ~org-pdftools~.
-
-As of [2021-06-25 Fri], none of these custom keybindings work.
-I use whatever keybindings come out of the box instead.
-
-*** org-roam config
-#+begin_src elisp
-(after! org
-  (map! ("C-c n d" #'org-roam-today)
-         :map org-mode-map
-         (("C-c n l" #'org-roam) ;; call this to show backlinks in side-buffer
-          ("C-c n u" #'org-roam-update-buffer)
-          ("C-c n i" #'org-roam-insert)
-          ("C-c n c" #'org-roam-capture)
-          ("C-c n g" #'org-roam-graph)
-          ("C-c n r" #'org-roam-random-note)))
-  (setq org-roam-tag-sources '(prop last-directory)
-        org-roam-capture-templates
-        '(("p" "plain" plain #'org-roam-capture--get-point "%?"
-         :file-name "%<%Y%m%d%H%M%S>-${slug}"
-         :head "#+title: ${title}\n#+roam_alias: \n#+roam_tags: \n#+created: %U\n#+last_modified: %U\n\n"
-         :unnarrowed t)
-          ("d" "data" plain #'org-roam-capture--get-point "%?"
-         :file-name "refs/${slug}"
-         :head "#+title: ${title}\n#+roam_alias: \n#+roam_tags: data refs\n#+created: %U\n#+last_modified: %U\n\n* Overview\n:PROPERTIES:\n:url: \n:END:\n* Specifications\n* Construction\n* Access\n"
-         :unnarrowed t)
-          ("r" "resource" plain #'org-roam-capture--get-point "%?"
-         :file-name "refs/${slug}"
-         :head "#+title: ${title}\n#+roam_alias: \n#+roam_tags: refs\n#+created: %U\n#+last_modified: %U\n\n* Overview\n:PROPERTIES:\n:url: \n:END:\n"
-         :unnarrowed t))
-        org-roam-dailies-capture-templates
-        '(("d" "default" plain
-           #'org-roam-capture--get-point
-           "* %?"
-           :file-name "journal/%<%Y-%m-%d>"
-           :head "#+title: %<%d-%B-%Y>\n\n")
-          ("t" "today" plain
-           #'org-roam-capture--get-point
-           "* %?"
-           :file-name "journal/%<%Y-%m-%d>"
-           :head "#+title: %<%d-%B-%Y>\n\n"
-           %["~/Dropbox/org/templates/daily.template"])
-          ("w" "weekly review" plain
-           #'org-roam-capture--get-point
-           "* %?"
-           :file-name "journal/%<%Y-%m-%d>"
-           :head "#+title: %<%d-%B-%Y>\n\n"
-           %["~/Dropbox/org/templates/review-week.template"]))))
-#+end_src
-
-*** org-roam-bibtex config
-
-#+begin_src elisp
-(use-package! org-roam-bibtex
-  :after org-roam
-  :hook (org-roam-mode . org-roam-bibtex-mode)
-  :bind (:map org-roam-bibtex-mode-map
-         (("C-c n f" . orb-find-non-ref-file))
-         :map org-mode-map
-         (("C-c n t" . orb-insert-non-ref)
-          ("C-c n a" . orb-note-actions)))
-  :config
-  (require 'org-ref)
-  (require 'bibtex-completion)
-  (require 'ivy-bibtex))
-
-(setq orb-autokey-format "%A[5]%y"
-      orb-preformat-keywords
-      '("citekey" "title" "url" "doi" "year" "journal" "author-or-editor" "keywords" "file")
-      orb-process-file-keyword t
-      orb-file-field-extensions '("pdf")
-      orb-insert-interface 'ivy-bibtex
-      orb-note-actions-interface 'ivy
-      orb-insert-link-description 'citation)
-(defvar orb-title-format "${author-or-editor} (${year}). ${title}."
-  "Format of the title to use for `orb-templates'.")
-(setq orb-templates
-      `(("r" "ref" plain
-      (function org-roam-capture--get-point)
-      ""
-      :file-name "refs/${citekey}"
-      :head ,(s-join "\n"
-                     (list
-                      (concat "#+title: "
-                              orb-title-format)
-                      "#+roam_key: cite:${citekey}"
-                      "#+roam_tags: ${keywords}"
-                      "#+created: %U"
-                      "#+last_modified: %U\n")))
-     ("p" "ref + physical" plain
-      (function org-roam-capture--get-point)
-      ""
-      :file-name "refs/${citekey}"
-      :head ,(s-join "\n"
-                     (list
-                      (concat "#+title: "
-                              orb-title-format)
-                      "#+roam_key: cite:${citekey}"
-                      "#+roam_tags: ${keywords}"
-                      "#+created: %U"
-                      "#+last_modified: %U\n"
-                      "* Summary :physical:"
-                      "* Coming to terms")))
-     ("n" "ref + noter" plain
-      (function org-roam-capture--get-point)
-      ""
-      :file-name "refs/${citekey}"
-      :head ,(s-join "\n"
-                     (list
-                      (concat "#+title: "
-                              orb-title-format)
-                      "#+roam_key: cite:${citekey}"
-                      "#+roam_tags: ${keywords}"
-                      "#+created: %U"
-                      "#+last_modified: %U\n"
-                      "* Annotations :noter:"
-                      ":PROPERTIES:"
-                      ":noter_document: ${file}"
-                      ":noter_page:"
-                      ":author: ${author-or-editor}"
-                      ":journal: ${journal}"
-                      ":year: ${year}"
-                      ":doi: ${doi}"
-                      ":END:"
-                      "* RAP+M"
-                      "** Position"
-                      "** Research question"
-                      "** Method"
-                      "*** data"
-                      "*** model"
-                      "** Answer"
-                      "* Picking nits"
-                      )))
-     ("u" "ref + url" plain
-      (function org-roam-capture--get-point)
-      ""
-      :file-name "refs/${citekey}"
-      :head ,(s-join "\n"
-                     (list
-                      (concat "#+title: "
-                              orb-title-format)
-                      "#+roam_key: cite:${citekey}"
-                      "#+roam_tags: ${keywords}"
-                      "#+created: %U"
-                      "#+last_modified: %U\n"
-                      "* Summary"
-                      ":PROPERTIES:"
-                      ":author: ${author-or-editor}"
-                      ":year: ${year}"
-                      ":url: ${url}"
-                      ":END:")))))
+  (setq deft-directory org-roam-directory
+        deft-recursive t
+        deft-extensions '("org")
+        deft-use-filename-as-title nil
+        ;; deft-use-filter-string-for-filename t
+        ;; Use Org's #+title: instead
+        deft-strip-summary-regexp
+	  (concat "\\("
+		  "[\n\t]" ;; blank
+		  "\\|^#\\+[[:alpha:]_]+:.*$" ;; org-mode metadata
+		  "\\|^:PROPERTIES:\n\\(.+\n\\)+:END:\n"
+		  "\\)")))
 #+end_src
 
 * LaTeX
@@ -787,19 +904,26 @@ and CDLaTeX). This [[https://karthinks.com/software/latex-input-for-impatient-sc
 from my LaTeX setup.
 
 ** PDF viewer
+
 #+begin_src elisp :tangle no
 (after! org
   (setq +latex-viewers '(zathura)))
 #+end_src
-** Recipe
-From the ~org-ref~ documentation: "If you plan to build PDF files via LaTeX you need to make sure that org-latex-pdf-process is set to process the bibliography (using bibtex or biblatex). Here is one example of how to do that"
+
+** recipe
+
+From the ~org-ref~ documentation: "If you plan to build PDF files via
+LaTeX you need to make sure that ~org-latex-pdf-process~ is set to
+process the bibliography (using ~bibtex~ or ~biblatex~). Here is one
+example of how to do that:"
 
 #+begin_src elisp
 (after! org
   (setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f")))
 #+end_src
 
-* insert-esv
+* utilities
+** insert-esv
 
 The package [[https://github.com/sam030820/insert-esv][insert-esv]] allows you to insert verses from the ESV via the Crossway API.
 

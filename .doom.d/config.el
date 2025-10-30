@@ -1,12 +1,32 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
+(remove-hook 'org-mode-hook #'+literate-enable-recompile-h) ;; don't tangle on save
+
+(defadvice! fixed-do-after-load-evaluation (abs-file)
+  :override #'do-after-load-evaluation
+  (dolist (a-l-element after-load-alist)
+    (when (and (stringp (car a-l-element))
+               (string-match-p (car a-l-element) abs-file))
+      (mapc #'funcall (cdr a-l-element))))
+  (run-hook-with-args 'after-load-functions abs-file))
 
 (setq user-full-name "Levi Crews"
       user-mail-address "levigcrews@gmail.com")
 
-(remove-hook 'org-mode-hook #'+literate-enable-recompile-h)
-
 (setq auto-save-visited-mode t
-      auto-revert-mode t)
+      auto-revert-mode t
+      auto-save-default nil
+      make-backup-files nil)
+
+(setq doom-themes-enable-italic t)
+(load-theme 'doom-zenburn t)
+(custom-theme-set-faces! 'doom-zenburn
+  `(org-document-info-keyword :foreground ,(doom-lighten 'fg-1 0.2))
+  `(org-done :foreground ,(doom-lighten 'fg-1 0.05))
+  `(org-ellipsis :foreground ,(doom-lighten 'fg-1 0.2)))
+
+(setq frame-resize-pixelwise t)
+(add-to-list 'initial-frame-alist '(fullscreen . maximized))
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
 
 (setq doom-font (font-spec :family "Cascadia Mono PL" :size 13 :weight 'regular)
       doom-big-font (font-spec :family "Cascadia Mono PL" :size 20 :weight 'bold))
@@ -14,6 +34,11 @@
 (setq display-line-numbers-type t)
 
 (setq global-visual-line-mode t)
+
+(delete-selection-mode 1)                               ; Replace selection when inserting text
+(global-subword-mode 1)                                 ; Iterate through CamelCase words
+(global-set-key (kbd "C-c d") 'define-word-at-point)
+(global-set-key (kbd "C-c D") 'define-word)
 
 (global-set-key
     (kbd "C-z")
@@ -35,20 +60,6 @@ _q_: quit this menu                         _r_: restart emacs
    ("o" eds/open-buffer-on-desktop)
    ("q" nil)))
 
-(setq auto-save-default nil
-      make-backup-files nil)
-(delete-selection-mode 1)                       ; Replace selection when inserting text
-(global-subword-mode 1)                         ; Iterate through CamelCase words
-
-(load-theme 'doom-zenburn t)
-(custom-theme-set-faces! 'doom-zenburn
-  `(org-document-info-keyword :foreground ,(doom-lighten 'fg-1 0.2))
-  `(org-done :foreground ,(doom-lighten 'fg-1 0.05))
-  `(org-ellipsis :foreground ,(doom-lighten 'fg-1 0.2)))
-
-(global-set-key (kbd "C-c d") 'define-word-at-point)
-(global-set-key (kbd "C-c D") 'define-word)
-
 (setq org-dir (concat (getenv "HOME") "/Dropbox/org/")
       crewsbib-dir (concat (getenv "HOME") "/Dropbox/crewsbib/")
       crewsbib (concat crewsbib-dir "crewsbib.bib")
@@ -58,10 +69,18 @@ _q_: quit this menu                         _r_: restart emacs
       org-roam-dailies-directory (concat org-dir "roam/journal/")
       reftex-default-bibliography (list crewsbib))
 
+(defun lgc/insert-right-arrow ()
+  "Insert → (U+2192)."
+  (interactive)
+  (insert ?\u2192))
+
 (after! org
   (global-set-key (kbd "C-c l") 'org-store-link)
   (global-set-key (kbd "C-c a") 'org-agenda)
-  (global-set-key (kbd "C-c c") 'org-capture))
+  (global-set-key (kbd "C-c c") 'org-capture)
+  (global-set-key (kbd "C-c i r") #'lgc/insert-right-arrow)
+  ;; Use Org’s S-<arrow> actions (don’t do shift-selection in Org buffers)
+  (setq org-support-shift-select nil))
 
 (after! org
   (setq org-ellipsis " ▼" ;; …, ↴, ⬎
@@ -93,6 +112,18 @@ _q_: quit this menu                         _r_: restart emacs
 ;; (with-eval-after-load 'org
   ;; (add-hook 'org-mode-hook 'org-ref-prettify-mode))
 
+(defface lgc/org-link-internal
+  '((t :inherit org-link))
+  "Internal Org links keep org-link styling but in citation color.")
+
+(with-eval-after-load 'org
+  (dolist (type '("file" "id"))
+    (org-link-set-parameters type :face 'lgc/org-link-internal)))
+
+(with-eval-after-load 'org-ref
+  (let ((c (face-foreground 'org-ref-cite-face nil 'default)))
+    (when c (set-face-attribute 'lgc/org-link-internal nil :foreground c))))
+
 (after! org
   (setq org-log-done t
         org-log-into-drawer t
@@ -122,9 +153,11 @@ _q_: quit this menu                         _r_: restart emacs
         org-agenda-skip-scheduled-if-done t
         org-agenda-skip-deadline-if-done t
         org-agenda-include-deadlines t
+        org-agenda-skip-deadline-prewarning-if-scheduled 'pre-scheduled
         org-agenda-breadcrumbs-separator " ❱ "
         org-agenda-block-separator nil
         org-agenda-compact-blocks t
+        org-agenda-remove-tags t
         org-agenda-prefix-format
         '((agenda . "  %-20:c%?-12t% s")
           (todo . "  %-20:c")
@@ -175,283 +208,211 @@ _q_: quit this menu                         _r_: restart emacs
     (append (file-expand-wildcards "~/Dropbox/org/p-*")
             (file-expand-wildcards "~/Dropbox/org/roam/projects/*")))
 
-;; This will change the color of the annotation.
-(setq pdf-annot-default-markup-annotation-properties
-      '((color . "orange")))
+;; Set preferred highlight color for PDF annotations
+(after! pdf-tools
+  (setq pdf-annot-default-markup-annotation-properties '((color . "orange"))))
 
-(use-package! org-noter
-  :config
+;; Make Org links to PDFs open in pdf-tools
+(after! org
+  (add-hook 'org-mode-hook #'org-pdftools-setup-link))
+
+;; org-noter integration with pdf-tools
+(after! org-noter
   (require 'org-noter-pdftools)
-  (setq org-noter-hide-other nil))
-
-(use-package! org-pdftools
-  :hook (org-mode . org-pdftools-setup-link))
-
-(use-package! org-noter-pdftools
-  :after org-noter
-  :config
-  ;; Add a function to ensure precise note is inserted
-  (defun org-noter-pdftools-insert-precise-note (&optional toggle-no-questions)
-    (interactive "P")
-    (org-noter--with-valid-session
-     (let ((org-noter-insert-note-no-questions (if toggle-no-questions
-                                                   (not org-noter-insert-note-no-questions)
-                                                 org-noter-insert-note-no-questions))
-           (org-pdftools-use-isearch-link t)
-           (org-pdftools-use-freestyle-annot t))
-       (org-noter-insert-note (org-noter--get-precise-info)))))
-
-  ;; fix https://github.com/weirdNox/org-noter/pull/93/commits/f8349ae7575e599f375de1be6be2d0d5de4e6cbf
-  (defun org-noter-set-start-location (&optional arg)
-    "When opening a session with this document, go to the current location.
-    With a prefix ARG, remove start location."
-    (interactive "P")
-    (org-noter--with-valid-session
-     (let ((inhibit-read-only t)
-           (ast (org-noter--parse-root))
-           (location (org-noter--doc-approx-location (when (called-interactively-p 'any) 'interactive))))
-       (with-current-buffer (org-noter--session-notes-buffer session)
-         (org-with-wide-buffer
-          (goto-char (org-element-property :begin ast))
-          (if arg
-              (org-entry-delete nil org-noter-property-note-location)
-            (org-entry-put nil org-noter-property-note-location
-                           (org-noter--pretty-print-location location))))))))
+  (setq org-noter-hide-other nil)
+  ;; When you activate an annotation in a PDF, jump to its note
   (with-eval-after-load 'pdf-annot
-    (add-hook 'pdf-annot-activate-handler-functions #'org-noter-pdftools-jump-to-note)))
+    (add-hook 'pdf-annot-activate-handler-functions
+              #'org-noter-pdftools-jump-to-note)))
+
+(use-package! bibtex-completion
+    :defer t
+    :init
+    (setq bibtex-completion-bibliography crewsbib
+          bibtex-completion-library-path (concat crewsbib-dir "pdf/")
+          bibtex-completion-pdf-field nil
+          bibtex-completion-find-additional-pdfs nil
+          bibtex-completion-notes-path (concat org-roam-directory "refs/")
+          bibtex-completion-notes-extension ".org"
+          bibtex-completion-cache-file (expand-file-name "bibtex-completion-cache" doom-cache-dir)
+          bibtex-completion-pdf-symbol "■";; "󰈦" Hex #f0226
+          bibtex-completion-notes-symbol "✎";;"󰏫" Hex #f03eb
+          bibtex-completion-display-formats
+          '((article       . "${=has-pdf=:1} ${=has-note=:1} ${=type=:4} ${year:4} ${author:36} ${title:*} ${journal:24}")
+          (inproceedings . "${=has-pdf=:1} ${=has-note=:1} ${=type=:4} ${year:4} ${author:36} ${title:*} ${booktitle:24}")
+          (book          . "${=has-pdf=:1} ${=has-note=:1} ${=type=:4} ${year:4} ${author:36} ${title:*}")
+          (t             . "${=has-pdf=:1} ${=has-note=:1} ${=type=:4} ${year:4} ${author:36} ${title:*}"))
+          ))
+
+(use-package! ivy-bibtex
+    :when (featurep! :completion ivy)
+    :config
+    (global-set-key (kbd "C-c n b") #'ivy-bibtex)
+    (add-to-list 'ivy-re-builders-alist '(ivy-bibtex . ivy--regex-plus))
+    (setq ivy-bibtex-default-action #'ivy-bibtex-edit-notes))
 
 (use-package! org-ref
-    :after org
     :defer t
     :init
     (setq org-ref-completion-library 'org-ref-ivy-cite)
-    (let ((cache-dir (concat doom-cache-dir "org-ref")))
-    (unless (file-exists-p cache-dir)
-      (make-directory cache-dir t))
-    (setq orhc-bibtex-cache-file (concat cache-dir "/orhc-bibtex-cache")))
     :config
     (setq org-ref-default-bibliography (list crewsbib)
-          org-ref-default-citation-link "cite"
-          org-ref-notes-directory (concat org-roam-directory "refs/")
           org-ref-notes-function 'orb-edit-notes
-          org-ref-pdf-directory (concat crewsbib-dir "pdf/")
-          org-ref-get-pdf-filename-function 'org-ref-get-pdf-filename-helm-bibtex))
+          org-ref-pdf-directory (concat crewsbib-dir "pdf/")))
 
-(use-package! bibtex-completion
-  :defer t
-  :config
-  (setq bibtex-completion-bibliography crewsbib
-        bibtex-completion-library-path (concat crewsbib-dir "pdf/")
-        bibtex-completion-pdf-field nil ;; "file" ;; pulls PDF path from "File" field of JabRef
-        bibtex-completion-find-additional-pdfs nil ;; t ;; will match all <citekey>-appendix.pdf
-        bibtex-completion-notes-path (concat org-roam-directory "refs") ;; one note file per reference
-        bibtex-completion-additional-search-fields '(keywords journal booktitle)
-        bibtex-completion-display-formats
-        '((article       . "${=has-pdf=:2}${=has-note=:2} ${=type=:4} ${year:4} ${author:36} ${title:*} ${journal:20}")
-          (book          . "${=has-pdf=:2}${=has-note=:2} ${=type=:4} ${year:4} ${author:36} ${title:*}")
-          (inbook        . "${=has-pdf=:2}${=has-note=:2} ${=type=:4} ${year:4} ${author:36} ${title:*} Chapter ${chapter:30}")
-          (incollection  . "${=has-pdf=:2}${=has-note=:2} ${=type=:4} ${year:4} ${author:36} ${title:*} ${booktitle:30}")
-          (inproceedings . "${=has-pdf=:2}${=has-note=:2} ${=type=:4} ${year:4} ${author:36} ${title:*} ${booktitle:30}")
-          (t             . "${=has-pdf=:2}${=has-note=:2} ${=type=:4} ${year:4} ${author:36} ${title:*}"))
-        bibtex-completion-pdf-symbol ""
-        bibtex-completion-notes-symbol ""
-        bibtex-completion-format-citation-functions
-            '((org-mode      . bibtex-completion-format-citation-org-title-link-to-PDF)
-              (latex-mode    . bibtex-completion-format-citation-cite)
-              (markdown-mode . bibtex-completion-format-citation-pandoc-citeproc)
-              (default       . bibtex-completion-format-citation-default))
+(after! org-ref
+  (defun lgc/org-ref--strip-leading-&-when-single ()
+    "If cite link at point has a single key like `cite:&KEY`, drop the `&`."
+    (when (derived-mode-p 'org-mode)
+      (let ((el (org-element-context)))
+        (when (eq (org-element-type el) 'link)
+          (let* ((type (org-element-property :type el)))
+            (when (and type (string-prefix-p "cite" type))
+              (let* ((beg (org-element-property :begin el))
+                     (end (org-element-property :end el))
+                     (txt (and beg end (buffer-substring-no-properties beg end))))
+                ;; Only fix if it doesn't contain the multi-key separator ";&"
+                (when (and txt (not (string-match-p ";&" txt))
+                           (string-match-p "cite:&" txt))
+                  (save-excursion
+                    (goto-char beg)
+                    (when (re-search-forward "cite:&" end t)
+                      (replace-match "cite:" nil nil)))))))))))
+
+  (defun lgc/advice-org-ref-insert-cite-link (orig &rest args)
+    (apply orig args)
+    (lgc/org-ref--strip-leading-&-when-single))
+
+  (advice-add 'org-ref-insert-cite-link :around
+              #'lgc/advice-org-ref-insert-cite-link))
+
+;; insert a cite:<refkey> link via org-ref
+(after! org
+  (map! :map org-mode-map
+        :desc "Insert citation (org-ref)"
+        "C-c ) i" #'org-ref-insert-cite-link))
+
+(after! org-roam
+  (org-roam-db-autosync-mode 1) ;; keep the DB in sync automatically
+  (setq org-roam-tag-sources '(prop last-directory) ;; tag if in subdirectory
+        org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+
+  ;; ---- Roam buffer ----
+  (setq org-roam-mode-section-functions
+      (list #'org-roam-backlinks-section
+            #'org-roam-reflinks-section
+            ;;#'org-roam-unlinked-references-section
+            ))
+
+  ;; ---- Capture templates ----
+  (setq org-roam-capture-templates
+        '(("n" "note" plain "* %?"
+           :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+                              ":PROPERTIES:\n:ROAM_ALIASES: %^{aliases}\n:END:\n#+title: ${title}\n#+created: %U\n#+last_modified: %U\n#+filetags:\n\n")
+           :immediate-finish t
+           :unnarrowed t)
+          ("d" "data" plain "* %?"
+           :if-new (file+head "refs/${slug}.org"
+                              ":PROPERTIES:\n:ROAM_REFS: %^{url}\n:ROAM_ALIASES: %^{aliases}\n:END:\n#+title: ${title}\n#+created: %U\n#+last_modified: %U\n#+filetags: :data:refs:\n\n* overview\n* specifications\n* construction\n* access\n")
+           :immediate-finish t
+           :unnarrowed t)
+          ("r" "resource" plain "* %?"
+           :if-new (file+head "refs/${slug}.org"
+                              ":PROPERTIES:\n:ROAM_REFS: %^{url}\n:ROAM_ALIASES: %^{aliases}\n:END:\n#+title: ${title}\n#+created: %U\n#+last_modified: %U\n#+filetags: :refs:\n\n")
+           :immediate-finish t
+           :unnarrowed t)
+          ))
+
+  ;; ---- Dailies with custom templates ----
+  (setq org-roam-dailies-directory "journal/"
+        org-roam-dailies-capture-templates
+        '(("t" "today" plain
+           (file "~/Dropbox/org/templates/daily.template")
+           :if-new (file+head "%<%Y-%m-%d>.org"
+                              "#+title: %<%d-%B-%Y>\n"))
+          ("w" "weekly review" plain
+           (file "~/Dropbox/org/templates/review-week.template")
+           :if-new (file+head "%<%Y-%m-%d>.org"
+                              "#+title: %<%d-%B-%Y>\n"))
+          ))
+
+  ;; ---- Better capture from the browser ----
+  (require 'org-roam-protocol)
+
+  ;; ---- Better export support ----
+  (require 'org-roam-export)
+
+  ;; ---- Restore v1 keybindings ----
+  (map! :map org-mode-map
+        "C-c n r r" #'org-roam-buffer-toggle     ; show backlinks
+        "C-c n r f" #'org-roam-node-find
+        "C-c n r i" #'org-roam-node-insert
+        "C-c n r d" #'org-roam-dailies-capture-today
+        "C-c n r a" #'org-roam-alias-add
+        "C-c n r g" #'org-roam-graph
         ))
 
-(use-package! ivy-bibtex
-  :when (featurep! :completion ivy)
-  :config
-  (global-set-key (kbd "C-c n b") 'ivy-bibtex)
-  (add-to-list 'ivy-re-builders-alist '(ivy-bibtex . ivy--regex-plus))
-  (setq ivy-bibtex-default-action 'ivy-bibtex-edit-notes)
-  ;;(ivy-set-display-transformer 'org-ref-ivy-insert-cite-link 'ivy-bibtex-display-transformer)
-
-  (defun lgc/bibtex-random-ref (&optional arg local-bib)
-  "Find a random BibTeX entry using ivy.
-   With a prefix ARG the cache is invalidated and the bibliography
-   reread. If LOCAL-BIB is non-nil, display that the BibTeX entries are read
-   from the local bibliography.  This is set internally by `ivy-bibtex-with-local-bibliography'."
-   (interactive "P")
-   (when arg
-     (bibtex-completion-clear-cache))
-   (bibtex-completion-init)
-   (let* ((candidates (bibtex-completion-candidates))
-          (key (bibtex-completion-key-at-point))
-          (preselect (and key
-                         (cl-position-if (lambda (cand)
-                                           (member (cons "=key=" key)
-                                                   (cdr cand)))
-                                         candidates)))) ;; ~candidates~ is a list
-
-      (ivy-read (format "random BibTeX entry: " (if local-bib " (local)" ""))
-                (list (nth (random (length candidates)) candidates)
-                      (nth (random (length candidates)) candidates)
-                      (nth (random (length candidates)) candidates))
-                :preselect preselect
-                :caller 'lgc/bibtex-random-ref
-                ;;:history 'ivy-bibtex-history
-                :action ivy-bibtex-default-action)))
-
-  (global-set-key (kbd "C-c n p") 'lgc/bibtex-random-ref))
-
-(use-package! deft
-  :after org
-  :init
-  (setq deft-file-naming-rules
-      '((noslash . "-")
-        (nospace . "-")
-        (case-fn . downcase)))
-  :custom
-  (deft-recursive t)
-  (deft-use-filename-as-title nil)
-  (deft-use-filter-string-for-filename t)
-  (deft-extensions '("tex" "org"))
-  (deft-default-extension "org"))
-
-(after! org
-  (map! ("C-c n d" #'org-roam-today)
-         :map org-mode-map
-         (("C-c n l" #'org-roam) ;; call this to show backlinks in side-buffer
-          ("C-c n u" #'org-roam-update-buffer)
-          ("C-c n i" #'org-roam-insert)
-          ("C-c n c" #'org-roam-capture)
-          ("C-c n g" #'org-roam-graph)
-          ("C-c n r" #'org-roam-random-note)))
-  (setq org-roam-tag-sources '(prop last-directory)
-        org-roam-capture-templates
-        '(("p" "plain" plain #'org-roam-capture--get-point "%?"
-         :file-name "%<%Y%m%d%H%M%S>-${slug}"
-         :head "#+title: ${title}\n#+roam_alias: \n#+roam_tags: \n#+created: %U\n#+last_modified: %U\n\n"
-         :unnarrowed t)
-          ("d" "data" plain #'org-roam-capture--get-point "%?"
-         :file-name "refs/${slug}"
-         :head "#+title: ${title}\n#+roam_alias: \n#+roam_tags: data refs\n#+created: %U\n#+last_modified: %U\n\n* Overview\n:PROPERTIES:\n:url: \n:END:\n* Specifications\n* Construction\n* Access\n"
-         :unnarrowed t)
-          ("r" "resource" plain #'org-roam-capture--get-point "%?"
-         :file-name "refs/${slug}"
-         :head "#+title: ${title}\n#+roam_alias: \n#+roam_tags: refs\n#+created: %U\n#+last_modified: %U\n\n* Overview\n:PROPERTIES:\n:url: \n:END:\n"
-         :unnarrowed t))
-        org-roam-dailies-capture-templates
-        '(("d" "default" plain
-           #'org-roam-capture--get-point
-           "* %?"
-           :file-name "journal/%<%Y-%m-%d>"
-           :head "#+title: %<%d-%B-%Y>\n\n")
-          ("t" "today" plain
-           #'org-roam-capture--get-point
-           "* %?"
-           :file-name "journal/%<%Y-%m-%d>"
-           :head "#+title: %<%d-%B-%Y>\n\n"
-           %["~/Dropbox/org/templates/daily.template"])
-          ("w" "weekly review" plain
-           #'org-roam-capture--get-point
-           "* %?"
-           :file-name "journal/%<%Y-%m-%d>"
-           :head "#+title: %<%d-%B-%Y>\n\n"
-           %["~/Dropbox/org/templates/review-week.template"]))))
-
 (use-package! org-roam-bibtex
-  :after org-roam
-  :hook (org-roam-mode . org-roam-bibtex-mode)
-  :bind (:map org-roam-bibtex-mode-map
-         (("C-c n f" . orb-find-non-ref-file))
-         :map org-mode-map
-         (("C-c n t" . orb-insert-non-ref)
-          ("C-c n a" . orb-note-actions)))
+  :after (org-roam bibtex-completion)
   :config
-  (require 'org-ref)
-  (require 'bibtex-completion)
-  (require 'ivy-bibtex))
+  (org-roam-bibtex-mode +1)
 
-(setq orb-autokey-format "%A[5]%y"
-      orb-preformat-keywords
-      '("citekey" "title" "url" "doi" "year" "journal" "author-or-editor" "keywords" "file")
-      orb-process-file-keyword t
-      orb-file-field-extensions '("pdf")
-      orb-insert-interface 'ivy-bibtex
-      orb-note-actions-interface 'ivy
-      orb-insert-link-description 'citation)
-(defvar orb-title-format "${author-or-editor} (${year}). ${title}."
-  "Format of the title to use for `orb-templates'.")
-(setq orb-templates
-      `(("r" "ref" plain
-      (function org-roam-capture--get-point)
-      ""
-      :file-name "refs/${citekey}"
-      :head ,(s-join "\n"
-                     (list
-                      (concat "#+title: "
-                              orb-title-format)
-                      "#+roam_key: cite:${citekey}"
-                      "#+roam_tags: ${keywords}"
-                      "#+created: %U"
-                      "#+last_modified: %U\n")))
-     ("p" "ref + physical" plain
-      (function org-roam-capture--get-point)
-      ""
-      :file-name "refs/${citekey}"
-      :head ,(s-join "\n"
-                     (list
-                      (concat "#+title: "
-                              orb-title-format)
-                      "#+roam_key: cite:${citekey}"
-                      "#+roam_tags: ${keywords}"
-                      "#+created: %U"
-                      "#+last_modified: %U\n"
-                      "* Summary :physical:"
-                      "* Coming to terms")))
-     ("n" "ref + noter" plain
-      (function org-roam-capture--get-point)
-      ""
-      :file-name "refs/${citekey}"
-      :head ,(s-join "\n"
-                     (list
-                      (concat "#+title: "
-                              orb-title-format)
-                      "#+roam_key: cite:${citekey}"
-                      "#+roam_tags: ${keywords}"
-                      "#+created: %U"
-                      "#+last_modified: %U\n"
-                      "* Annotations :noter:"
-                      ":PROPERTIES:"
-                      ":noter_document: ${file}"
-                      ":noter_page:"
-                      ":author: ${author-or-editor}"
-                      ":journal: ${journal}"
-                      ":year: ${year}"
-                      ":doi: ${doi}"
-                      ":END:"
-                      "* RAP+M"
-                      "** Position"
-                      "** Research question"
-                      "** Method"
-                      "*** data"
-                      "*** model"
-                      "** Answer"
-                      "* Picking nits"
-                      )))
-     ("u" "ref + url" plain
-      (function org-roam-capture--get-point)
-      ""
-      :file-name "refs/${citekey}"
-      :head ,(s-join "\n"
-                     (list
-                      (concat "#+title: "
-                              orb-title-format)
-                      "#+roam_key: cite:${citekey}"
-                      "#+roam_tags: ${keywords}"
-                      "#+created: %U"
-                      "#+last_modified: %U\n"
-                      "* Summary"
-                      ":PROPERTIES:"
-                      ":author: ${author-or-editor}"
-                      ":year: ${year}"
-                      ":url: ${url}"
-                      ":END:")))))
+  (setq orb-autokey-format "%A[5]%y"
+        orb-preformat-keywords
+        '("citekey" "title" "url" "doi" "year" "journal" "author-or-editor" "keywords" "file")
+        orb-process-file-keyword t
+        orb-file-field-extensions '("pdf")
+        orb-insert-interface 'ivy-bibtex
+        orb-note-actions-interface 'ivy
+        orb-roam-ref-format 'org-ref-v2
+        orb-insert-link-description 'citation)
+
+  (setq org-roam-capture-templates
+        (append org-roam-capture-templates
+        `(("p" "ref + physical" plain
+           "\n\n* summary :physical:\n%?"
+           :target (file+head "refs/${citekey}.org"
+                              "#+title: ${author-or-editor} (${year}). ${title}.\n#+created: %U\n#+last_modified: %U\n#+filetags: ${keywords}\n")
+           :unnarrowed t)
+          ("a" "ref + annotate" plain
+           "\n\n* annotations :noter:\n:PROPERTIES:\n:noter_document: %^{file}\n:noter_page:\n:author: %^{author-or-editor}\n:journal: %^{journal}\n:year: %^{year}\n:doi: %^{doi}\n:END:\n* RAP+M\n** Position\n** Research question\n** Method\n*** data\n*** model\n** Answer\n* lit fit + tidbits\n* picking nits\n%?"
+           :target (file+head "refs/${citekey}.org"
+                              "#+title: ${author-or-editor} (${year}). ${title}.\n#+created: %U\n#+last_modified: %U\n#+filetags: ${keywords}\n")
+           :unnarrowed t)
+          ("u" "ref + url" plain
+           "\n\n* summary\n:PROPERTIES:\n:author: %^{author-or-editor}\n:year: %^{year}\n:url: %^{url}\n:END:\n\n%?"
+           :target (file+head "refs/${citekey}.org"
+                              "#+title: ${author-or-editor} (${year}). ${title}.\n#+created: %U\n#+last_modified: %U\n#+filetags: ${keywords}\n")
+           :unnarrowed t)
+          )))
+  )
+
+(after! deft
+
+  (defun lgc/deft-parse-title (file contents)
+    "Parse the given FILE and CONTENTS and determine the title.
+     If `deft-use-filename-as-title' is nil, the title is taken to
+     be the first non-empty line of the FILE.  Else the base name of the FILE is
+     used as title."
+      (let ((begin (string-match "^#\\+[tT][iI][tT][lL][eE]: .*$" contents)))
+	(if begin
+	    (string-trim (substring contents begin (match-end 0)) "#\\+[tT][iI][tT][lL][eE]: *" "[\n\t ]+")
+	  (deft-base-filename file))))
+
+  (advice-add 'deft-parse-title :override #'lgc/deft-parse-title)
+
+  (setq deft-directory org-roam-directory
+        deft-recursive t
+        deft-extensions '("org")
+        deft-use-filename-as-title nil
+        ;; deft-use-filter-string-for-filename t
+        ;; Use Org's #+title: instead
+        deft-strip-summary-regexp
+	  (concat "\\("
+		  "[\n\t]" ;; blank
+		  "\\|^#\\+[[:alpha:]_]+:.*$" ;; org-mode metadata
+		  "\\|^:PROPERTIES:\n\\(.+\n\\)+:END:\n"
+		  "\\)")))
 
 (after! org
   (setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f")))
