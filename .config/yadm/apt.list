@@ -55,7 +55,9 @@ sqlite3
 surfraw
 sword-text-kjv
 sxhkd
-texlive
+texlive-latex-extra
+texlive-extra-utils
+texlive-science
 latexmk
 uuid-runtime
 viewnior

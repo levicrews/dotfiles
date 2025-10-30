@@ -306,6 +306,7 @@ echo "==> Initializing Git..."
 git config --global fetch.prune true
 git config --global status.short true   # like: git status -s
 git config --global status.branch true  # add branch/upstream line (like -b)
+git config --global core.fileMode false # ignore file permissions
 
 if command -v git-lfs >/dev/null 2>&1; then
     git lfs install --skip-repo >/dev/null 2>&1 || git lfs install >/dev/null 2>&1
@@ -391,7 +392,9 @@ sqlite3
 surfraw
 sword-text-kjv
 sxhkd
-texlive
+texlive-latex-extra
+texlive-extra-utils
+texlive-science
 latexmk
 uuid-runtime
 viewnior
@@ -445,6 +448,8 @@ A number of the tools I install are modern/faster/saner alternatives to common U
 **** sxhkd
 - hotkey manager used to specify ~rofi~ hotkeys
 - explained in detail elsewhere
+**** texlive
+- a [[https://tex.stackexchange.com/questions/245982/differences-between-texlive-packages-in-linux][description]] of the texlive package options
 **** [[https://www.visidata.org/][visidata]]: interactive multitool for tabular data
 **** [[https://github.com/ytdl-org/youtube-dl/][youtube-dl]]
 - download YouTube videos
