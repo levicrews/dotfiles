@@ -408,19 +408,19 @@ filters into a [[https://orgmode.org/manual/Block-agenda.html][block agenda]].
                           '((:name "Research pipeline"
                              :file-path ("roam/projects/"))
                             (:name "Teaching + Service + Career"
-                             :file-path ("service\\.org" "career\\.org"))
+                             :file-path ("roam/teaching/" "service\\.org" "career\\.org"))
                             (:name "Referee"
                              :file-path ("referee\\.org"))
                             (:name "SysAdmin"
-                             :file-path ("system.*\\.org"))
+                             :file-path ("roam/system.*\\.org"))
                             (:name "Home + Church"
                              :file-path ("home\\.org" "church\\.org"))))))
             (tags-todo "+PRIORITY=\"A\"+TODO=\"SPEC\"|+PRIORITY=\"A\"+TODO=\"KNOW\"|+PRIORITY=\"A\"+TODO=\"EVAL\"|+PRIORITY=\"A\"+TODO=\"FILL\"|+PRIORITY=\"A\"+TODO=\"LINK\"" ((org-agenda-overriding-header "")
                          (org-super-agenda-groups
                           '((:name "Reading inbox"
-                             :file-path ("[^a-z0-9]p-[a-z0-9]*\\.org" "roam/projects/" "reading-inbox\\.org"))
+                             :file-path ("[^a-z0-9]p-[a-z0-9]*\\.org" "roam/projects/" "roam/reading-inbox\\.org"))
                             (:name "Writing inbox"
-                             :file-path "writing-inbox\\.org")
+                             :file-path "roam/writing-inbox\\.org")
                             (:discard (:anything t))))))
             ))))
   :config
@@ -435,6 +435,7 @@ filters into a [[https://orgmode.org/manual/Block-agenda.html][block agenda]].
 #+end_src
 *** notes + TODOs
 **** TODO find more UI examples (e.g. NANO agenda)
+- [[https://systemcrafters.net/org-mode-productivity/custom-org-agenda-views/][System Crafters tips]]
 **** DONE fix filename spacing for better column alignment
 CLOSED: [2025-08-29 Fri 20:09]
 - [[https://emacs.stackexchange.com/questions/17831/org-agenda-view-how-to-turn-of-visibility-of-category-filename][StackExchange]]
@@ -478,7 +479,7 @@ Probably rendered obsolete by mobile beorg and my duplication of appointments in
 ****** [[https://github.com/dengste/org-caldav][org-caldav]]
 should work, but you need to register an application with the Google Developer Console for OAuth2 authentication because Google explicitly forbids to put client id/secrets into open source software
 ****** SPEC Lafon: [[https://200ok.ch/posts/2022-02-13_integrating_org_mode_agenda_into_other_calendar_apps.html][Integrating Org mode Agenda into other calendar apps]]
-
+**** TODO [[https://www.reddit.com/r/emacs/comments/1jykk5c/how_i_added_calculation_of_total_effort_time_per/][calculate effort time per day]]
 ** ~org-noter~ + ~org-pdftools~
 
 The packages [[https://github.com/weirdNox/org-noter][org-noter]] and [[https://github.com/fuxialexander/org-pdftools][org-pdftools]] have elsewhere been loaded
@@ -508,25 +509,26 @@ discussions of ~org-noter~.
 #+end_src
 
 ** FILL reference management
+:LOGBOOK:
+- Note taken on [2020-12-29 Tue 20:16] \\
+  See [[https://github.com/cute-jumper/gscholar-bibtex][gscholar-bibtex]]: a function to retrieve BibTeX entries from Google Scholar.
+- Note taken on [2020-12-13 Sun 08:15] \\
+  Also see [[http://joostkremers.github.io/ebib/][ebib]] as a potential replacement for JabRef as the .bib file manager
+:END:
 
-The code below shows how I integrate ~org-ref~ with ~ivy-bibtex~
-and ~org-roam-bibtex~ to build my bibliographic database. This
-[[https://org-roam.discourse.group/t/org-ref-code-in-doom-emacs-init-file/1483][Discourse thread]] was quite helpful.
+The code below shows how I integrate ~org-ref~ with the ~ivy-bibtex~
+backend to build my bibliographic database.[fn:1] Later I integrate both
+with ~org-roam-bibtex~. This [[https://org-roam.discourse.group/t/org-ref-code-in-doom-emacs-init-file/1483][Discourse thread]] was quite helpful.
 
-Note: the ivy-backend for ~org-ref~ is [[https://github.com/jkitchin/org-ref/issues/793][not actually]] ~ivy-bibtex~.
+[fn:1] the ~ivy~ backend for ~org-ref~ is [[https://github.com/jkitchin/org-ref/issues/793][not actually]] ~ivy-bibtex~
 
-[2021-07-20 Tue 09:25]: The package [[https://github.com/bdarcus/bibtex-actions][BibTeX Actions]] provides similar
-functionality through [[https://github.com/raxod502/selectrum][selectrum]], [[https://github.com/oantolin/embark/][embark]], and [[https://github.com/minad/marginalia][marginalia]]. Org mode
-now has native support for citations with ~org-cite~. The BibTeX
-Actions README shows how to set it up.
-
-[2021-07-20 Tue 09:30]: Org mode now has native support for
-citations with ~org-cite~. See the README of [[https://github.com/bdarcus/bibtex-actions][BibTeX Actions]] for an
-alternative workflow that uses this native support. According to
+[2021-07-20 Tue 09:25]: Org mode now has native support for citations
+with ~org-cite~ (described [[https://blog.tecosaur.com/tmio/2021-07-31-citations.html][here]]). The package [[https://github.com/emacs-citar/citar][Citar]] provides similar
+functionality to ~org-ref~ through [[https://github.com/raxod502/selectrum][selectrum]], [[https://github.com/oantolin/embark/][embark]], and [[https://github.com/minad/marginalia][marginalia]]
+that treats native ~org-cite~ as first class. The ~Citar~ README shows
+how to set it up and [[https://github.com/emacs-citar/citar/wiki/Comparisons][compares]] it to competitors. According to
 [[https://github.com/hlissner/doom-emacs/pull/5212][this pull request]] to Doom Emacs, I expect ~org-cite~ to take over.
 (See also [[https://github.com/hlissner/doom-emacs/pull/2888][this one]] and [[https://github.com/jkitchin/org-ref/issues/885][this one]]. See [[https://youtu.be/4ta4J20kpmM][this video]] from John Kitchin.)
-
-[2021-08-05 Thu 06:39]: The new ~org-cite~ feature is described [[https://blog.tecosaur.com/tmio/2021-07-31-citations.html][here]].
 
 *** ~bibtex-completion~ + ~ivy-bibtex~
 
@@ -624,6 +626,71 @@ strip the leading ampersand.
         "C-c ) i" #'org-ref-insert-cite-link))
 #+end_src
 
+*** READ Jalihal: [[http://amoghpj.github.io/2020/03/07/tag-selection-bibtex.html][Utility function to control the tags vocabulary in a BibTeX file]]
+CLOSED: [2021-01-07 Thu 10:42]
+:LOGBOOK:
+- Note taken on [2021-01-07 Thu 10:41] \\
+  Another example that you can do anything you want with text in Emacs if you know elisp. I just use JEL codes and project groups in my bib right now, so I don't think I need this, but if it's snappy and I switch to managing my bib in Emacs, I'd use it.
+- State "EVAL"       from "KNOW" [2021-01-07 Thu 10:41]
+- State "KNOW" from "SPEC"    [2021-01-07 Thu 10:38]
+:END:
+**** problem
+He added a custom ~tags~ field to his BibTeX entries, but he often forgot what tags he already used (was it "cell-cycle" or "cellcycle"?)
+**** solution
+***** define variables to hold path to bib and custom buffer name
+#+begin_src elisp :tangle no
+(defcustom bibfile "~/jalihal_projects/Research/references.bib"
+  "Default path to bib file")
+
+(defcustom buffername "*my-bibtex-tags*"
+  "name of shell output capture buffer")
+#+end_src
+***** grep the bib for tags, parse the output, delete duplicates, and present user with prompt
+#+begin_src elisp :tangle no
+(defun choose-tags ()
+  "Make an interface to choose tags in bibtex"
+  (interactive)
+  (let ((b (get-buffer-create buffername))
+        (all-tags ()))
+    (call-process "grep" bibfile buffername nil "tags")
+    (with-current-buffer buffername
+      (dolist (line (split-string (buffer-string) "\n"))
+        (when (> (length line) 1)
+          (setq current-tags (get-tags-from-line line))
+          (setq all-tags (append all-tags current-tags)))
+        ))
+    (setq all-tags (delete-dups all-tags))
+    (insert (completing-read "Choose tag: " all-tags))
+    (kill-buffer buffername)
+    ))
+
+(defun get-tags-from-line (line)
+  "extract tags from LINE"
+  (setq start-tags (1+ (string-match "\\({\\)" line)))
+  (setq end-tags (string-match "\\(}\\)" line))
+  (setq current-tags (split-string (substring
+                                    line
+                                    start-tags
+                                    end-tags)
+                                   ","))
+  (setq cleaned-tags ())
+  (dolist (tag current-tags)
+    (setq cleaned-tags (cons (split-string tag) cleaned-tags)))
+  cleaned-tags)
+#+end_src
+***** custom keybinding for this script
+#+begin_src elisp :tangle no
+(define-key bibtex-mode-map (kbd "\C-ct") 'choose-tags)
+#+end_src
+
+*** KNOW Botha: [[https://vxlabs.com/2020/04/26/cite-consistently-between-org-ref-and-ox-hugo/][Cite consistently between org-ref and ox-hugo]]
+:LOGBOOK:
+- State "KNOW" from "TODO"       [2021-01-10 Sun 17:55]
+:END:
+*** SPEC George: [[https://nickgeorge.net/science/org-ref-setup/][Setting up and configuring org-ref]]
+*** SPEC Balintona: [[https://kristofferbalintona.me/posts/202206141852/][Citations in org mode: Org-cite and citar]]
+*** SPEC Gration: [[https://amerygration.com/Blog/citation_handling_in_emacs.html][Citation handling in Emacs]]
+*** SPEC Denton: Basic citation in Org (Parts [[https://www.miskatonic.org/2024/01/08/org-citations-basic/][1]], [[https://www.miskatonic.org/2024/01/10/org-citations-basic-2/][2]], [[https://www.miskatonic.org/2024/01/15/org-citations-basic-3/][3]], [[https://www.miskatonic.org/2024/01/17/org-citations-basic-4/][4]], [[https://www.miskatonic.org/2024/01/22/org-citations-basic-5/][5]])
 ** FILL org-roam
 
 [[https://github.com/org-roam/org-roam][Org-roam]] is a plain-text knowledge management system.
@@ -640,13 +707,6 @@ reference notes. ~org-roam-bibtex~ plays well with ~org-ref~,
   (org-roam-db-autosync-mode 1) ;; keep the DB in sync automatically
   (setq org-roam-tag-sources '(prop last-directory) ;; tag if in subdirectory
         org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
-
-  ;; ---- Roam buffer ----
-  (setq org-roam-mode-section-functions
-      (list #'org-roam-backlinks-section
-            #'org-roam-reflinks-section
-            ;;#'org-roam-unlinked-references-section
-            ))
 
   ;; ---- Capture templates ----
   (setq org-roam-capture-templates
@@ -680,6 +740,8 @@ reference notes. ~org-roam-bibtex~ plays well with ~org-ref~,
                               "#+title: %<%d-%B-%Y>\n"))
           ))
 
+  ;; ---- Custom function to refile headline to file ----
+  
   ;; ---- Better capture from the browser ----
   (require 'org-roam-protocol)
 
@@ -757,8 +819,11 @@ my [[file:~/Dropbox/org/templates/daily.template][org-roam daily note template]]
 tasks in all org files for which there was non-zero time recorded
 that day. It also shows tags (namely, "deep" vs. "shallow").
 
-**** TODO [#A] fix templates
-***** TODO set ~:ROAM_REFS~ to URL for relevant references ([[https://www.orgroam.com/manual.html#Refs-1][per this]])
+**** DONE fix templates
+CLOSED: [2025-10-29 Wed 21:00]
+***** DONE set ~:ROAM_REFS~ to URL for relevant references ([[https://www.orgroam.com/manual.html#Refs-1][per this]])
+CLOSED: [2025-10-29 Wed 21:00]
+**** TODO custom function to refile headline from =writing-inbox= to file
 **** TODO filter out nodes by tag, esp. in =projects/= (h/t [[https://oleksii.shmalko.com/migrating-to-org-roam-v2/][Shmalko]])
 
 #+begin_src elisp :tangle no
@@ -810,10 +875,10 @@ OR just set ~:ROAM_EXCLUDE~ property to ~t~ on those headlines
 - [[https://maggieappleton.com/epistemic-disclosure]], points to Scott Alexander (Slate Star Codex) and [[file:roam/refs/gwern_net.org][Gwern.net]]
 - Devon Zuegel does this, too
 - is this different from Maggie's metadata on stage of development? Can something simultaneously be "done" and "crackpot" in my system?
-
 **** TODO set up [[https://www.orgroam.com/manual.html#org_002droam_002dprotocol-1][org-roam-protocol]]
 **** TODO set up [[https://github.com/org-roam/org-roam-ui][org-roam-ui]]
 - see also [[https://github.com/aatmunbaxi/orgroamtools][orgroamtools]] (Python)
+- publish the network with [[https://github.com/ikoamu/publish-org-roam-ui][publish-org-roam-ui]]
 *** org-roam-bibtex config
 
 #+begin_src elisp
@@ -828,9 +893,19 @@ OR just set ~:ROAM_EXCLUDE~ property to ~t~ on those headlines
         orb-process-file-keyword t
         orb-file-field-extensions '("pdf")
         orb-insert-interface 'ivy-bibtex
-        orb-note-actions-interface 'ivy
+        orb-note-actions-interface 'hydra
         orb-roam-ref-format 'org-ref-v2
-        orb-insert-link-description 'citation)
+        orb-insert-link-description 'citation-org-ref-2)
+
+  ;; ---- Roam buffer ----
+  (setq org-roam-mode-section-functions
+      (list #'orb-section-reference
+            #'orb-section-abstract
+            ;;#'orb-section-file
+            #'org-roam-backlinks-section
+            #'org-roam-reflinks-section
+            ;;#'org-roam-unlinked-references-section
+            ))
 
   (setq org-roam-capture-templates
         (append org-roam-capture-templates
@@ -850,11 +925,77 @@ OR just set ~:ROAM_EXCLUDE~ property to ~t~ on those headlines
                               "#+title: ${author-or-editor} (${year}). ${title}.\n#+created: %U\n#+last_modified: %U\n#+filetags: ${keywords}\n")
            :unnarrowed t)
           )))
+
+  (setq orb-pdf-scrapper-group-references t
+        orb-pdf-scrapper-list-style 'unordered-hyphen
+        orb-pdf-scrapper-citekey-format "cite:%s")
+
+  (setq orb-pdf-scrapper-export-options
+      '((org
+         ;; Export citation links to specified header
+         (heading "references"
+                     :property-drawer ("PDF_SCRAPPER_TYPE"
+                                       "PDF_SCRAPPER_SOURCE"
+                                       "PDF_SCRAPPER_DATE")))
+        (bib
+         ;; Export BibTeX entries to the file CITEKEY.bib in specified directory
+         (path crewsbib-dir
+               :placement prepend
+              ;; Include only the references that are not in the target file
+              ;; *and* the file(s) specified in bibtex-completion-bibliography
+               :filter-bib-entries bibtex-completion-bibliography))))
+
   )
 #+end_src
 
 *** org-roam-bibtex notes + TODOs
 **** TODO add status to ~orb~ notes for reading keywords (inspected, understood, evaluated)
+**** TODO setup [[https://github.com/org-roam/org-roam-bibtex/blob/main/doc/orb-manual.org#orb-pdf-scrapper---retrieve-references-from-pdfs][orb-pdf-scrapper]] w/ [[https://github.com/inukshuk/anystyle][anystyle-cli]]
+
+A ML-based tool to retrieve references from the PDF file
+associated with a particular BibTeX record. The process
+consists of three interactive steps:
+- text mode :: must manually edit to ensure /one reference per line/; press =C-c C-c= to proceed
+- BibTeX mode :: press =C-c C-r= to return, =C-c C-c= to proceed
+- Org mode :: The processing involves sorting the references into four groups under the respective Org headlines: ~in-roam~, ~in-bib~, ~valid~, and ~invalid~, and inserting the grouped references as either an Org plain-list of org-ref-style citations, or an Org table with columns corresponding to different BibTeX fields.
+  + in-roam :: These references have notes with the respective ~#+ROAM_KEY:~ citation keys in the org-roam database.
+  + in-bib :: These references are not yet in the org-roam database but they are present in user BibTeX file(s) (see ~bibtex-completion-bibliography~).
+  + invalid :: These references matched against ~orb-pdf-scrapper-invalid-key-pattern~ and are considered invalid. Adjust this variable to your criteria of validity.
+  + valid :: All other references fall into this group. They look fine but are not yet in user Org-roam and BibTeX databases.
+
+*** TODO [[https://github.com/nobiot/org-transclusion][org-transclusion]]
+- transclusion :: the ability to include content from one file into another by reference, like within-file symlinks or block references in Roam
+
+** ~org-fc~: flashcards
+
+The package [[https://www.leonrische.me/fc/index.html][org-fc]] is a [[id:564ef8f9-51a5-4d25-95fa-e05baef240e7][spaced repetition]] system for Org mode.
+
+An alternative is [[https://orgmode.org/worg/org-contrib/org-drill.html][org-drill]], but it is not actively maintained.
+
+*** DONE Reddit: [[https://www.reddit.com/r/emacs/comments/achxvh/any_org_drill_srs_users_here/ed8e6dh/][Any Org Drill (SRS) users here?]]
+CLOSED: [2020-11-10 Tue 07:18]
+
+Using org-drill with org-capture templates, it's actually really
+fast to enter new cards:
+#+BEGIN_SRC elisp :tangle no
+(setq org-capture-templates '(("b" "Adverbs" entry
+                                 (file+headline "~/Documents/DeutschLernen/germanDrill/germanDrill.org" "Adverbs")
+                                 "* Adverb :drill:\n%^{Español}\n** Back\n%^{Deutsch}\n")
+                                 ("j" "Adjectives" entry
+                                 (file+headline "~/Documents/DeutschLernen/germanDrill/germanDrill.org" "Adjectives")
+                                 "* Adjective :drill:\n%^{Español}\n** Back\n%^{Deutsch}\n")
+                                 ("v" "Verbs" entry
+                                 (file+headline "~/Documents/DeutschLernen/germanDrill/germanDrill.org" "Verbs")
+                                 "* Verb :drill:\n%^{Español}\n** Back\n%^{Deutsch}\n")
+                                 ("n" "Nouns" entry
+                                 (file+headline "~/Documents/DeutschLernen/germanDrill/germanDrill.org" "Nouns")
+                                 "* Noun :drill:\n%^{Español}\n** Back\n%^{Deutsch}\n")))
+#+END_SRC
+This way I just have to call =org-capture=, type =b= =j= =v= or =n=, type the word in Spanish, and then in German.
+
+*** SPEC Fung: [[https://yiufung.net/post/anki-org/][Power up Anki with Emacs, Org mode, anki-editor and more]]
+*** SPEC Goswami: [[https://rgoswami.me/posts/anki-decks-orgmode/][Anki decks with Org mode]]
+*** SPEC Moller-Mara: [[https://www.youtube.com/watch?v=uraPXeLfWcM&ab_channel=thoughtbot][Have Emacs teach you Chinese]]
 
 ** deft
 
@@ -939,3 +1080,8 @@ The package [[https://github.com/sam030820/insert-esv][insert-esv]] allows you t
   (setq insert-esv-line-length '65)
   (global-set-key (kbd "C-x i") 'insert-esv-passage))
 #+end_src
+
+** TODO configure [[https://github.com/karthink/gptel?tab=readme-ov-file#doom-emacs][gptel]]
+
+Doom Emacs ~:tools llm~ includes ~gptel~ already
+

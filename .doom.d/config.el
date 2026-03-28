@@ -186,19 +186,19 @@ _q_: quit this menu                         _r_: restart emacs
                           '((:name "Research pipeline"
                              :file-path ("roam/projects/"))
                             (:name "Teaching + Service + Career"
-                             :file-path ("service\\.org" "career\\.org"))
+                             :file-path ("roam/teaching/" "service\\.org" "career\\.org"))
                             (:name "Referee"
                              :file-path ("referee\\.org"))
                             (:name "SysAdmin"
-                             :file-path ("system.*\\.org"))
+                             :file-path ("roam/system.*\\.org"))
                             (:name "Home + Church"
                              :file-path ("home\\.org" "church\\.org"))))))
             (tags-todo "+PRIORITY=\"A\"+TODO=\"SPEC\"|+PRIORITY=\"A\"+TODO=\"KNOW\"|+PRIORITY=\"A\"+TODO=\"EVAL\"|+PRIORITY=\"A\"+TODO=\"FILL\"|+PRIORITY=\"A\"+TODO=\"LINK\"" ((org-agenda-overriding-header "")
                          (org-super-agenda-groups
                           '((:name "Reading inbox"
-                             :file-path ("[^a-z0-9]p-[a-z0-9]*\\.org" "roam/projects/" "reading-inbox\\.org"))
+                             :file-path ("[^a-z0-9]p-[a-z0-9]*\\.org" "roam/projects/" "roam/reading-inbox\\.org"))
                             (:name "Writing inbox"
-                             :file-path "writing-inbox\\.org")
+                             :file-path "roam/writing-inbox\\.org")
                             (:discard (:anything t))))))
             ))))
   :config
@@ -297,13 +297,6 @@ _q_: quit this menu                         _r_: restart emacs
   (setq org-roam-tag-sources '(prop last-directory) ;; tag if in subdirectory
         org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
 
-  ;; ---- Roam buffer ----
-  (setq org-roam-mode-section-functions
-      (list #'org-roam-backlinks-section
-            #'org-roam-reflinks-section
-            ;;#'org-roam-unlinked-references-section
-            ))
-
   ;; ---- Capture templates ----
   (setq org-roam-capture-templates
         '(("n" "note" plain "* %?"
@@ -336,6 +329,8 @@ _q_: quit this menu                         _r_: restart emacs
                               "#+title: %<%d-%B-%Y>\n"))
           ))
 
+  ;; ---- Custom function to refile headline to file ----
+  
   ;; ---- Better capture from the browser ----
   (require 'org-roam-protocol)
 
@@ -363,9 +358,19 @@ _q_: quit this menu                         _r_: restart emacs
         orb-process-file-keyword t
         orb-file-field-extensions '("pdf")
         orb-insert-interface 'ivy-bibtex
-        orb-note-actions-interface 'ivy
+        orb-note-actions-interface 'hydra
         orb-roam-ref-format 'org-ref-v2
-        orb-insert-link-description 'citation)
+        orb-insert-link-description 'citation-org-ref-2)
+
+  ;; ---- Roam buffer ----
+  (setq org-roam-mode-section-functions
+      (list #'orb-section-reference
+            #'orb-section-abstract
+            ;;#'orb-section-file
+            #'org-roam-backlinks-section
+            #'org-roam-reflinks-section
+            ;;#'org-roam-unlinked-references-section
+            ))
 
   (setq org-roam-capture-templates
         (append org-roam-capture-templates
@@ -385,6 +390,26 @@ _q_: quit this menu                         _r_: restart emacs
                               "#+title: ${author-or-editor} (${year}). ${title}.\n#+created: %U\n#+last_modified: %U\n#+filetags: ${keywords}\n")
            :unnarrowed t)
           )))
+
+  (setq orb-pdf-scrapper-group-references t
+        orb-pdf-scrapper-list-style 'unordered-hyphen
+        orb-pdf-scrapper-citekey-format "cite:%s")
+
+  (setq orb-pdf-scrapper-export-options
+      '((org
+         ;; Export citation links to specified header
+         (heading "references"
+                     :property-drawer ("PDF_SCRAPPER_TYPE"
+                                       "PDF_SCRAPPER_SOURCE"
+                                       "PDF_SCRAPPER_DATE")))
+        (bib
+         ;; Export BibTeX entries to the file CITEKEY.bib in specified directory
+         (path crewsbib-dir
+               :placement prepend
+              ;; Include only the references that are not in the target file
+              ;; *and* the file(s) specified in bibtex-completion-bibliography
+               :filter-bib-entries bibtex-completion-bibliography))))
+
   )
 
 (after! deft
