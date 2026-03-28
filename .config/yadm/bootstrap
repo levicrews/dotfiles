@@ -9,6 +9,7 @@ sudo -v
 sudo apt-get update -y
 sudo apt-get install -y software-properties-common curl wget gpg
 sudo add-apt-repository -y ppa:inkscape.dev/stable || true
+sudo add-apt-repository -y ppa:tomtomtom/yt-dlp || true
 # Microsoft VS Code apt repo (minimal + idempotent)
 if ! grep -qr 'https://packages.microsoft.com/repos/code' /etc/apt/sources.list* /etc/apt/sources.list.d 2>/dev/null; then
     sudo install -d -m 755 /usr/share/keyrings
@@ -32,6 +33,7 @@ lines() { grep -vE '^\s*(#|$)' "$1" || true; }	# skip comments/blank lines
 apt_installed()   { dpkg-query -W -f='${Status}\n' "$1" 2>/dev/null | grep -q "install ok installed"; }
 snap_installed()  { snap list "$1" >/dev/null 2>&1; }
 npm_installed()   { npm list -g --depth=0 "$1" >/dev/null 2>&1; }
+gem_installed()   { gem list -i "$1" >/dev/null 2>&1 }
 cargo_installed() { cargo install --list 2>/dev/null | awk '{print $1}' | grep -xq "$1"; }
 
 # VS Code extension helpers: normalize ID and check installed
@@ -70,6 +72,9 @@ install_pkg() {
             ;;
         npm)
             npm_installed "$name" || sudo npm install -g $line
+            ;;
+        gem)
+            gem_installed "$name" || sudo gem install $line
             ;;
         uvtool|uv)
             # uv is idempotent; re-running is safe & quiet if already installed.
@@ -249,6 +254,7 @@ echo "==> Initializing Git..."
 git config --global fetch.prune true
 git config --global status.short true   # like: git status -s
 git config --global status.branch true  # add branch/upstream line (like -b)
+git config --global core.fileMode false # ignore file permissions
 
 if command -v git-lfs >/dev/null 2>&1; then
     git lfs install --skip-repo >/dev/null 2>&1 || git lfs install >/dev/null 2>&1

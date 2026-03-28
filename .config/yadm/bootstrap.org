@@ -4,7 +4,6 @@
 
 * TODO add file-local-var to automatically tangle this doc
 * TODO add description of this file
-
 * bootstrap script
 
 Adapted from https://github.com/rkalis/dotfiles and associated blog posts.
@@ -23,6 +22,7 @@ sudo -v
 sudo apt-get update -y
 sudo apt-get install -y software-properties-common curl wget gpg
 sudo add-apt-repository -y ppa:inkscape.dev/stable || true
+sudo add-apt-repository -y ppa:tomtomtom/yt-dlp || true
 # Microsoft VS Code apt repo (minimal + idempotent)
 if ! grep -qr 'https://packages.microsoft.com/repos/code' /etc/apt/sources.list* /etc/apt/sources.list.d 2>/dev/null; then
     sudo install -d -m 755 /usr/share/keyrings
@@ -51,6 +51,7 @@ lines() { grep -vE '^\s*(#|$)' "$1" || true; }	# skip comments/blank lines
 apt_installed()   { dpkg-query -W -f='${Status}\n' "$1" 2>/dev/null | grep -q "install ok installed"; }
 snap_installed()  { snap list "$1" >/dev/null 2>&1; }
 npm_installed()   { npm list -g --depth=0 "$1" >/dev/null 2>&1; }
+gem_installed()   { gem list -i "$1" >/dev/null 2>&1 }
 cargo_installed() { cargo install --list 2>/dev/null | awk '{print $1}' | grep -xq "$1"; }
 
 # VS Code extension helpers: normalize ID and check installed
@@ -89,6 +90,9 @@ install_pkg() {
             ;;
         npm)
             npm_installed "$name" || sudo npm install -g $line
+            ;;
+        gem)
+            gem_installed "$name" || sudo gem install $line
             ;;
         uvtool|uv)
             # uv is idempotent; re-running is safe & quiet if already installed.
@@ -383,6 +387,7 @@ r-base
 ripgrep
 rlwrap
 rofi
+ruby-full
 samba
 scrot
 silversearcher-ag
@@ -393,16 +398,20 @@ surfraw
 sword-text-kjv
 sxhkd
 texlive-latex-extra
+texlive-fonts-extra
 texlive-extra-utils
 texlive-science
 latexmk
+tmux
 uuid-runtime
 viewnior
 visidata
+vlc
 w3m
 wordnet
 xclip
 yadm
+yt-dlp
 zathura
 zoxide
 #+end_src
@@ -417,6 +426,7 @@ A number of the tools I install are modern/faster/saner alternatives to common U
 **** [[https://github.com/tgraf/bmon][bmon]]: bandwidth monitor
 - called by ~rofi~
 **** [[https://github.com/junegunn/fzf][fzf]]: a command line fuzzy finder
+- tips from [[https://macowners.club/posts/favorite-apps-tools-4/][Mac Owners Club]]
 **** [[https://github.com/cli/cli][gh]]: GitHub CLI
 - supercedes HTTPS and SSH interactions with GitHub
 **** [[https://httpie.io/][httpie]]: user-friendly command-line HTTP client for the API era
@@ -451,8 +461,7 @@ A number of the tools I install are modern/faster/saner alternatives to common U
 **** texlive
 - a [[https://tex.stackexchange.com/questions/245982/differences-between-texlive-packages-in-linux][description]] of the texlive package options
 **** [[https://www.visidata.org/][visidata]]: interactive multitool for tabular data
-**** [[https://github.com/ytdl-org/youtube-dl/][youtube-dl]]
-- download YouTube videos
+**** [[https://github.com/yt-dlp/yt-dlp][yt-dlp]]: download YouTube videos
 *** dependencies for =diff-pdf=
 #+begin_src
 automake
@@ -464,9 +473,7 @@ poppler-utils
 ** snap.list
 *** list
 #+begin_src :tangle "snap.list"
---classic code
-slack --classic
-vlc
+spotify
 jabref
 #+end_src
 ** uvtool.list
@@ -477,6 +484,7 @@ gdown
 grip
 radian
 ruff
+svg2tikz
 tldr
 pyomo
 #+end_src
@@ -485,11 +493,11 @@ pyomo
 **** [[https://github.com/wkentaro/gdown][gdown]]: Download a large file from Google Drive
 ~curl~ and ~wget~ fail because Google gives a security notice that they can't bypass automatically.
 **** [[https://github.com/joeyespo/grip][grip]]: Preview GitHub READMEs locally
-**** [[http://www.pyomo.org/about][pyomo]]: modeling language with a diverse set of optimization capabilities
 **** [[https://github.com/randy3k/radian][radian]]: A 21st-century R console
 **** [[https://github.com/astral-sh/ruff][ruff]]: An extremely fast Python linter, written in Rust
 **** [[https://github.com/tldr-pages/tldr][tldr]]: Community-sourced command-line cheatsheets
 **** [[https://github.com/tqdm/tqdm][tqdm]]: a fast, extensible progress bar for Python and CLI
+**** [[http://www.pyomo.org/about][pyomo]]: modeling language with a diverse set of optimization capabilities
 ** pylib.list
 
 The script does not automatically install these libraries. This list is for my reference when setting up Python environments.
@@ -577,7 +585,7 @@ james-yu.latex-workshop
 julialang.language-julia
 kevinrose.vsc-python-indent
 kokakiwi.vscode-just
-kylebarron.stata-enhanced
+kylebutts.vscode-stata
 matklad.pale-fire
 mattn.lisp
 mechatroner.rainbow-csv
@@ -611,6 +619,7 @@ ms-vscode.vscode-github-issue-notebooks
 ms-vsliveshare.vsliveshare
 mxschmitt.postscript
 oijaz.unicode-latex
+openai.chatgpt
 orangex4.latex-sympy-calculator
 patbenatar.advanced-new-file
 phr0s.bib
@@ -648,15 +657,26 @@ yzhang.markdown-all-in-one
 *** list
 #+begin_src :tangle "npm.list"
 @bazel/bazelisk
+@openai/codex
+opencode-ai@latest
 carbon-now-cli
 how-2
 tldr
 #+end_src
 *** notes
 **** [[file:~/Dropbox/org/roam/refs/bazel.org][bazel]]: Build and test software of any size, quickly and reliably
+**** [[https://developers.openai.com/codex/][codex]]: OpenAI's coding agent
+**** [[https://github.com/anomalyco/opencode][opencode]]: The open source coding agent
 **** [[https://github.com/carbon-app/carbon][carbon]] and [[https://github.com/mixn/carbon-now-cli][carbon-now-cli]]: Create and share beautiful images of your source code
 **** [[https://github.com/santinic/how2][how2]]: Stackoverflow from the terminal
 **** [[https://github.com/tldr-pages/tldr][tldr]]: Collaborative cheatsheets for console commands
+** gem.list
+*** list
+#+begin_src :tangle "gem.list"
+anystyle-cli
+#+end_src
+*** notes
+**** [[https://github.com/inukshuk/anystyle][anystyle]]: ML-based bib parser used by [[https://github.com/org-roam/org-roam-bibtex/blob/main/doc/orb-manual.org#orb-pdf-scrapper---retrieve-references-from-pdfs][Orb PDF Scrapper]]
 ** gogh.list
 *** list
 #+begin_src :tangle "gogh.list"

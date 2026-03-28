@@ -46,6 +46,7 @@ r-base
 ripgrep
 rlwrap
 rofi
+ruby-full
 samba
 scrot
 silversearcher-ag
@@ -56,15 +57,19 @@ surfraw
 sword-text-kjv
 sxhkd
 texlive-latex-extra
+texlive-fonts-extra
 texlive-extra-utils
 texlive-science
 latexmk
+tmux
 uuid-runtime
 viewnior
 visidata
+vlc
 w3m
 wordnet
 xclip
 yadm
+yt-dlp
 zathura
 zoxide

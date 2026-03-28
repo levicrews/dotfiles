@@ -33,7 +33,7 @@ james-yu.latex-workshop
 julialang.language-julia
 kevinrose.vsc-python-indent
 kokakiwi.vscode-just
-kylebarron.stata-enhanced
+kylebutts.vscode-stata
 matklad.pale-fire
 mattn.lisp
 mechatroner.rainbow-csv
@@ -67,6 +67,7 @@ ms-vscode.vscode-github-issue-notebooks
 ms-vsliveshare.vsliveshare
 mxschmitt.postscript
 oijaz.unicode-latex
+openai.chatgpt
 orangex4.latex-sympy-calculator
 patbenatar.advanced-new-file
 phr0s.bib
