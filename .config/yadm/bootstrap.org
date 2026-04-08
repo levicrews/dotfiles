@@ -350,6 +350,7 @@ fd-find
 font-manager
 fonts-powerline
 fzf
+gdal-bin
 gdebi
 gdebi-core
 gh
