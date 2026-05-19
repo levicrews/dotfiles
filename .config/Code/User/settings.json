@@ -119,12 +119,19 @@
 
     // Python
     "python.languageServer": "Pylance",
-    "python.defaultInterpreterPath": "/home/levic/anaconda3/bin/python",
-    "editor.suggestSelection": "first",
-    "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
+    "python.defaultInterpreterPath": "/bin/python3",
+    "[python]": {
+        "editor.suggestSelection": "first",
+        "editor.formatOnType": true
+    },
+
+    // Matlab
+    "matlab.mlintpath": "/usr/local/MATLAB/R2025b/bin/glnxa64/mlint",
 
     // Julia
     "julia.execution.resultType": "inline",
+    "julia.symbolCacheDownload": true,
+    "julia.enableTelemetry": false,
 
     // R
     "r.lsp.diagnostics": false,
@@ -144,19 +151,15 @@
     "git.confirmSync": false,
     "vsicons.dontShowNewVersionMessage": true,
     "workbench.editorAssociations": {
-        "*.ipynb": "jupyter.notebook.ipynb"
+        "*.copilotmd": "vscode.markdown.preview.editor",
+        "file:/**/*.csv": "jupyter-data-wrangler"
     },
     "security.workspace.trust.untrustedFiles": "open",
     "git.ignoreLegacyWarning": true,
-    "julia.symbolCacheDownload": true,
-    "julia.enableTelemetry": false,
     "editor.unicodeHighlight.ambiguousCharacters": false,
     "redhat.telemetry.enabled": false,
     "latex-utilities.message.update.show": false,
     "git.openRepositoryInParentFolders": "always",
-    "[python]": {
-        "editor.formatOnType": true
-    },
     "jupyter.interactiveWindow.creationMode": "perFile",
     "editor.inlineSuggest.enabled": true,
     "github.copilot.enable": {
@@ -167,21 +170,34 @@
         "yaml": false,
         "txt": true
     },
-    "github.copilot.advanced": {
-        "slashCommands": {
-            "createWorkspace": false,
-            "createNotebook": false,
-            "search": true
-        }
-    },
     "[markdown]": {
         "editor.defaultFormatter": "yzhang.markdown-all-in-one"
     },
     "githubPullRequests.pullBranch": "never",
     "workbench.editor.tabActionCloseVisibility": false,
-    "github.copilot.editor.enableAutoCompletions": true,
     "gitlens.launchpad.indicator.enabled": false,
     "makefile.configureOnOpen": true,
     "github.copilot.nextEditSuggestions.fixes": false,
     "editor.renderWhitespace": "all",
+    "[dockercompose]": {
+        "editor.insertSpaces": true,
+        "editor.tabSize": 4,
+        "editor.autoIndent": "advanced",
+        "editor.quickSuggestions": {
+            "other": true,
+            "comments": false,
+            "strings": true
+        },
+        "editor.defaultFormatter": "redhat.vscode-yaml"
+    },
+    "[github-actions-workflow]": {
+        "editor.defaultFormatter": "redhat.vscode-yaml"
+    },
+    "gitlens.ai.model": "vscode",
+    "gitlens.ai.vscode.model": "copilot:gpt-4.1",
+    "python-envs.defaultEnvManager": "ms-python.python:system",
+    "chat.viewSessions.orientation": "stacked",
+    "chat.mcp.gallery.enabled": true,
+    "MATLAB.showFeatureNotAvailableError": false,
+    "githubPullRequests.createOnPublishBranch": "never",
 }
