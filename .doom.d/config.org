@@ -722,7 +722,8 @@ reference notes. ~org-roam-bibtex~ plays well with ~org-ref~,
            :unnarrowed t)
           ("r" "resource" plain "* %?"
            :if-new (file+head "refs/${slug}.org"
-                              ":PROPERTIES:\n:ROAM_REFS: %^{url}\n:ROAM_ALIASES: %^{aliases}\n:END:\n#+title: ${title}\n#+created: %U\n#+last_modified: %U\n#+filetags: :refs:\n\n")
+                              ":PROPERTIES:\n:ROAM_REFS: %^{url}\n:ROAM_ALIASES: %^{aliases}\n:END:\n#+title: ${title}\n#+created: %U\n#+last_modified: %U\n#+filetags: :refs:
+\n\n")
            :immediate-finish t
            :unnarrowed t)
           ))
@@ -741,7 +742,7 @@ reference notes. ~org-roam-bibtex~ plays well with ~org-ref~,
           ))
 
   ;; ---- Custom function to refile headline to file ----
-  
+
   ;; ---- Better capture from the browser ----
   (require 'org-roam-protocol)
 
@@ -785,7 +786,7 @@ The org-roam buffer uses ~magit-section~, so those keybindings apply:
 For each section function, you can pass args along to modify its
 behavior. For example, if you want to render unique sources for
 backlinks (and also keep rendering reference links)...
-#+begin_src elisp :tangle no
+#+begin_src elisp :tangle yes
 (setq org-roam-mode-sections
       '((org-roam-backlinks-section :unique t)
         org-roam-reflinks-section))
@@ -793,7 +794,7 @@ backlinks (and also keep rendering reference links)...
 
 The backlinks section ~org-roam-backlinks-section~ also supports a
 predicate to filter backlinks, ~:show-backlink-p~:
-#+begin_src elisp :tangle no
+#+begin_src elisp :tangle yes
 (defun lgc/org-roam-show-backlink-p (backlink)
   (not (member "journal" (org-roam-node-tags (org-roam-backlink-source-node backlink)))))
 
@@ -814,8 +815,8 @@ extensions. [Related: [[id:6dff8c31-d4a7-40c9-a6d9-e4ddd90088cf][org-ql]]]
 **** DONE implement time cards
 CLOSED: [2021-09-09 Thu 10:19]
 
-I put a clock report template (inspired by cite:Lees-Miller2016) in
-my [[file:~/Dropbox/org/templates/daily.template][org-roam daily note template]]. It shows clocked time across all
+I put a clock report template (inspired by [[id:2b98f511-faf6-4a3a-b563-365ba2fa87d0][Lees-Miller]]) in my
+[[file:~/Dropbox/org/templates/daily.template][org-roam daily note template]]. It shows clocked time across all
 tasks in all org files for which there was non-zero time recorded
 that day. It also shows tags (namely, "deep" vs. "shallow").
 
@@ -823,9 +824,17 @@ that day. It also shows tags (namely, "deep" vs. "shallow").
 CLOSED: [2025-10-29 Wed 21:00]
 ***** DONE set ~:ROAM_REFS~ to URL for relevant references ([[https://www.orgroam.com/manual.html#Refs-1][per this]])
 CLOSED: [2025-10-29 Wed 21:00]
-**** TODO custom function to refile headline from =writing-inbox= to file
-**** TODO filter out nodes by tag, esp. in =projects/= (h/t [[https://oleksii.shmalko.com/migrating-to-org-roam-v2/][Shmalko]])
+**** DONE filter out nodes by tag, esp. in =projects/= (h/t [[https://oleksii.shmalko.com/migrating-to-org-roam-v2/][Shmalko]])
+CLOSED: [2026-05-02 Sat 18:50]
 
+just set ~:ROAM_EXCLUDE:~ property to ~t~ on those headlines
+#+begin_src elisp :tangle yes
+(setq org-roam-db-node-include-function
+      (lambda ()
+        (not (org-entry-get (point) "ROAM_EXCLUDE"))))
+#+end_src
+
+OR use this custom function to omit by tag
 #+begin_src elisp :tangle no
 (setq org-roam-db-node-include-function
       (defun lgc/org-roam-include ()
@@ -833,7 +842,7 @@ CLOSED: [2025-10-29 Wed 21:00]
         (not (member "omit" (org-get-tags)))))
 #+end_src
 
-OR just set ~:ROAM_EXCLUDE~ property to ~t~ on those headlines
+**** TODO custom function to refile headline from =writing-inbox= to file
 **** TODO restore v1 directory-based tagging? (h/t [[https://oleksii.shmalko.com/migrating-to-org-roam-v2/][Shmalko]])
 #+begin_src elisp :tangle no
 (cl-defmethod org-roam-node-filetitle ((node org-roam-node))
@@ -910,7 +919,7 @@ OR just set ~:ROAM_EXCLUDE~ property to ~t~ on those headlines
   (setq org-roam-capture-templates
         (append org-roam-capture-templates
         `(("p" "ref + physical" plain
-           "\n\n* summary :physical:\n%?"
+           "\n\n :physical:\n%?"
            :target (file+head "refs/${citekey}.org"
                               "#+title: ${author-or-editor} (${year}). ${title}.\n#+created: %U\n#+last_modified: %U\n#+filetags: ${keywords}\n")
            :unnarrowed t)
@@ -920,7 +929,7 @@ OR just set ~:ROAM_EXCLUDE~ property to ~t~ on those headlines
                               "#+title: ${author-or-editor} (${year}). ${title}.\n#+created: %U\n#+last_modified: %U\n#+filetags: ${keywords}\n")
            :unnarrowed t)
           ("u" "ref + url" plain
-           "\n\n* summary\n:PROPERTIES:\n:author: %^{author-or-editor}\n:year: %^{year}\n:url: %^{url}\n:END:\n\n%?"
+           "\n\n\n:PROPERTIES:\n:author: %^{author-or-editor}\n:year: %^{year}\n:url: %^{url}\n:END:\n\n%?"
            :target (file+head "refs/${citekey}.org"
                               "#+title: ${author-or-editor} (${year}). ${title}.\n#+created: %U\n#+last_modified: %U\n#+filetags: ${keywords}\n")
            :unnarrowed t)

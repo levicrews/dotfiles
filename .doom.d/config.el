@@ -311,7 +311,8 @@ _q_: quit this menu                         _r_: restart emacs
            :unnarrowed t)
           ("r" "resource" plain "* %?"
            :if-new (file+head "refs/${slug}.org"
-                              ":PROPERTIES:\n:ROAM_REFS: %^{url}\n:ROAM_ALIASES: %^{aliases}\n:END:\n#+title: ${title}\n#+created: %U\n#+last_modified: %U\n#+filetags: :refs:\n\n")
+                              ":PROPERTIES:\n:ROAM_REFS: %^{url}\n:ROAM_ALIASES: %^{aliases}\n:END:\n#+title: ${title}\n#+created: %U\n#+last_modified: %U\n#+filetags: :refs:
+\n\n")
            :immediate-finish t
            :unnarrowed t)
           ))
@@ -330,7 +331,7 @@ _q_: quit this menu                         _r_: restart emacs
           ))
 
   ;; ---- Custom function to refile headline to file ----
-  
+
   ;; ---- Better capture from the browser ----
   (require 'org-roam-protocol)
 
@@ -346,6 +347,21 @@ _q_: quit this menu                         _r_: restart emacs
         "C-c n r a" #'org-roam-alias-add
         "C-c n r g" #'org-roam-graph
         ))
+
+(setq org-roam-mode-sections
+      '((org-roam-backlinks-section :unique t)
+        org-roam-reflinks-section))
+
+(defun lgc/org-roam-show-backlink-p (backlink)
+  (not (member "journal" (org-roam-node-tags (org-roam-backlink-source-node backlink)))))
+
+(setq org-roam-mode-sections
+      '((org-roam-backlinks-section :unique t :show-backlink-p lgc/org-roam-show-backlink-p)
+        org-roam-reflinks-section))
+
+(setq org-roam-db-node-include-function
+      (lambda ()
+        (not (org-entry-get (point) "ROAM_EXCLUDE"))))
 
 (use-package! org-roam-bibtex
   :after (org-roam bibtex-completion)
@@ -375,7 +391,7 @@ _q_: quit this menu                         _r_: restart emacs
   (setq org-roam-capture-templates
         (append org-roam-capture-templates
         `(("p" "ref + physical" plain
-           "\n\n* summary :physical:\n%?"
+           "\n\n :physical:\n%?"
            :target (file+head "refs/${citekey}.org"
                               "#+title: ${author-or-editor} (${year}). ${title}.\n#+created: %U\n#+last_modified: %U\n#+filetags: ${keywords}\n")
            :unnarrowed t)
@@ -385,7 +401,7 @@ _q_: quit this menu                         _r_: restart emacs
                               "#+title: ${author-or-editor} (${year}). ${title}.\n#+created: %U\n#+last_modified: %U\n#+filetags: ${keywords}\n")
            :unnarrowed t)
           ("u" "ref + url" plain
-           "\n\n* summary\n:PROPERTIES:\n:author: %^{author-or-editor}\n:year: %^{year}\n:url: %^{url}\n:END:\n\n%?"
+           "\n\n\n:PROPERTIES:\n:author: %^{author-or-editor}\n:year: %^{year}\n:url: %^{url}\n:END:\n\n%?"
            :target (file+head "refs/${citekey}.org"
                               "#+title: ${author-or-editor} (${year}). ${title}.\n#+created: %U\n#+last_modified: %U\n#+filetags: ${keywords}\n")
            :unnarrowed t)
