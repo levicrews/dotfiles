@@ -570,6 +570,7 @@ codespaces-contrib.codeswing
 davidanson.vscode-markdownlint
 dlasagno.rasi
 docker.docker
+donjayamanne.githistory
 eamodio.gitlens
 ericadamski.carbon-now-sh
 formulahendry.code-runner
@@ -663,6 +664,7 @@ opencode-ai@latest
 carbon-now-cli
 how-2
 tldr
+decktape
 #+end_src
 *** notes
 **** [[file:~/Dropbox/org/roam/refs/bazel.org][bazel]]: Build and test software of any size, quickly and reliably
@@ -671,6 +673,7 @@ tldr
 **** [[https://github.com/carbon-app/carbon][carbon]] and [[https://github.com/mixn/carbon-now-cli][carbon-now-cli]]: Create and share beautiful images of your source code
 **** [[https://github.com/santinic/how2][how2]]: Stackoverflow from the terminal
 **** [[https://github.com/tldr-pages/tldr][tldr]]: Collaborative cheatsheets for console commands
+**** [[https://github.com/astefanutti/decktape][decktape]]: PDF exporter for HTML presentations
 ** gem.list
 *** list
 #+begin_src :tangle "gem.list"
