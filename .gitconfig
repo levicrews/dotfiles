@@ -1,0 +1,25 @@
+[user]
+	email = levicrews24@gmail.com
+	name = Levi Crews
+[filter "lfs"]
+	process = git-lfs filter-process
+	required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+[core]
+	pager = delta
+[delta]
+	side-by-side = true
+	navigate = true
+[interactive]
+	diffFilter = delta --color-only
+[merge]
+	conflictStyle = zdiff3
+[fetch]
+	prune = true
+[status]
+	short = true
+	branch = true
+[alias]
+	remove-gone = "!f() { git fetch -p && for b in \"$@\"; do git branch -d \"$b\"; done; }; f"
+	remove-all-gone = !git fetch -p && git branch -vv | awk '/: gone]/{print $1}' | xargs -r git branch -d
