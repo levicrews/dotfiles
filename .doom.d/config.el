@@ -468,3 +468,7 @@ _q_: quit this menu                         _r_: restart emacs
   (setq insert-esv-include-passage-horizontal-lines 'false)
   (setq insert-esv-line-length '65)
   (global-set-key (kbd "C-x i") 'insert-esv-passage))
+
+(after! gptel
+  (add-to-list 'auth-sources "~/.authinfo.gpg")
+  (setq gptel-api-key #'gptel-api-key-from-auth-source))

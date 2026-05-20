@@ -1090,7 +1090,18 @@ The package [[https://github.com/sam030820/insert-esv][insert-esv]] allows you t
   (global-set-key (kbd "C-x i") 'insert-esv-passage))
 #+end_src
 
-** TODO configure [[https://github.com/karthink/gptel?tab=readme-ov-file#doom-emacs][gptel]]
+** configure [[https://github.com/karthink/gptel?tab=readme-ov-file#doom-emacs][gptel]]
 
 Doom Emacs ~:tools llm~ includes ~gptel~ already
 
+Store the OpenAI API key in =~/.authinfo.gpg=:
+
+#+begin_example
+machine api.openai.com login apikey password YOUR_OPENAI_API_KEY
+#+end_example
+
+#+begin_src elisp
+(after! gptel
+  (add-to-list 'auth-sources "~/.authinfo.gpg")
+  (setq gptel-api-key #'gptel-api-key-from-auth-source))
+#+end_src
