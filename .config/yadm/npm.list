@@ -1,5 +1,6 @@
 @bazel/bazelisk
 @openai/codex
+@loongphy/codex-auth
 opencode-ai@latest
 carbon-now-cli
 how-2
