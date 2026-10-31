@@ -1,0 +1,4 @@
+interface:
+  display_name: "Update bibliography entry"
+  short_description: "Check and update existing crewsbib.bib entries"
+  default_prompt: "Use $bib-update to check this existing bibliography entry against authoritative sources and update crewsbib.bib only where verified."

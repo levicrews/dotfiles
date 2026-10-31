@@ -1,0 +1,4 @@
+interface:
+  display_name: "Add bibliography entry"
+  short_description: "Add entries to crewsbib.bib using local conventions"
+  default_prompt: "Use $bib-add to add this work to crewsbib.bib, finding the published version first and attaching the PDF when available."
