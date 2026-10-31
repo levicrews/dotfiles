@@ -1,0 +1,44 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{lgc-base}
+\RequirePackage{lgc-colors}
+\RequirePackage{graphicx}
+\RequirePackage{booktabs} % Package with \toprule and \bottomrule
+\RequirePackage{tabularx}
+\RequirePackage{hyperref}
+\RequirePackage{bookmark}
+\RequirePackage{natbib}
+
+%------------------------------------------------------------------------------%
+
+\hypersetup{
+  colorlinks=true,      % false: boxed links; true: colored links
+  linkcolor=ff_green,   % color of internal links
+  citecolor=ff_blue,    % color of links to bibliography
+  urlcolor=ff_yellow,   % color of external links
+  filecolor=ff_violet,  % color of file links
+}
+\graphicspath{{./input/}}
+
+%------------------------------------------------------------------------------%
+
+% CUSTOM COMMANDS
+
+% https://tex.stackexchange.com/a/125706/195397
+% define \citepos just like \citet
+\DeclareRobustCommand{\citepos}{%
+  \begingroup
+  \let\NAT@nmfmt\NAT@posfmt
+  \NAT@swafalse\let\NAT@ctype\z@\NAT@partrue
+  \@ifstar{\NAT@fulltrue\NAT@citetp}{\NAT@fullfalse\NAT@citetp}}
+\let\NAT@orig@nmfmt\NAT@nmfmt
+\def\NAT@posfmt#1{\NAT@orig@nmfmt{#1's}}
+
+% https://tex.stackexchange.com/a/40091/195397
+\newcommand{\fnsep}{\textsuperscript{,}}
+
+%------------------------------------------------------------------------------%
+
+% IDENTIFYING INFORMATION
+
+\urldef{\crewsemail}\url{mailto:lgcrews@econ.ucla.edu}
+\urldef{\crewsweb}\url{levicrews.com}

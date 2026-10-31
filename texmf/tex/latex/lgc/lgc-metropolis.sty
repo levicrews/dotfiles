@@ -1,0 +1,84 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{lgc-metropolis}
+
+\newcommand{\lgcslidebackground}{softcream}
+\DeclareOption{background=cream}{\renewcommand{\lgcslidebackground}{cream}}
+\DeclareOption{background=softcream}{\renewcommand{\lgcslidebackground}{softcream}}
+\DeclareOption{background=white}{\renewcommand{\lgcslidebackground}{white}}
+\ProcessOptions\relax
+
+% Load palette and theme
+\RequirePackage{lgc-colors}
+\RequirePackage{beamerthememetropolis}
+
+% Settings
+\lgcsetbackground{\lgcslidebackground}
+\metroset{progressbar=frametitle,numbering=fraction,block=fill}
+\setbeamercovered{invisible}
+\beamertemplatenavigationsymbolsempty
+\setlength{\metropolis@progressinheadfoot@linewidth}{0.8pt}
+\setlength{\metropolis@titleseparator@linewidth}{0.8pt}
+
+% Beamer color mappings
+\setbeamercolor{background canvas}{bg=ff_background}
+\setbeamercolor{normal text}{fg=ff_text,bg=ff_background}
+\setbeamercolor{structure}{fg=ff_heading}
+\setbeamercolor{titlelike}{fg=ff_heading,bg=ff_background}
+\setbeamercolor{title}{fg=ff_heading}
+\setbeamercolor{subtitle}{fg=ff_text}
+\setbeamercolor{author}{fg=ff_text}
+\setbeamercolor{date}{fg=ff_text}
+\setbeamercolor{institute}{fg=ff_text}
+\setbeamercolor{section title}{fg=ff_heading}
+\setbeamercolor{subsection title}{fg=ff_text}
+\setbeamercolor{frametitle}{fg=ff_heading,bg=ff_background}
+\setbeamercolor{framesubtitle}{fg=ff_text}
+\setbeamercolor{alerted text}{fg=ff_yellow}
+\setbeamercolor{example text}{fg=ff_green}
+\setbeamercolor{itemize item}{fg=ff_green}
+\setbeamercolor{itemize subitem}{fg=ff_bullet}
+\setbeamercolor{itemize subsubitem}{fg=ff_bullet}
+\setbeamercolor{enumerate item}{fg=ff_green}
+\setbeamercolor{enumerate subitem}{fg=ff_bullet}
+\setbeamercolor{description item}{fg=ff_heading}
+\setbeamercolor{footline}{fg=ff_text,bg=ff_background}
+\setbeamercolor{page number in head/foot}{fg=ff_text}
+\setbeamercolor{footnote}{fg=ff_text}
+\setbeamercolor{footnote mark}{fg=ff_heading}
+\setbeamercolor{caption}{fg=ff_text}
+\setbeamercolor{caption name}{fg=ff_heading}
+\setbeamercolor{button}{fg=ff_background,bg=ff_heading}
+\setbeamercolor{button border}{fg=ff_heading}
+\setbeamercolor{progress bar}{fg=ff_yellow,bg=ff_border!40!ff_background}
+\setbeamercolor{title separator}{parent=progress bar}
+\setbeamercolor{progress bar in head/foot}{parent=progress bar}
+\setbeamercolor{progress bar in section page}{parent=progress bar}
+
+\setbeamercolor{block title}{fg=ff_heading,bg=ff_heading!10!ff_background}
+\setbeamercolor{block body}{fg=ff_text,bg=ff_heading!4!ff_background}
+\setbeamercolor{block title alerted}{fg=ff_yellow,bg=ff_yellow!12!ff_background}
+\setbeamercolor{block body alerted}{fg=ff_text,bg=ff_yellow!5!ff_background}
+\setbeamercolor{block title example}{fg=ff_green,bg=ff_green!10!ff_background}
+\setbeamercolor{block body example}{fg=ff_text,bg=ff_green!4!ff_background}
+
+\setbeamertemplate{itemize item}{\color{ff_bullet}\small$\blacktriangleright$}
+\setbeamertemplate{itemize subitem}{\color{ff_bullet}\scriptsize$\blacktriangleright$}
+\setbeamertemplate{footline}[plain]
+\setbeamertemplate{frame footer}{}
+\setbeamertemplate{title page}{%
+  \begin{minipage}[b][0.90\paperheight]{\textwidth}
+    \ifx\inserttitlegraphic\@empty\else\usebeamertemplate*{title graphic}\fi
+    \vfill
+    \ifx\inserttitle\@empty\else\usebeamertemplate*{title}\fi
+    \ifx\insertsubtitle\@empty\else\usebeamertemplate*{subtitle}\fi
+    \usebeamertemplate*{title separator}
+    \ifx\beamer@shortauthor\@empty\else\usebeamertemplate*{author}\fi
+    \ifx\insertdate\@empty\else\usebeamertemplate*{date}\fi
+    \ifx\insertinstitute\@empty\else\usebeamertemplate*{institute}\fi
+    \vfill
+  \end{minipage}%
+}
+
+\hypersetup{colorlinks=true,linkcolor=ff_link,urlcolor=ff_link,citecolor=ff_link}
+\mode<all>
+\endinput

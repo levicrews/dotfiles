@@ -1,0 +1,151 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{lgc-slide-tools}[2026/10/30 LGC optional slide authoring tools]
+
+% Optional authoring conveniences for lgc-slides. The visual identity and
+% palette remain owned by lgc-metropolis and lgc-colors.
+\RequirePackage{lgc-colors}
+\RequirePackage{lgc-eqnannotate}
+\RequirePackage{graphicx}
+\RequirePackage{tikz}
+\usetikzlibrary{decorations.pathmorphing,calc}
+\RequirePackage{colortbl}
+\RequirePackage[skins]{tcolorbox}
+\RequirePackage{xparse}
+
+\newif\iflgc@hidememos
+\DeclareOption{hidememos}{\lgc@hidememostrue}
+\ProcessOptions\relax
+
+% Draft memos
+\NewDocumentCommand{\lgcmemo}{O{ff_cat_1} m}{%
+  \iflgc@hidememos
+  \else
+    \textcolor{#1}{\scriptsize\textsuperscript{[memo: #2]}}%
+  \fi
+}
+
+% Light hand-drawn annotation marks
+\tikzset{
+  lgc sketch/.style={
+    decorate,
+    decoration={random steps,segment length=3pt,amplitude=0.7pt},
+  },
+}
+
+\NewDocumentCommand{\lgcsketchbox}{O{ff_cat_1} m}{%
+  \tikz[baseline=(lgcsketchbox.base)]{%
+    \node[draw=#1,fill=#1!10!ff_background,rounded corners=1pt,
+      inner sep=2pt,lgc sketch] (lgcsketchbox) {#2};%
+  }%
+}
+
+\NewDocumentCommand{\lgcsketchunderline}{O{ff_cat_1} m}{%
+  \tikz[baseline=(lgcsketchunderline.base)]{%
+    \node[inner sep=0pt,outer sep=0pt] (lgcsketchunderline) {#2};
+    \draw[draw=#1,lgc sketch] (lgcsketchunderline.south west) --
+      (lgcsketchunderline.south east);%
+  }%
+}
+
+\NewDocumentCommand{\lgcsketcharrow}{O{ff_cat_1} O{1.2cm}}{%
+  \tikz[baseline=-0.4ex]{%
+    \draw[->,draw=#1,lgc sketch] (0,0) -- (#2,0);%
+  }%
+}
+
+% Overlay-aware table highlighting
+\NewDocumentCommand{\lgccellhighlight}{D<>{1-} O{ff_cat_1}}{%
+  \alt<#1>{\cellcolor{#2!20!ff_background}}{}%
+}
+% Apply this at the start of each cell when a whole row should be highlighted.
+% Keeping the color at cell level avoids colortbl's \noalign restrictions.
+\NewDocumentCommand{\lgcrowhighlight}{D<>{1-} O{ff_cat_1}}{%
+  \lgccellhighlight<#1>[#2]%
+}
+
+% Mark the beginning and end of a rectangular table region.  This deliberately
+% uses TikZ's ordinary remembered nodes rather than hf-tikz, whose mark
+% bookkeeping conflicts with annotate-equations.
+\NewDocumentCommand{\lgctablemarkin}{r<> O{ff_cat_1} m}{%
+  \only<#1>{%
+    \tikz[remember picture,baseline=(#3-start.base)]{%
+      \node[inner sep=0pt,outer sep=0pt](#3-start){\strut};%
+    }%
+    \gdef\csname lgctablecolor@#3\endcsname{#2}%
+  }%
+}
+\NewDocumentCommand{\lgctablemarkend}{r<> m}{%
+  \only<#1>{%
+    \tikz[remember picture,baseline=(#2-end.base)]{%
+      \node[inner sep=0pt,outer sep=0pt](#2-end){\strut};%
+    }%
+    \begin{tikzpicture}[remember picture,overlay]
+      \draw[draw=\csname lgctablecolor@#2\endcsname,
+        fill=\csname lgctablecolor@#2\endcsname!12!ff_background,
+        rounded corners=1pt]
+        (#2-start.north west) rectangle (#2-end.south east);
+    \end{tikzpicture}%
+  }%
+}
+
+% Slide navigation and reusable frames
+\newcommand{\lgcslidelink}[2]{\hyperlink{#1}{\textcolor{ff_link}{#2}}}
+\newcommand{\lgcslideanchor}[1]{\hypertarget{#1}{}}
+
+\NewDocumentCommand{\lgcimageframe}{O{} m}{%
+  \begingroup
+    \usebackgroundtemplate{\includegraphics[
+      width=\paperwidth,height=\paperheight]{#2}}%
+    \begin{frame}[plain,noframenumbering,#1]\null\end{frame}%
+  \endgroup
+}
+
+\NewDocumentCommand{\lgctransitionframe}{O{ff_heading} m}{%
+  \begingroup
+    \setbeamercolor{background canvas}{bg=#1}%
+    \begin{frame}[plain,noframenumbering]
+      \centering
+      \vfill
+      {\usebeamerfont{title}\color{ff_background_truewhite}#2\par}
+      \vfill
+    \end{frame}%
+  \endgroup
+}
+
+% Reusable result and takeaway boxes
+\newtcolorbox{lgctakeawaybox}[1][]{%
+  enhanced,
+  colback=ff_green!7!ff_background,
+  colframe=ff_green,
+  boxrule=0.6pt,
+  arc=1pt,
+  left=5pt,right=5pt,top=4pt,bottom=4pt,
+  fonttitle=\bfseries,
+  coltitle=ff_heading,
+  #1
+}
+\newtcolorbox{lgcresultbox}[1][]{%
+  enhanced,
+  colback=ff_yellow!8!ff_background,
+  colframe=ff_yellow,
+  boxrule=0.6pt,
+  arc=1pt,
+  left=5pt,right=5pt,top=4pt,bottom=4pt,
+  fonttitle=\bfseries,
+  coltitle=ff_heading,
+  #1
+}
+
+% Temporary positioning aid
+\newcommand{\lgcdevgrid}{%
+  \makebox[0pt][l]{%
+    \begin{tikzpicture}[remember picture,overlay]
+      \draw[step=1cm,draw=ff_border!55,line width=0.2pt]
+        (current page.south west) grid (current page.north east);
+      \draw[step=2cm,draw=ff_separator!70,line width=0.35pt]
+        (current page.south west) grid (current page.north east);
+    \end{tikzpicture}%
+  }%
+}
+
+\endinput

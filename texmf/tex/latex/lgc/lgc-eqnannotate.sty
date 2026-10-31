@@ -1,0 +1,35 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{lgc-eqnannotate}
+
+% The palette remains canonical in lgc-colors. This package only configures
+% annotate-equations for the LGC slide style and provides short wrappers for
+% its most common highlighted-equation command.
+\RequirePackage{lgc-colors}
+\RequirePackage{annotate-equations}
+
+% annotate-equations expresses this as the percentage of the categorical
+% color mixed into the current background. Keep the fill visible, while
+% leaving the mathematical content readable.
+\renewcommand{\eqnhighlightshade}{20}
+
+% Highlight a term with one of the categorical palette colors. The optional
+% argument is a color name, so callers may use ff_cat_1--ff_cat_8 or any
+% other color from lgc-colors.
+\newcommand{\lgceqnmarkbox}[3][ff_cat_1]{%
+  \eqnmarkbox[#1]{#2}{#3}%
+}
+
+% The outlined variant is useful when a filled highlight would be too strong.
+\newcommand{\lgceqnmark}[3][ff_cat_1]{%
+  \eqnmark[#1]{#2}{#3}%
+}
+
+% Short wrappers retaining annotate-equations' positioning interface.
+\newcommand{\lgceqnannotate}[4][]{%
+  \annotate[#1]{#2}{#3}{#4}%
+}
+\newcommand{\lgceqnannotatetwo}[5][]{%
+  \annotatetwo[#1]{#2}{#3}{#4}{#5}%
+}
+
+\endinput

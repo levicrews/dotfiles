@@ -1,0 +1,225 @@
+% PACKAGES
+
+\RequirePackage{amsmath}
+\RequirePackage{amsthm}
+\RequirePackage{mathtools}                                  % extension to amsmath
+\RequirePackage{mathrsfs}
+\@ifpackageloaded{unicode-math}{}{\RequirePackage{amssymb}} % for XCharter and Fira math fonts
+\RequirePackage{bm}
+\RequirePackage{physics}
+\RequirePackage{xfrac}                                      % for slanted fractions: \sfrac{1}{2}
+\RequirePackage{thmtools,thm-restate}
+
+%------------------------------------------------------------------------------%
+
+% COMMANDS
+
+% Brackets
+\providecommand{\bc}[1]{\left\lbrace #1 \right\rbrace}
+\providecommand{\bp}[1]{\left( #1 \right)}
+\providecommand{\bs}[1]{\left[ #1 \right]}
+\providecommand{\abs}[1]{\left\lvert #1 \right\rvert}
+\providecommand{\norm}[1]{\left\lVert #1 \right\rVert}
+\providecommand{\floor}[1]{\left\lfloor #1 \right\rfloor}
+\providecommand{\of}[1]{{\left( #1 \right)}}                % $f\of{x}$
+
+% Accents
+\providecommand{\ol}[1]{\overline{#1}}
+\providecommand{\ul}[1]{\underline{#1}}
+\providecommand{\wh}[1]{\widehat{#1}}
+\providecommand{\wt}[1]{\widetilde{#1}}
+
+% Operators
+\RequirePackage{xparse}
+
+%% Logarithm
+\let\oldln\ln
+\RenewDocumentCommand{\ln}{g}{\IfNoValueTF{#1}{\oldln}{\,{\oldln}{\bp{#1}}}}
+
+%% Exponential
+\let\oldexp\exp
+\RenewDocumentCommand{\exp}{g}{\IfNoValueTF{#1}{\oldexp}{\,{\oldexp}{\bp{#1}}}}
+
+%% Indicator
+\ProvideDocumentCommand{\ind}{g}{%
+\IfNoValueTF{#1}{\operatorname{\mathbb{1}}}%
+{\,\mathbb{1}{\bp{#1}}}}
+
+%% Trace
+\ProvideDocumentCommand{\tr}{g}{%
+\IfNoValueTF{#1}{\operatorname{tr}}%
+{\,{\operatorname{tr}}{\bp{#1}}}}
+
+%% Variance
+\ProvideDocumentCommand{\var}{g}{%
+\IfNoValueTF{#1}{\operatorname{var}}%
+{\,{\operatorname{var}}{\bp{#1}}}}
+
+%% Covariance
+\ProvideDocumentCommand{\cov}{g}{%
+\IfNoValueTF{#1}{\operatorname{cov}}%
+{\,{\operatorname{cov}}{\bp{#1}}}}
+
+%% Correlation
+\ProvideDocumentCommand{\corr}{g}{%
+\IfNoValueTF{#1}{\operatorname{corr}}%
+{\,{\operatorname{corr}}{\bp{#1}}}}
+
+%% Standard deviation
+\ProvideDocumentCommand{\sd}{g}{%
+\IfNoValueTF{#1}{\operatorname{sd}}%
+{\,{\operatorname{sd}}{\bp{#1}}}}
+
+%% Standard error
+\ProvideDocumentCommand{\se}{g}{%
+\IfNoValueTF{#1}{\operatorname{se}}%
+{\,{\operatorname{se}}{\bp{#1}}}}
+
+%% Maximum
+\let\oldmax\max
+\RenewDocumentCommand{\max}{o g}{%
+\IfNoValueTF{#2}{\oldmax\IfValueT{#1}{_{#1}}}%
+{\,{\oldmax\IfValueT{#1}{_{#1}}}{\bc{#2}}}}
+
+%% Argmax
+\DeclareMathOperator*{\argmax}{argmax}
+
+%% Minimum
+\let\oldmin\min
+\RenewDocumentCommand{\min}{o g}{%
+\IfNoValueTF{#2}{\oldmin\IfValueT{#1}{_{#1}}}%
+{\,{\oldmin\IfValueT{#1}{_{#1}}}{\bc{#2}}}}
+
+%% Argmin
+\DeclareMathOperator*{\argmin}{argmin}
+
+%% Expectation
+\NewDocumentCommand{\E}{o g}{%
+\IfNoValueTF{#2}{\operatorname{\mathbb{E}}\IfValueT{#1}{_{#1}}}%
+{\,\mathbb{E}\IfValueT{#1}{_{#1}}{\bp{#2}}}}
+
+%% Probability
+\RenewDocumentCommand{\P}{o g}{%
+\IfNoValueTF{#2}{\operatorname{\mathbb{P}}\IfValueT{#1}{_{#1}}}%
+{\,\mathbb{P}\IfValueT{#1}{_{#1}}{\bp{#2}}}}
+
+% Derivatives
+
+%% Ordinary derivative
+\newcommand{\od}[2]{\frac{d #1}{d #2}}              % display
+\newcommand{\odx}[2]{d #1/d #2}                     % in-line text
+
+%% Ordinary elasticity
+\renewcommand{\oe}[2]{\frac{d\ln{#1}}{d\ln{#2}}}    % display
+\newcommand{\oex}[2]{d\ln(#1)/d\ln(#2)}             % in-line text
+
+%% Partial derivative in display
+\ProvideDocumentCommand{\pd}{g g g}{%
+\IfNoValueTF{#3}{\frac{\partial #1}{\partial #2}}%
+{\left.\frac{\partial #1}{\partial #2}\right\vert_{#3}}}
+
+%% Partial derivative in text
+\ProvideDocumentCommand{\pdx}{g g g}{%
+\IfNoValueTF{#3}{\partial #1/\partial #2}%
+{\left.\partial #1/\partial #2\right\vert_{#3}}}
+
+%% Partial elasticity in display
+\ProvideDocumentCommand{\pe}{g g g}{%
+\IfNoValueTF{#3}{\frac{\partial\ln{#1}}{\partial\ln{#2}}}%
+{\left.\frac{\partial\ln{#1}}{\partial\ln{#2}}\right\vert_{#3}}}
+
+%% Partial elasticity in text
+\ProvideDocumentCommand{\pex}{g g g}{%
+\IfNoValueTF{#3}{\partial\ln(#1)/\partial\ln(#2)}%
+{\left.\partial\ln(#1)/\partial\ln(#2)\right\vert_{#3}}}
+
+% Statistical commands
+
+\DeclareMathOperator*{\ess}{ess}                    % essential infimum and supremum
+\newcommand{\iid}{\mathbin{\overset{iid}{\sim}}}    % i.i.d. variables
+\newcommand{\as}{\mathbin{\overset{as}{\to}}}       % almost-sure convergence
+
+% Blackboard letters
+
+\def\R{\mathbb{R}}
+\def\N{\mathbb{N}}
+\def\Z{\mathbb{Z}}
+\def\Q{\mathbb{Q}}
+\def\C{\mathbb{C}}
+\def\I{\mathbb{I}}
+
+% Calligraphic letters
+
+\def\Ac{\mathcal{A}}
+\def\Bc{\mathcal{B}}
+\def\Cc{\mathcal{C}}
+\def\Dc{\mathcal{D}}
+\def\Ec{\mathcal{E}}
+\def\Fc{\mathcal{F}}
+\def\Gc{\mathcal{G}}
+\def\Hc{\mathcal{H}}
+\def\Ic{\mathcal{I}}
+\def\Jc{\mathcal{J}}
+\def\Kc{\mathcal{K}}
+\def\Lc{\mathcal{L}}
+\def\Mc{\mathcal{M}}
+\def\Nc{\mathcal{N}}
+\def\Oc{\mathcal{O}}
+\def\Pc{\mathcal{P}}
+\def\Qc{\mathcal{Q}}
+\def\Rc{\mathcal{R}}
+\def\Sc{\mathcal{S}}
+\def\Tc{\mathcal{T}}
+\def\Uc{\mathcal{U}}
+\def\Vc{\mathcal{V}}
+\def\Wc{\mathcal{W}}
+\def\Xc{\mathcal{X}}
+\def\Yc{\mathcal{Y}}
+\def\Zc{\mathcal{Z}}
+
+%------------------------------------------------------------------------------%
+
+% ENVIRONMENTS
+
+\newtheoremstyle{lgcplain}
+  {0.5\baselineskip}    % Space above
+  {0.5\baselineskip}    % Space below
+  {\itshape}            % Body font
+  {}                    % Indent amount
+  {\scshape}            % Theorem head font
+  {.}                   % Punctuation after theorem head
+  {0.5em}               % Space after theorem head
+  {}                    % Theorem head spec
+
+\newtheoremstyle{lgcdefinition}
+  {0.5\baselineskip}    % Space above
+  {0.5\baselineskip}    % Space below
+  {\normalfont}         % Body font
+  {}                    % Indent amount
+  {\bfseries}           % Theorem head font
+  {.}                   % Punctuation after theorem head
+  {0.5em}               % Space after theorem head
+  {}                    % Theorem head spec
+
+\theoremstyle{lgcplain}
+\@ifundefined{theorem}{\newtheorem{theorem}{Theorem}}{}
+\@ifundefined{prop}{\newtheorem{prop}{Proposition}}{}
+\@ifundefined{prop*}{\newtheorem*{prop*}{Proposition}}{}
+\@ifundefined{corollary}{\newtheorem{corollary}{Corollary}}{}
+\@ifundefined{lemma}{\newtheorem{lemma}{Lemma}}{}
+
+\theoremstyle{lgcdefinition}
+\@ifundefined{definition}{\newtheorem{definition}{Definition}}{}
+\@ifundefined{assumption}{\newtheorem{assumption}{Assumption}}{}
+\@ifundefined{example}{\newtheorem{example}{Example}}{}
+\@ifundefined{remark}{\newtheorem{remark}{Remark}}{}
+
+% Explicit names for hyperref's \autoref command.
+\providecommand{\theoremautorefname}{Theorem}
+\providecommand{\propautorefname}{Proposition}
+\providecommand{\corollaryautorefname}{Corollary}
+\providecommand{\lemmaautorefname}{Lemma}
+\providecommand{\definitionautorefname}{Definition}
+\providecommand{\assumptionautorefname}{Assumption}
+\providecommand{\exampleautorefname}{Example}
+\providecommand{\remarkautorefname}{Remark}
