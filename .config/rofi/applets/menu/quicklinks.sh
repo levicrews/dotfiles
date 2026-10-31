@@ -58,10 +58,10 @@ case $chosen in
         $app https://github.com/levicrews &
         ;;
     $twitter)
-        $app https://twitter.com/LeviGCrews/likes &
+        $app https://x.com/i/history/likes &
         ;;
     $asana)
-        $app https://app.asana.com/0/home/1202371903456271 &
+        $app https://app.asana.com/1/948305682108083/profile/1219914698778986 &
         ;;
     $website)
         $app https://www.levicrews.com/ &
