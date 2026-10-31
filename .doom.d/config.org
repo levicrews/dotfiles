@@ -99,6 +99,10 @@ Org mode.
   `(org-ellipsis :foreground ,(doom-lighten 'fg-1 0.2)))
 #+end_src
 
+** TODO install [[https://github.com/bitorhugo/metropolis-light-theme][metropolis-light-theme]]
+
+** TODO add [[id:c4791111-63f1-446a-944a-22070897f4f6][Nicolas Rougier]]'s [[https://gist.github.com/rougier/c75dcc1365d15a327260051086d68309][make-box.el]]
+
 * editor
 ** frame size
 
@@ -309,7 +313,6 @@ then change template to include: ~:head "#+TITLE: ${title}\nTime-stamp: <>\n"~
 
 (add-hook 'org-capture-before-finalize-hook 'add-property-with-date-captured)
 #+end_src
-
 ** set TODO keywords
 
 - ideally each would be only four letters (hence KILL for CANCELLED)
@@ -433,9 +436,48 @@ filters into a [[https://orgmode.org/manual/Block-agenda.html][block agenda]].
     (append (file-expand-wildcards "~/Dropbox/org/p-*")
             (file-expand-wildcards "~/Dropbox/org/roam/projects/*")))
 #+end_src
+*** calendar(s)
+**** DONE install [[https://github.com/vshender/emacs-life-calendar][emacs-life-calendar]]
+CLOSED: [2026-10-02 Fri 10:54]
+
+#+begin_src elisp
+;; Your birthday (set automatically on first use, or set manually).
+(setq life-calendar-birthday "1996-02-08")
+
+;; Your chapters
+(setq life-calendar-chapters
+   '(("2013-08-20" . "start as Duke undergraduate")
+     ("2017-05-14" . "graduate from Duke BS/BA econ-math")
+     ("2017-06-18" . "wedding")
+     ("2017-09-25" . "start as UChicago PhD student")
+     ("2023-06-03" . "graduate from UChicago PhD econ")
+     ("2023-08-30" . "start as Princeton IES postdoctoral fellow")
+     ("2024-09-16" . "start as UCLA assistant professor")))
+
+;; Number of years to display (default: 90).
+(setq life-calendar-years 90)
+
+;; When to count a new week (default: 'birthday).
+;; 'birthday = day of week you were born (each week starts on that day)
+;; Or use a day symbol: 'sunday, 'monday, 'tuesday, etc.
+(setq life-calendar-week-start-day 'sunday)
+
+;; Number of columns to display (default: nil).
+;; nil = auto-fit as many columns as the window allows
+;; Or set to a specific number for fixed columns.
+(setq life-calendar-columns nil)   ; auto-fit to window
+
+;; Characters for different week states.
+(setq life-calendar-past-char "●")
+(setq life-calendar-current-char "●")
+(setq life-calendar-future-char "○")
+(setq life-calendar-chapter-char "★")
+#+end_src
+
 *** notes + TODOs
 **** TODO find more UI examples (e.g. NANO agenda)
 - [[https://systemcrafters.net/org-mode-productivity/custom-org-agenda-views/][System Crafters tips]]
+**** TODO consider [[https://randyridenour.net/posts/2025-10-05-simple-emacs-dashboard.html][custom emacs dashboard w/ agenda]]
 **** DONE fix filename spacing for better column alignment
 CLOSED: [2025-08-29 Fri 20:09]
 - [[https://emacs.stackexchange.com/questions/17831/org-agenda-view-how-to-turn-of-visibility-of-category-filename][StackExchange]]
@@ -451,7 +493,7 @@ CLOSED: [2025-08-29 Fri 20:09]
 **** TODO replace default habits viz w/ sparklines from [[https://github.com/wakatara/harsh][harsh]]
 **** TODO add [[https://melpa.org/#/org-clock-agenda-daytime-mode][org-clock-agenda-daytime-mode]]
 **** TODO calendar enhancements
-***** Nic Rougier's NANO Emacs agenda + calendar
+***** [[id:c4791111-63f1-446a-944a-22070897f4f6][Nic Rougier]]'s NANO Emacs agenda + calendar
 - reddit: [[https://www.reddit.com/media?url=https%3A%2F%2Fi.redd.it%2F489n6g4104cb1.png][early mock-up]]
 - SE: [[https://emacs.stackexchange.com/questions/58634/color-calendar-day-according-to-number-of-event-in-org-agenda/58647#58647][early attempt]]
 - early [[https://github.com/rougier/calendar-heatmap][heatmap]]
@@ -461,6 +503,7 @@ CLOSED: [2025-08-29 Fri 20:09]
 - updated Python agenda [[https://gist.github.com/rougier/d559fbd766da14540e8eb47435a5782d][gist]]
 - Sachua Chua [[https://sachachua.com/blog/2023/01/display-a-calendar-heat-map-using-emacs-lisp/][visualizes]] different types of events
 - NANO agenda [[https://github.com/rougier/nano-agenda/tree/rewrite][rewrite]] ([[https://www.reddit.com/media?url=https%3A%2F%2Fi.redd.it%2Fnano-agenda-rewrite-wip-v0-dqxx467z8h9c1.png%3Fs%3Dcc0219b94c5f88425f9e8facd3aed5ae8e864577][mockup]])
+- [[https://github.com/rougier/agenda][plain text agenda]]
 ***** [[https://github.com/Elilif/org-heatmap][org-heatmap]]: like GitHub contributions, but for Org data
 ***** [[https://github.com/kiwanami/emacs-calfw][calfw]]: a calendar framework for Emacs
 - [[https://github.com/ml729/calfw-blocks][calfw-blocks]] :: add visual time blocks
@@ -480,6 +523,9 @@ Probably rendered obsolete by mobile beorg and my duplication of appointments in
 should work, but you need to register an application with the Google Developer Console for OAuth2 authentication because Google explicitly forbids to put client id/secrets into open source software
 ****** SPEC Lafon: [[https://200ok.ch/posts/2022-02-13_integrating_org_mode_agenda_into_other_calendar_apps.html][Integrating Org mode Agenda into other calendar apps]]
 **** TODO [[https://www.reddit.com/r/emacs/comments/1jykk5c/how_i_added_calculation_of_total_effort_time_per/][calculate effort time per day]]
+**** TODO install [[https://github.com/colonelpanic8/org-window-habit][org-window-habit]]
+**** TODO install [[https://github.com/ml729/org-habit-stats][org-habit-stats]] + [[https://github.com/connormclaud/emacs_org_roam_calendar][org-roam-calendar]]
+**** TODO install [[https://github.com/protesilaos/institution-calendar][institution calendar]]
 ** ~org-noter~ + ~org-pdftools~
 
 The packages [[https://github.com/weirdNox/org-noter][org-noter]] and [[https://github.com/fuxialexander/org-pdftools][org-pdftools]] have elsewhere been loaded
@@ -843,6 +889,29 @@ OR use this custom function to omit by tag
 #+end_src
 
 **** TODO custom function to refile headline from =writing-inbox= to file
+**** TODO [[https://www.cyan.sh/blog/posts/org-roam-orphans.html][find orphan notes]]
+
+#+begin_src elisp :tangle no
+(defun org-roam-find-orphan ()
+  "Find all orphaned nodes and then provide their paths to open with completing-read."
+  (interactive)
+  (let* ((org-roam--db (sqlite-open org-roam-db-location))
+       (org-roam-orphans
+        (sqlite-select
+         org-roam--db
+         "select * from nodes n
+where not exists ( select null from links l where n.id = l.source )
+and not exists ( select null from links l where n.id = l.dest );")))
+    (sqlite-close org-roam--db)
+    (find-file
+     (completing-read
+      "Orphan node: "
+      (mapcar
+       (lambda (rec)
+       (string-replace "\"" "" (cadr rec)))
+       org-roam-orphans)))))
+#+end_src
+
 **** TODO restore v1 directory-based tagging? (h/t [[https://oleksii.shmalko.com/migrating-to-org-roam-v2/][Shmalko]])
 #+begin_src elisp :tangle no
 (cl-defmethod org-roam-node-filetitle ((node org-roam-node))
@@ -884,10 +953,13 @@ OR use this custom function to omit by tag
 - [[https://maggieappleton.com/epistemic-disclosure]], points to Scott Alexander (Slate Star Codex) and [[file:roam/refs/gwern_net.org][Gwern.net]]
 - Devon Zuegel does this, too
 - is this different from Maggie's metadata on stage of development? Can something simultaneously be "done" and "crackpot" in my system?
+**** TODO default to ~stub~ tag?
+- note is a ~stub~ by default until that tag is removed
 **** TODO set up [[https://www.orgroam.com/manual.html#org_002droam_002dprotocol-1][org-roam-protocol]]
 **** TODO set up [[https://github.com/org-roam/org-roam-ui][org-roam-ui]]
 - see also [[https://github.com/aatmunbaxi/orgroamtools][orgroamtools]] (Python)
 - publish the network with [[https://github.com/ikoamu/publish-org-roam-ui][publish-org-roam-ui]]
+**** TODO install [[https://github.com/dmgerman/org-roam-gt][org-roam-gt]]?
 *** org-roam-bibtex config
 
 #+begin_src elisp
@@ -980,6 +1052,8 @@ consists of three interactive steps:
 The package [[https://www.leonrische.me/fc/index.html][org-fc]] is a [[id:564ef8f9-51a5-4d25-95fa-e05baef240e7][spaced repetition]] system for Org mode.
 
 An alternative is [[https://orgmode.org/worg/org-contrib/org-drill.html][org-drill]], but it is not actively maintained.
+
+There's also [[https://github.com/bohonghuang/org-srs][org-srs]], [[https://github.com/Duncan-Britt/srs.el][srs.el]], ...
 
 *** DONE Reddit: [[https://www.reddit.com/r/emacs/comments/achxvh/any_org_drill_srs_users_here/ed8e6dh/][Any Org Drill (SRS) users here?]]
 CLOSED: [2020-11-10 Tue 07:18]

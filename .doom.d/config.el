@@ -208,6 +208,38 @@ _q_: quit this menu                         _r_: restart emacs
     (append (file-expand-wildcards "~/Dropbox/org/p-*")
             (file-expand-wildcards "~/Dropbox/org/roam/projects/*")))
 
+;; Your birthday (set automatically on first use, or set manually).
+(setq life-calendar-birthday "1996-02-08")
+
+;; Your chapters
+(setq life-calendar-chapters
+   '(("2013-08-20" . "start as Duke undergraduate")
+     ("2017-05-14" . "graduate from Duke BS/BA econ-math")
+     ("2017-06-18" . "wedding")
+     ("2017-09-25" . "start as UChicago PhD student")
+     ("2023-06-03" . "graduate from UChicago PhD econ")
+     ("2023-08-30" . "start as Princeton IES postdoctoral fellow")
+     ("2024-09-16" . "start as UCLA assistant professor")))
+
+;; Number of years to display (default: 90).
+(setq life-calendar-years 90)
+
+;; When to count a new week (default: 'birthday).
+;; 'birthday = day of week you were born (each week starts on that day)
+;; Or use a day symbol: 'sunday, 'monday, 'tuesday, etc.
+(setq life-calendar-week-start-day 'sunday)
+
+;; Number of columns to display (default: nil).
+;; nil = auto-fit as many columns as the window allows
+;; Or set to a specific number for fixed columns.
+(setq life-calendar-columns nil)   ; auto-fit to window
+
+;; Characters for different week states.
+(setq life-calendar-past-char "●")
+(setq life-calendar-current-char "●")
+(setq life-calendar-future-char "○")
+(setq life-calendar-chapter-char "★")
+
 ;; Set preferred highlight color for PDF annotations
 (after! pdf-tools
   (setq pdf-annot-default-markup-annotation-properties '((color . "orange"))))

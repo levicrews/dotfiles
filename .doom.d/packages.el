@@ -60,3 +60,4 @@
 (package! org-roam-bibtex :recipe (:host github :repo "org-roam/org-roam-bibtex"))
 (package! insert-esv)
 (package! time-zones :recipe (:host github :repo "xenodium/time-zones"))
+(package! life-calendar)
