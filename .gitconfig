@@ -8,6 +8,7 @@
 	smudge = git-lfs smudge -- %f
 [core]
 	pager = delta
+	editor = code --wait
 [delta]
 	side-by-side = true
 	navigate = true
