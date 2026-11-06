@@ -1,15 +1,6 @@
 // Place your key bindings in this file to override the defaults
 [
     {
-        "key": "ctrl+5",
-        "command": "editor.action.insertSnippet",
-        "when": "editorTextFocus",
-        "args": {
-            "langId": "latex",
-            "name": "barrier"
-        }
-    },
-    {
         "key": "ctrl+` ctrl+h",
         "command": "terminalHere.create",
     },

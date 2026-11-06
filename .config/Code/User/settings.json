@@ -9,6 +9,13 @@
     "window.restoreWindows": "none",
     "window.titleBarStyle": "custom",
     "window.menuBarVisibility": "hidden",
+    "vsicons.dontShowNewVersionMessage": true,
+    "workbench.editorAssociations": {
+        "*.copilotmd": "vscode.markdown.preview.editor",
+        "file:/**/*.csv": "jupyter-data-wrangler"
+    },
+    "security.workspace.trust.untrustedFiles": "open",
+    "workbench.editor.tabActionCloseVisibility": false,
 
     // Editor
     "editor.rulers": [80],
@@ -20,6 +27,9 @@
     "editor.multiCursorModifier": "ctrlCmd",
     "editor.formatOnPaste": true,
     "editor.bracketPairColorization.enabled": true,
+    "editor.unicodeHighlight.ambiguousCharacters": false,
+    "editor.inlineSuggest.enabled": true,
+    "editor.renderWhitespace": "all",
 
     // Diff Editor
     "diffEditor.ignoreTrimWhitespace": true,
@@ -34,6 +44,8 @@
     // Files
     "files.trimFinalNewlines": true,
     "files.trimTrailingWhitespace": true,
+    "explorer.confirmDragAndDrop": false,
+    "explorer.confirmDelete": false,
 
     // LaTeX
     "latex-workshop.latex.autoBuild.run": "never",
@@ -116,6 +128,7 @@
         }
     ],
     "latex-workshop.latex.recipe.default": "lastUsed",
+    "latex-utilities.message.update.show": false,
 
     // Python
     "python.languageServer": "Pylance",
@@ -127,6 +140,7 @@
 
     // Matlab
     "matlab.mlintpath": "/usr/local/MATLAB/R2025b/bin/glnxa64/mlint",
+    "MATLAB.showFeatureNotAvailableError": false,
 
     // Julia
     "julia.execution.resultType": "inline",
@@ -140,28 +154,28 @@
     "markdown-pdf.displayHeaderFooter": true,
     "markdown-pdf.headerTemplate": "<div style=\"font-size: 9px; margin-left: auto; margin-right: 1cm; \"> <span class='date'></span></div>",
     "markdown-pdf.footerTemplate": "<div style=\"font-size: 9px; margin: 0 auto;\"> <span class='pageNumber'></span> / <span class='totalPages'></span></div>",
+    "[markdown]": {
+        "editor.defaultFormatter": "yzhang.markdown-all-in-one"
+    },
 
     // Project Manager
     "projectManager.git.baseFolders": [
         "$home/Documents"
     ],
-    "explorer.confirmDragAndDrop": false,
+
+    // Jupyter
     "jupyter.askForKernelRestart": false,
-    "explorer.confirmDelete": false,
-    "git.confirmSync": false,
-    "vsicons.dontShowNewVersionMessage": true,
-    "workbench.editorAssociations": {
-        "*.copilotmd": "vscode.markdown.preview.editor",
-        "file:/**/*.csv": "jupyter-data-wrangler"
-    },
-    "security.workspace.trust.untrustedFiles": "open",
-    "git.ignoreLegacyWarning": true,
-    "editor.unicodeHighlight.ambiguousCharacters": false,
-    "redhat.telemetry.enabled": false,
-    "latex-utilities.message.update.show": false,
-    "git.openRepositoryInParentFolders": "always",
     "jupyter.interactiveWindow.creationMode": "perFile",
-    "editor.inlineSuggest.enabled": true,
+
+    // Git and GitHub
+    "git.confirmSync": false,
+    "git.ignoreLegacyWarning": true,
+    "git.openRepositoryInParentFolders": "always",
+    "githubPullRequests.pullBranch": "never",
+    "gitlens.launchpad.indicator.enabled": false,
+    "githubPullRequests.createOnPublishBranch": "never",
+
+    // Copilot and Chat
     "github.copilot.enable": {
         "*": true,
         "plaintext": true,
@@ -170,15 +184,12 @@
         "yaml": false,
         "txt": true
     },
-    "[markdown]": {
-        "editor.defaultFormatter": "yzhang.markdown-all-in-one"
-    },
-    "githubPullRequests.pullBranch": "never",
-    "workbench.editor.tabActionCloseVisibility": false,
-    "gitlens.launchpad.indicator.enabled": false,
-    "makefile.configureOnOpen": true,
     "github.copilot.nextEditSuggestions.fixes": false,
-    "editor.renderWhitespace": "all",
+    "chat.viewSessions.orientation": "stacked",
+    "chat.mcp.gallery.enabled": true,
+
+    // YAML
+    "redhat.telemetry.enabled": false,
     "[dockercompose]": {
         "editor.insertSpaces": true,
         "editor.tabSize": 4,
@@ -193,11 +204,7 @@
     "[github-actions-workflow]": {
         "editor.defaultFormatter": "redhat.vscode-yaml"
     },
-    "gitlens.ai.model": "vscode",
-    "gitlens.ai.vscode.model": "copilot:gpt-4.1",
-    "python-envs.defaultEnvManager": "ms-python.python:system",
-    "chat.viewSessions.orientation": "stacked",
-    "chat.mcp.gallery.enabled": true,
-    "MATLAB.showFeatureNotAvailableError": false,
-    "githubPullRequests.createOnPublishBranch": "never",
+
+    // Makefile
+    "makefile.configureOnOpen": true,
 }
