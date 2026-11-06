@@ -33,7 +33,7 @@ lines() { grep -vE '^\s*(#|$)' "$1" || true; }	# skip comments/blank lines
 apt_installed()   { dpkg-query -W -f='${Status}\n' "$1" 2>/dev/null | grep -q "install ok installed"; }
 snap_installed()  { snap list "$1" >/dev/null 2>&1; }
 npm_installed()   { npm list -g --depth=0 "$1" >/dev/null 2>&1; }
-gem_installed()   { gem list -i "$1" >/dev/null 2>&1 }
+gem_installed()   { gem list -i "$1" >/dev/null 2>&1; }
 cargo_installed() { cargo install --list 2>/dev/null | awk '{print $1}' | grep -xq "$1"; }
 
 # VS Code extension helpers: normalize ID and check installed
