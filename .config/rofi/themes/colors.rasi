@@ -1,0 +1,18 @@
+/* Shared Zenburn palette */
+
+* {
+    background:       #2B2B2B;
+    background-light: #3F3F3F;
+    foreground:       #FFFFEF;
+    selection:        #DFAF8F;
+    red:              #ECB3B3;
+    green:            #9FC59F;
+    yellow:           #F0DFAF;
+    blue:             #94BFF3;
+    purple:           #DC8CC3;
+    cyan:             #93E0E3;
+
+    accent: @green;
+    on:     @blue;
+    off:    @red;
+}

@@ -1,26 +1,20 @@
 #!/usr/bin/env bash
-
-## Author  : Aditya Shakya
-## Mail    : adi1090x@calendar.com
-## Github  : @adi1090x
-## Twitter : @adi1090x
-
 dir="$HOME/.config/rofi/themes"
 rofi_command="rofi -theme $dir/quicklinks.rasi"
 
 # Error msg
 msg() {
-	rofi -theme "$HOME/.config/rofi/themes/message.rasi" -e "$1"
+    rofi -theme "$HOME/.config/rofi/themes/message.rasi" -e "$1"
 }
 
 # Browser
 if [[ -f /usr/bin/google-chrome ]]; then
-	app="google-chrome"
+    app="google-chrome"
 elif [[ -f /usr/bin/firefox ]]; then
-	app="firefox"
+    app="firefox"
 else
-	msg "No suitable web browser found!"
-	exit 1
+    msg "No suitable web browser found!"
+    exit 1
 fi
 
 # Logos: glyphs from https://www.nerdfonts.com/cheat-sheet

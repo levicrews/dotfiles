@@ -1,141 +1,132 @@
-/*
- *
- * Author  : Aditya Shakya
- * Mail    : adi1090x@gmail.com
- * Github  : @adi1090x
- * Twitter : @adi1090x
- *
- */
-
 configuration {
-    lines:							10;
-    columns:						2;
-    font: 							"Cascadia Code PL 12";
-    bw: 							0;
-    location: 						0;
-    padding: 						0;
-    fixed-num-lines: 				true;
-    show-icons: 					true;
-    sidebar-mode: 					true;
-    separator-style: 				"none";
-    hide-scrollbar: 				true;
-    fullscreen: 					false;
-    fake-transparency: 				false;
-    scroll-method: 					1;
-    window-format: 					"[{w}] ··· {c} ···   {t}";
-    click-to-exit: 					true;
-    show-match: 					false;
-    combi-hide-mode-prefix: 		false;
-    display-window: 				"";
-    display-windowcd: 				"";
-    display-run: 					"";
-    display-ssh: 					"";
-    display-drun: 					"";
-    display-combi: 					"";
-    display-filebrowser:            "";
-    file-browser-dir:               "~/Dropbox/crewsbib/pdf";
+    lines:                  10;
+    columns:                2;
+    font:                   "Cascadia Code PL 12";
+    bw:                     0;
+    location:               0;
+    padding:                0;
+    fixed-num-lines:        true;
+    show-icons:             true;
+    sidebar-mode:           true;
+    separator-style:        "none";
+    hide-scrollbar:         true;
+    fullscreen:             false;
+    fake-transparency:      false;
+    scroll-method:          1;
+    window-format:          "[{w}] ··· {c} ···   {t}";
+    click-to-exit:          true;
+    show-match:             false;
+    combi-hide-mode-prefix: false;
+    display-window:         "";
+    display-windowcd:       "";
+    display-run:            "";
+    display-ssh:            "";
+    display-drun:           "";
+    display-combi:          "";
+    display-filebrowser:    "";
+    file-browser-dir:       "~/Dropbox/crewsbib/pdf";
 }
 
-@import "launcher-colors.rasi"
+@import "colors.rasi"
 
 * {
-    background-color:             	@bg;
+    background-color: @background-light;
 }
 
 window {
-    border: 						0px;
-    border-color: 					@ac;
-    border-radius: 					12px;
-    padding: 						40;
-    width: 							50%;
-    height: 						50%;
+    border:        0px;
+    border-color:  @background;
+    border-radius: 12px;
+    padding:       40;
+    width:         50%;
+    height:        50%;
 }
 
 prompt {
-    spacing: 						0;
-    border: 						0;
-    text-color: 					@fg;
+    spacing:    0;
+    border:     0;
+    text-color: @foreground;
 }
 
 textbox-prompt-colon {
-    expand: 						false;
-    str: 							" ";
-    margin:							0px 4px 0px 0px;
-    text-color: 					inherit;
+    expand:     false;
+    str:        " ";
+    margin:     0px 4px 0px 0px;
+    text-color: inherit;
 }
 
 entry {
-    spacing:    					0;
-    text-color: 					@fg;
+    spacing:    0;
+    text-color: @foreground;
 }
 
 case-indicator {
-    spacing:    					0;
-    text-color: 					@fg;
+    spacing:    0;
+    text-color: @foreground;
 }
 
 inputbar {
-    spacing:    					0px;
-    text-color: 					@fg;
-    padding:    					1px;
-    children: 						[ prompt,textbox-prompt-colon,entry,case-indicator ];
+    spacing:    0px;
+    text-color: @foreground;
+    padding:    1px;
+    children:   [ prompt,textbox-prompt-colon,entry,case-indicator ];
 }
 
 mainbox {
-    border: 						0px;
-    border-color: 					@ac;
-    padding: 						6;
+    border:       0px;
+    border-color: @background;
+    padding:      6;
 }
 
 listview {
-    fixed-height: 					0;
-    border: 						0px;
-    border-color: 					@ac;
-    spacing: 						4px;
-    scrollbar: 						false;
-    padding: 						4px 0px 0px;
+    fixed-height: 0;
+    border:       0px;
+    border-color: @background;
+    spacing:      4px;
+    scrollbar:    false;
+    padding:      4px 0px 0px;
 }
 
 
 element {
-    border: 						0px;
-    padding: 						1px;
+    border:  0px;
+    padding: 1px;
 }
 element normal.normal {
-    background-color: 				@bg;
-    text-color:       				@fg;
+    background-color: @background-light;
+    text-color:       @foreground;
 }
 element normal.urgent {
-    background-color: 				@bg;
-    text-color:       				@red;
+    background-color: @background-light;
+    text-color:       @red;
 }
 element normal.active {
-    background-color: 				@bg;
-    text-color:       				@green;
+    background-color: @background-light;
+    text-color:       @green;
 }
 element selected.normal {
-    background-color: 				@bg;
-    text-color:       				@se;
+    background-color: @background-light;
+    text-color:       @selection;
 }
 element selected.urgent {
-    background-color: 				@bg;
-    text-color:       				@red;
+    background-color: @background-light;
+    text-color:       @red;
 }
 element selected.active {
-    background-color: 				@bg;
-    text-color:       				@se;
+    background-color: @background-light;
+    text-color:       @selection;
 }
 element alternate.normal {
-    background-color: 				@bg;
-    text-color:       				@fg;
+    background-color: @background-light;
+    text-color:       @foreground;
 }
 element alternate.urgent {
-    background-color: 				@bg;
-    text-color:       				@fg;
+    background-color: @background-light;
+    text-color:       @foreground;
 }
 element alternate.active {
-    background-color: 				@bg;
-    text-color:       				@fg;
+    background-color: @background-light;
+    text-color:       @foreground;
 }
 
 // https://github.com/davatorium/rofi/issues/1395#issuecomment-908625609
@@ -148,41 +139,41 @@ element-icon {
 }
 
 sidebar {
-    border:       					0px;
-    border-color: 					@ac;
-    border-radius: 					20px;
+    border:        0px;
+    border-color:  @background;
+    border-radius: 20px;
 }
 
 button {
-    margin: 						5px;
-    padding: 						5px;
-    text-color: 					@fg;
-    border: 						0px;
-    border-radius: 					20px;
-    border-color: 					@fg;
+    margin:        5px;
+    padding:       5px;
+    text-color:    @foreground;
+    border:        0px;
+    border-radius: 20px;
+    border-color:  @foreground;
 }
 
 button selected {
-    text-color: 					@fg;
-    border: 						3px;
-    border-radius: 					20px;
-    border-color: 					@se;
+    text-color:    @foreground;
+    border:        3px;
+    border-radius: 20px;
+    border-color:  @selection;
 }
 
 scrollbar {
-    width:        					4px;
-    border:       					0px;
-    handle-color: 					@fg;
-    handle-width: 					8px;
-    padding:      					0;
+    width:        4px;
+    border:       0px;
+    handle-color: @foreground;
+    handle-width: 8px;
+    padding:      0;
 }
 
 message {
-    border: 						0px;
-    border-color: 					@ac;
-    padding: 						1px;
+    border:       0px;
+    border-color: @background;
+    padding:      1px;
 }
 
 textbox {
-    text-color: 					@fg;
+    text-color: @foreground;
 }

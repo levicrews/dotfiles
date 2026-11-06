@@ -1,6 +1,18 @@
 /** Basic config file **/
 
 configuration {
-  show-icons:         true;
-  icon-theme:         "Tela";
+    show-icons: true;
+    icon-theme: "Tela";
+}
+
+@import "themes/colors.rasi"
+
+* {
+    background-color: @background;
+    text-color:       @foreground;
+}
+
+element selected {
+    background-color: @accent;
+    text-color:       @background;
 }

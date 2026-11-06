@@ -1,5 +1,4 @@
 #!/bin/bash
-
 configs=("$HOME/.config/sxhkd/sxhkdrc")
 [[ ! -f "$HOME/.config/sxhkd/sxhkdrc.common" ]] || configs+=("$HOME/.config/sxhkd/sxhkdrc.common")
 
