@@ -1,0 +1,13 @@
+{
+  "name": "Metromuted sequential — warm to deep violet",
+  "background": "#FAFAFA",
+  "direction": "low to high",
+  "colors": [
+    {"name": "Yellow", "hex": "#E9A508"},
+    {"name": "Green", "hex": "#56A841"},
+    {"name": "Teal green", "hex": "#15866F"},
+    {"name": "Blue teal", "hex": "#2C6671"},
+    {"name": "Slate indigo", "hex": "#3F4274"},
+    {"name": "Deep violet", "hex": "#5B176C"}
+  ]
+}

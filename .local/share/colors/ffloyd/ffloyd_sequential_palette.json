@@ -1,0 +1,73 @@
+{
+  "name": "Warm cream sequential \u2014 gold to green to deep blue",
+  "background": "#EDE8D9",
+  "direction": "low to high",
+  "colors": [
+    {
+      "name": "Pale gold",
+      "hex": "#EBD495",
+      "oklch": [
+        0.8745,
+        0.085,
+        90.0
+      ]
+    },
+    {
+      "name": "Citron",
+      "hex": "#C2C16F",
+      "oklch": [
+        0.7945,
+        0.105,
+        108.0
+      ]
+    },
+    {
+      "name": "Leaf",
+      "hex": "#86B26E",
+      "oklch": [
+        0.7145,
+        0.105,
+        135.0
+      ]
+    },
+    {
+      "name": "Jade",
+      "hex": "#3E9F77",
+      "oklch": [
+        0.6345,
+        0.11,
+        163.0
+      ]
+    },
+    {
+      "name": "Teal",
+      "hex": "#1C847C",
+      "oklch": [
+        0.5545,
+        0.09,
+        187.0
+      ]
+    },
+    {
+      "name": "Ocean",
+      "hex": "#0F6779",
+      "oklch": [
+        0.4745,
+        0.08,
+        216.0
+      ]
+    },
+    {
+      "name": "Deep blue",
+      "hex": "#164C67",
+      "oklch": [
+        0.3945,
+        0.071,
+        234.5
+      ]
+    }
+  ],
+  "interpolation": "Piecewise linear OKLCH; reduce chroma if outside sRGB gamut",
+  "validation": "Relative luminance strictly decreases in all seven rounded sRGB colors and 512 gradient samples",
+  "note": "Proposed companion palette; original site heading color at the dark endpoint."
+}

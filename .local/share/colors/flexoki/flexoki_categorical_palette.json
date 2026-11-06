@@ -1,0 +1,16 @@
+{
+  "name": "Flexoki categorical",
+  "background": "#FFFCF0",
+  "source": "https://github.com/kepano/flexoki",
+  "colors": [
+    {"name": "Red 600", "hex": "#AF3029"},
+    {"name": "Orange 600", "hex": "#BC5215"},
+    {"name": "Yellow 600", "hex": "#AD8301"},
+    {"name": "Green 600", "hex": "#66800B"},
+    {"name": "Cyan 600", "hex": "#24837B"},
+    {"name": "Blue 600", "hex": "#205EA6"},
+    {"name": "Purple 600", "hex": "#5E409D"},
+    {"name": "Magenta 600", "hex": "#A02F6F"}
+  ],
+  "note": "Uses the official Flexoki 600 accent values for categorical marks."
+}

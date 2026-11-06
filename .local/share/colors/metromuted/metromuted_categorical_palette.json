@@ -1,0 +1,12 @@
+{
+  "name": "Metromuted categorical",
+  "background": "#FAFAFA",
+  "colors": [
+    {"name": "Red", "hex": "#B71E2E"},
+    {"name": "Orange", "hex": "#E68B28"},
+    {"name": "Yellow", "hex": "#E9A508"},
+    {"name": "Blue", "hex": "#4B8EC2"},
+    {"name": "Navy", "hex": "#14364C"},
+    {"name": "Teal", "hex": "#227763"}
+  ]
+}

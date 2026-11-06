@@ -1,0 +1,10 @@
+* Metromuted colour system; hex values omit the leading # for Stata.
+global metromuted_background "FAFAFA"
+global metromuted_white "FFFFFF"
+global metromuted_off_white "F8F8F5"
+global metromuted_light_gray "E4E7E8"
+global metromuted_mid_gray "737B7E"
+global metromuted_dark_gray "263238"
+global metromuted_categorical "B71E2E E68B28 E9A508 4B8EC2 14364C 227763"
+global metromuted_sequential "E9A508 56A841 15866F 2C6671 3F4274 5B176C"
+global metromuted_diverging "C7352C EA8F2F FCD35E A4D6E9 278EE8 2A36A0"

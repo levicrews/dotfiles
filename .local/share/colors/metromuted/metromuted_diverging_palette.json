@@ -1,0 +1,15 @@
+{
+  "name": "Metromuted diverging — red-orange to cyan-blue",
+  "background": "#FAFAFA",
+  "direction": "below reference to above reference",
+  "center_index": 2,
+  "colors": [
+    {"name": "Red", "hex": "#C7352C", "position": -3},
+    {"name": "Orange", "hex": "#EA8F2F", "position": -2},
+    {"name": "Yellow", "hex": "#FCD35E", "position": -1},
+    {"name": "Pale cyan", "hex": "#A4D6E9", "position": 1},
+    {"name": "Blue", "hex": "#278EE8", "position": 2},
+    {"name": "Indigo", "hex": "#2A36A0", "position": 3}
+  ],
+  "note": "The midpoint is between the two pale near-reference colors; use only for a meaningful signed quantity."
+}

@@ -1,0 +1,19 @@
+{
+  "name": "Flexoki diverging — red-orange to blue",
+  "background": "#FFFCF0",
+  "source": "https://github.com/kepano/flexoki",
+  "direction": "below reference to above reference",
+  "center_index": 4,
+  "colors": [
+    {"name": "Red 700", "hex": "#942822", "position": -4},
+    {"name": "Red 500", "hex": "#C03E35", "position": -3},
+    {"name": "Orange 400", "hex": "#DA702C", "position": -2},
+    {"name": "Orange 200", "hex": "#F9AE77", "position": -1},
+    {"name": "Base 100", "hex": "#E6E4D9", "position": 0},
+    {"name": "Blue 200", "hex": "#92BFDB", "position": 1},
+    {"name": "Blue 400", "hex": "#4385BE", "position": 2},
+    {"name": "Blue 500", "hex": "#3171B2", "position": 3},
+    {"name": "Blue 800", "hex": "#163B66", "position": 4}
+  ],
+  "note": "The center is a light Flexoki base neutral, not missing data."
+}

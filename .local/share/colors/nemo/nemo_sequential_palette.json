@@ -1,0 +1,15 @@
+{
+  "name": "Nemo sequential — yellow to deep blue",
+  "background": "#FBFAF7",
+  "direction": "low to high",
+  "colors": [
+    {"name": "Yellow", "hex": "#FAC764", "source": true},
+    {"name": "Green blend", "hex": "#9EAD56", "source": false},
+    {"name": "Teal-green blend", "hex": "#619165", "source": false},
+    {"name": "Teal blend", "hex": "#3E757A", "source": false},
+    {"name": "Blue slate", "hex": "#335677", "source": false},
+    {"name": "Deep slate", "hex": "#1F3E56", "source": false},
+    {"name": "Dark blue", "hex": "#112A3C", "source": true}
+  ],
+  "interpolation": "Equal-distance resampling in OKLab along the Nemo yellow, green, teal, and blue anchors; the discrete palette is validated for descending lightness."
+}

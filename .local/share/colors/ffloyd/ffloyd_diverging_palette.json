@@ -1,0 +1,101 @@
+{
+  "name": "Warm cream diverging \u2014 terracotta to cream to teal-blue",
+  "background": "#EDE8D9",
+  "direction": "below reference to above reference",
+  "center_index": 4,
+  "colors": [
+    {
+      "name": "Oxide",
+      "hex": "#6E3223",
+      "oklch": [
+        0.3945,
+        0.09,
+        35.0
+      ],
+      "position": -4
+    },
+    {
+      "name": "Rust",
+      "hex": "#A94C2E",
+      "oklch": [
+        0.53,
+        0.13,
+        38.0
+      ],
+      "position": -3
+    },
+    {
+      "name": "Clay",
+      "hex": "#CD7F51",
+      "oklch": [
+        0.67,
+        0.115,
+        50.0
+      ],
+      "position": -2
+    },
+    {
+      "name": "Sand",
+      "hex": "#DDBC95",
+      "oklch": [
+        0.815,
+        0.065,
+        72.0
+      ],
+      "position": -1
+    },
+    {
+      "name": "Cream",
+      "hex": "#F4F0E4",
+      "oklch": [
+        0.955,
+        0.016,
+        90.0
+      ],
+      "position": 0
+    },
+    {
+      "name": "Mist",
+      "hex": "#A6CBC7",
+      "oklch": [
+        0.815,
+        0.04,
+        188.0
+      ],
+      "position": 1
+    },
+    {
+      "name": "Seafoam",
+      "hex": "#5EA2A8",
+      "oklch": [
+        0.67,
+        0.07,
+        202.0
+      ],
+      "position": 2
+    },
+    {
+      "name": "Teal",
+      "hex": "#21778D",
+      "oklch": [
+        0.53,
+        0.085,
+        219.0
+      ],
+      "position": 3
+    },
+    {
+      "name": "Deep blue",
+      "hex": "#164C67",
+      "oklch": [
+        0.3945,
+        0.071,
+        234.5
+      ],
+      "position": 4
+    }
+  ],
+  "interpolation": "Piecewise linear OKLab; reduce chroma if outside sRGB gamut",
+  "validation": "Mirrored OKLCH lightness; relative luminance increases strictly toward the midpoint from either end in nine rounded sRGB colors and 513 gradient samples",
+  "note": "Proposed companion palette, with the original deep blue endpoint. Center represents the reference, not missing data."
+}

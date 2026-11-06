@@ -1,0 +1,15 @@
+{
+  "name": "Nemo categorical",
+  "background": "#FBFAF7",
+  "colors": [
+    {"name": "Glaucous blue", "hex": "#6182B5", "source": true},
+    {"name": "Red", "hex": "#AF3127", "source": true},
+    {"name": "Green", "hex": "#90A954", "source": true},
+    {"name": "Orange", "hex": "#D99C37", "source": true},
+    {"name": "Dark blue", "hex": "#112A3C", "source": true},
+    {"name": "Teal", "hex": "#3E7C73", "source": false},
+    {"name": "Violet", "hex": "#756889", "source": false},
+    {"name": "Pale green", "hex": "#C5B868", "source": true}
+  ],
+  "note": "Use the dark-blue, teal, violet, blue, and red swatches for small marks or text. Orange, green, and pale green are strongest as fills with dark labels."
+}

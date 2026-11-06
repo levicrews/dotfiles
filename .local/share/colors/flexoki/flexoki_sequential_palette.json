@@ -1,0 +1,16 @@
+{
+  "name": "Flexoki sequential — warm yellow to deep blue",
+  "background": "#FFFCF0",
+  "source": "https://github.com/kepano/flexoki",
+  "direction": "low to high",
+  "colors": [
+    {"name": "Yellow 100 endpoint", "hex": "#F6E2A0"},
+    {"name": "Olive green blend", "hex": "#B6BA62"},
+    {"name": "Green blend", "hex": "#7F993D"},
+    {"name": "Teal green blend", "hex": "#408B65"},
+    {"name": "Cyan-blue blend", "hex": "#22758B"},
+    {"name": "Blue blend", "hex": "#1E5697"},
+    {"name": "Blue 800 endpoint", "hex": "#163B66"}
+  ],
+  "note": "Equal-distance resampling in OKLab along official Flexoki yellow, green, cyan, and blue anchor colors; intermediate colors are derived rather than copied from the named scale."
+}

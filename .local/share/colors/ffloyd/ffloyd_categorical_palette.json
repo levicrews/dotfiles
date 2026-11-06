@@ -1,0 +1,48 @@
+{
+  "name": "Warm cream categorical \u2014 first proposal",
+  "background": "#EDE8D9",
+  "colors": [
+    {
+      "name": "Golden yellow",
+      "hex": "#CB8A28",
+      "origin": "Original highlight"
+    },
+    {
+      "name": "Jade green",
+      "hex": "#008464",
+      "origin": "Original highlight"
+    },
+    {
+      "name": "Blue",
+      "hex": "#427EAF",
+      "origin": "New companion"
+    },
+    {
+      "name": "Terracotta",
+      "hex": "#C05B43",
+      "origin": "New companion"
+    },
+    {
+      "name": "Violet",
+      "hex": "#7864A0",
+      "origin": "New companion"
+    },
+    {
+      "name": "Rose",
+      "hex": "#B4567C",
+      "origin": "New companion"
+    },
+    {
+      "name": "Olive",
+      "hex": "#788238",
+      "origin": "New companion"
+    },
+    {
+      "name": "Deep blue",
+      "hex": "#164C67",
+      "origin": "Original heading color"
+    }
+  ],
+  "source": "https://ffloyd.space/about",
+  "note": "Companion colors are proposed additions, not extracted site colors."
+}

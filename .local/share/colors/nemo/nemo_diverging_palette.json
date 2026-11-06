@@ -1,0 +1,18 @@
+{
+  "name": "Nemo diverging — red to cream to blue",
+  "background": "#FBFAF7",
+  "direction": "below reference to above reference",
+  "center_index": 4,
+  "colors": [
+    {"name": "Deep red", "hex": "#8D211D", "position": -4},
+    {"name": "Red", "hex": "#AF3127", "position": -3},
+    {"name": "Burnt orange", "hex": "#C86D3C", "position": -2},
+    {"name": "Broken white", "hex": "#DAC0A6", "position": -1},
+    {"name": "Neutral", "hex": "#F4F1EA", "position": 0},
+    {"name": "Broken grey", "hex": "#C4C2D1", "position": 1},
+    {"name": "Blue grey", "hex": "#91A4BE", "position": 2},
+    {"name": "Glaucous blue", "hex": "#6182B5", "position": 3},
+    {"name": "Dark blue", "hex": "#112A3C", "position": 4}
+  ],
+  "note": "Use only for a meaningful midpoint such as zero, a target, or a baseline. The pale center is a reference value, not missing data."
+}
