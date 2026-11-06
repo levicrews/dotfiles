@@ -1,5 +1,4 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
-(remove-hook 'org-mode-hook #'+literate-enable-recompile-h) ;; don't tangle on save
 
 (defadvice! fixed-do-after-load-evaluation (abs-file)
   :override #'do-after-load-evaluation
@@ -504,3 +503,5 @@ _q_: quit this menu                         _r_: restart emacs
 (after! gptel
   (add-to-list 'auth-sources "~/.authinfo.gpg")
   (setq gptel-api-key #'gptel-api-key-from-auth-source))
+
+(remove-hook 'org-mode-hook #'+literate-enable-recompile-h)
