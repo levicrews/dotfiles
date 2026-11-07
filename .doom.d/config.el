@@ -324,9 +324,37 @@ _q_: quit this menu                         _r_: restart emacs
         "C-c ) i" #'org-ref-insert-cite-link))
 
 (after! org-roam
+  (cl-defmethod org-roam-node-context-title ((node org-roam-node))
+    "Return NODE's title, prefixed with its filename for headline nodes."
+    (if (> (org-roam-node-level node) 0)
+        (concat (file-name-nondirectory (org-roam-node-file node))
+                " > " (org-roam-node-title node))
+      (org-roam-node-title node)))
+
+  (defun lgc/org-roam-id-help-echo (window object position)
+    "Show the title of the ID link at POSITION in OBJECT or WINDOW."
+    (let ((buffer (if (bufferp object) object
+                    (and (windowp window) (window-buffer window)))))
+      (when (and (buffer-live-p buffer) (integer-or-marker-p position))
+        (with-current-buffer buffer
+          (save-excursion
+            (goto-char position)
+            (let* ((link (org-element-context))
+                   (id (org-element-property :path link)))
+              (when (and (eq (org-element-type link) 'link)
+                         (equal (org-element-property :type link) "id"))
+                (or (condition-case nil
+                        (when-let ((node (org-roam-node-from-id id)))
+                          (org-roam-node-context-title node))
+                      (error nil))
+                    (concat "id:" id)))))))))
+
+  (org-link-set-parameters "id" :help-echo #'lgc/org-roam-id-help-echo))
+
+(after! org-roam
   (org-roam-db-autosync-mode 1) ;; keep the DB in sync automatically
   (setq org-roam-tag-sources '(prop last-directory) ;; tag if in subdirectory
-        org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+        org-roam-node-display-template (concat "${context-title:*} " (propertize "${tags:10}" 'face 'org-tag)))
 
   ;; ---- Capture templates ----
   (setq org-roam-capture-templates
